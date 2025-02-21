@@ -21,6 +21,8 @@ const products = [
   { title: "Лист фанеры", price: "420 р/л", image: "image8.png" },
 ];
 
+
+// говно говно говно, надо абсолютно все рефакторить, ужас ужас, переделывай
 const Main = () => {
   return (
     <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
