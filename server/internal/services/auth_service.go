@@ -15,21 +15,46 @@ import (
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET")) // Замените на ваш секретный ключ
 
-func LoginWorker(login, password string) (string, error) {
+func LoginWorker(login, password string) (string, string, error) {
 
 	worker, err := repositories.GetWorkerByLogin(login)
+	if err != nil {
+		return "", "", errors.New("неправильный логин или пароль")
+	}
+
+	if err := pkg.CheckPasswordHash(password, worker.Password); err != nil {
+		return "", "", errors.New("неправильный логин или пароль")
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":   worker.ID,
+		"role": worker.Role,
+		"exp":  time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	// Подписываем токен
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", "", err
+	}
+
+	return tokenString, worker.Role, nil
+}
+
+func LoginCustomer(email, password string) (string, error) {
+	customer, err := repositories.GetCustomerByEmail(email)
 	if err != nil {
 		return "", errors.New("неправильный логин или пароль")
 	}
 
-	if err := pkg.CheckPasswordHash(password, worker.Password); err != nil {
+	if err := pkg.CheckPasswordHash(password, customer.Password); err != nil {
 		return "", errors.New("неправильный логин или пароль")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"worker_id": worker.ID,
-		"role":      worker.Role,
-		"exp":       time.Now().Add(time.Hour * 24).Unix(),
+		"id":   customer.ID,
+		"role": "customer",
+		"exp":  time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	// Подписываем токен
@@ -52,11 +77,12 @@ func RegisterCustomer(customerIn *models.Customer) (string, error) {
 	}
 	// customerIn.PaymentCharID = paymentOut.ID
 	customerIn.Password = passw
-	_, err = repositories.CreateCustomer(customerIn)
+	customerOut, err := repositories.CreateCustomer(customerIn)
 	if err != nil {
 		return "", fmt.Errorf("ошибка при создании покупателя: %w", err)
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":   customerOut.ID,
 		"role": "customer",
 		"exp":  time.Now().Add(time.Hour * 24).Unix(),
 	})

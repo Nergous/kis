@@ -113,3 +113,16 @@
 1.7400712688874867e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T20:07:48+03:00"}
 1.7400712689105723e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
 1.7400712792820964e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 200 | Latency: 73.3982ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7401708123673434e+09	info	middleware/logger.go:86	HTTP request: POST    /api/workers              | Status: 500 | Latency: 1.0534ms   | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7401708338328967e+09	info	middleware/logger.go:86	HTTP request: POST    /api/workers              | Status: 201 | Latency: 85.8351ms  | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7401709552916405e+09	info	middleware/logger.go:86	HTTP request: POST    /api/login-worker         | Status: 401 | Latency: 57.254ms   | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7401709822241766e+09	info	middleware/logger.go:86	HTTP request: POST    /api/login-worker         | Status: 401 | Latency: 62.5427ms  | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7401710492170024e+09	info	middleware/logger.go:86	HTTP request: POST    /api/workers              | Status: 500 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.740171066366787e+09	info	middleware/logger.go:86	HTTP request: POST    /api/workers              | Status: 201 | Latency: 62.5518ms  | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7401710835094347e+09	info	middleware/logger.go:86	HTTP request: POST    /api/login-worker         | Status: 400 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.740171103994944e+09	info	middleware/logger.go:86	HTTP request: POST    /api/login-worker         | Status: 200 | Latency: 47.2657ms  | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.740171117230375e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 401 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7401711188262725e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 401 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7401711226988347e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 401 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.740171127518334e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 403 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7401711388070428e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 200 | Latency: 1.1314ms   | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3

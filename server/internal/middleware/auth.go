@@ -54,7 +54,7 @@ func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
 			return
 		}
 
-		workerID := uint(claims["worker_id"].(float64)) // Преобразуем worker_id в uint
+		ID := uint(claims["id"].(float64))
 		role := claims["role"].(string)
 
 		if !slices.Contains(availableRoles, role) {
@@ -63,19 +63,28 @@ func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
 			return
 		}
 
-		// Получаем работника из базы данных
-		worker, err := repositories.GetWorkerByID(workerID)
-		if err != nil {
-			c.JSON(401, gin.H{"error": "Работник не найден"})
-			c.Abort()
+		if role == "customer" {
+			customer, err := repositories.GetCustomerByID(ID)
+			if err != nil {
+				c.JSON(401, gin.H{"error": "Пользователь не найден"})
+				c.Abort()
+				return
+			}
+
+			// Добавляем пользователя в контекст
+			c.Set("customer", customer)
+			c.Next()
 			return
+		} else {
+			worker, err := repositories.GetWorkerByID(ID)
+			if err != nil {
+				c.JSON(401, gin.H{"error": "Работник не найден"})
+				c.Abort()
+				return
+			}
+			c.Set("worker", worker)
+			c.Next()
 		}
-
-		// Проверяем роль (если нужно)
-
-		// Добавляем работника в контекст
-		c.Set("worker", worker)
-		c.Next()
 	}
 }
 

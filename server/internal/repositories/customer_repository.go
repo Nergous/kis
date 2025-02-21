@@ -23,6 +23,15 @@ func GetCustomerByID(id uint) (*models.Customer, error) {
 	return &customer, nil
 }
 
+func GetCustomerByEmail(email string) (*models.Customer, error) {
+	var customer models.Customer
+	result := config.DB.Where("email=?", email).First(&customer)
+	if result.Error != nil {
+		return &models.Customer{}, result.Error
+	}
+	return &customer, nil
+}
+
 func CreateCustomer(customer *models.Customer) (*models.Customer, error) {
 	result := config.DB.Create(customer)
 	return customer, result.Error

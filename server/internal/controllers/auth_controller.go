@@ -22,14 +22,35 @@ func LoginWorker(c *gin.Context) {
 		return
 	}
 
-	token, err := services.LoginWorker(input.Login, input.Password)
+	token, workerRole, err := services.LoginWorker(input.Login, input.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Возвращаем токен
-	c.JSON(http.StatusOK, gin.H{"token": token, "role": "admin"})
+	c.JSON(http.StatusOK, gin.H{"token": token, "role": workerRole})
+}
+
+func LoginCustomer(c *gin.Context) {
+	var input struct {
+		Email    string `json:"email" binding:"required,min=1"`
+		Password string `json:"password" binding:"required,min=1"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	token, err := services.LoginCustomer(input.Email, input.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Возвращаем токен
+	c.JSON(http.StatusOK, gin.H{"token": token, "role": "customer"})
 }
 
 func RegisterCustomer(c *gin.Context) {
