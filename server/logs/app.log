@@ -1,0 +1,115 @@
+1.740055756002338e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T15:49:15+03:00"}
+1.740055756037075e+09	info	project_backend/main.go:19	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.740055758337773e+09	info	middleware/logger.go:79	HTTP request: GET /api/hello | Status: 200 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740056778470725e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T16:06:18+03:00"}
+1.7400567784910443e+09	info	project_backend/main.go:23	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.740056792407745e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T16:06:32+03:00"}
+1.7400567924627118e+09	info	project_backend/main.go:23	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400609885766706e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T17:16:28+03:00"}
+1.7400609885935035e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400610037095845e+09	info	middleware/logger.go:79	HTTP request: GET /api/products | Status: 200 | Latency: 12.4409ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400610113895168e+09	info	middleware/logger.go:79	HTTP request: GET /api/products/1 | Status: 404 | Latency: 526.7µs | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400610464631262e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 201 | Latency: 52.9108ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400611486431577e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 201 | Latency: 30.4812ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400612710655732e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T17:21:11+03:00"}
+1.7400612710961206e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.74006127540581e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 201 | Latency: 31.1136ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400612934994829e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T17:21:33+03:00"}
+1.7400612937284184e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400613058333154e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 201 | Latency: 21.7751ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400621567928994e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T17:35:56+03:00"}
+1.7400621568199651e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400621654057057e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 500 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400621874130445e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 500 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400621912358067e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 500 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400621982615004e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400622013145907e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 500 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400622489682312e+09	info	middleware/logger.go:79	HTTP request: POST /api/products | Status: 201 | Latency: 32.9584ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400623001282315e+09	info	middleware/logger.go:79	HTTP request: PATCH /api/products | Status: 200 | Latency: 35.7586ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400623480477962e+09	info	middleware/logger.go:79	HTTP request: PATCH /api/2/quantity | Status: 404 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740062385350876e+09	info	middleware/logger.go:79	HTTP request: PATCH /api/products/2/quantity | Status: 200 | Latency: 26.6869ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400624019984512e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/2 | Status: 204 | Latency: 9.9935ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740062417582625e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/2 | Status: 204 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400624526348453e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/2 | Status: 204 | Latency: 1.0283ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400624836912508e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/2 | Status: 204 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400625050693493e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/2 | Status: 204 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400625132176983e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T17:41:53+03:00"}
+1.7400625132291067e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400626455841253e+09	info	middleware/logger.go:79	HTTP request: GET /api/products | Status: 200 | Latency: 788.7µs | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400626579324164e+09	info	middleware/logger.go:79	HTTP request: GET /api/products | Status: 200 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400626715545006e+09	info	middleware/logger.go:79	HTTP request: GET /api/products | Status: 200 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740064725571951e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:18:45+03:00"}
+1.7400647255885053e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400648105250924e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:20:10+03:00"}
+1.7400648105354948e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400648487602053e+09	info	middleware/logger.go:79	HTTP request: GET /api/products | Status: 200 | Latency: 520.9µs | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400648735658383e+09	info	middleware/logger.go:79	HTTP request: GET /api/products/2 | Status: 404 | Latency: 524.1µs | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400648915597394e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 401 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400649028965347e+09	info	middleware/logger.go:79	HTTP request: POST /api/login | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400649303946042e+09	info	middleware/logger.go:79	HTTP request: POST /api/login | Status: 401 | Latency: 13.0261ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400649533189852e+09	info	middleware/logger.go:79	HTTP request: POST /api/login | Status: 200 | Latency: 527.5µs | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400650190073462e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 401 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400650217791197e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 401 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400650258704612e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 401 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400650338724685e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 401 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740065045275411e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 401 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400651050439694e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 403 | Latency: 998.8µs | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400651447883685e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 403 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740065146395213e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 403 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400651491592116e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:25:49+03:00"}
+1.7400651491823525e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400651503812997e+09	info	middleware/logger.go:79	HTTP request: DELETE /api/products/3 | Status: 204 | Latency: 30.5719ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400651718634098e+09	info	middleware/logger.go:79	HTTP request: GET /api/products/3 | Status: 404 | Latency: 900.7µs | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400651742469244e+09	info	middleware/logger.go:79	HTTP request: GET /api/products | Status: 200 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400656880356963e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:34:48+03:00"}
+1.7400656880573654e+09	info	project_backend/main.go:20	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400660698741217e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:41:09+03:00"}
+1.7400660698983104e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400660832693913e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:41:23+03:00"}
+1.7400660832919006e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.740066151305831e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:42:31+03:00"}
+1.7400661513271267e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.740066164458833e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:42:44+03:00"}
+1.7400661644822056e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400664519897437e+09	info	middleware/logger.go:79	HTTP request: POST /api/workers | Status: 404 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400664759152534e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:47:55+03:00"}
+1.7400664759390922e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400664783120732e+09	info	middleware/logger.go:79	HTTP request: POST /api/workers | Status: 201 | Latency: 10.5964ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400669472699814e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:55:47+03:00"}
+1.7400669472869334e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400669539779022e+09	info	middleware/logger.go:79	HTTP request: POST /api/workers | Status: 201 | Latency: 66.809ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740067175434498e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T18:59:35+03:00"}
+1.7400671754725916e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.740070610145094e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 404 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400706238406138e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 404 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740070629586689e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T19:57:09+03:00"}
+1.7400706296172879e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400706319910061e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400708845996127e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400708878562894e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T20:01:27+03:00"}
+1.740070887890442e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400708893033063e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400708907631743e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400709935268009e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T20:03:13+03:00"}
+1.740070993563652e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400709960647354e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400710088068595e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400710138126128e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T20:03:33+03:00"}
+1.740071013835265e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400710156431296e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400710688698826e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T20:04:28+03:00"}
+1.7400710689123254e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400710694257925e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740071148923383e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400711804678288e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 400 | Latency: 0s | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740071184611792e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T20:06:24+03:00"}
+1.7400711846397562e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400711868439293e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 401 | Latency: 102.1339ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400711879332418e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 401 | Latency: 63.6496ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400712228790214e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 401 | Latency: 83.9774ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.740071225325083e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T20:07:05+03:00"}
+1.7400712253631291e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400712268721101e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 401 | Latency: 119.2768ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
+1.7400712688874867e+09	info	middleware/logger.go:37	Логгер инициализирован	{"level": "debug", "time": "2025-02-20T20:07:48+03:00"}
+1.7400712689105723e+09	info	project_backend/main.go:27	DSN: root:@tcp(localhost:3306)/kis?charset=utf8mb4&parseTime=True&loc=Local
+1.7400712792820964e+09	info	middleware/logger.go:79	HTTP request: POST /api/register | Status: 200 | Latency: 73.3982ms | IP: 127.0.0.1 | User-Agent: insomnia/9.3.3
