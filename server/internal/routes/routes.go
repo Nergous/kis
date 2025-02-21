@@ -12,22 +12,32 @@ func SetupRoutes() *gin.Engine {
 
 	api := r.Group("/api", middleware.LogMiddleware())
 	{
-		api.GET("/hello", func(c *gin.Context) { c.String(200, "world") })
 
 		api.GET("/products", controllers.GetAllProducts)
 		api.GET("/products/:id", controllers.GetProductByID)
 
-		api.POST("/login-worker", controllers.LoginWorker)
+		api.GET("/login-customer", controllers.LoginCustomer)
 		api.POST("/register", controllers.RegisterCustomer)
 
+		api.POST("/login-worker", controllers.LoginWorker)
+
+		api.GET("/workers", controllers.GetAllWorkers)
+		api.GET("/workers/:id", controllers.GetWorkerByID)
 		api.POST("/workers", controllers.CreateWorker)
-		protected := api.Group("", middleware.AuthMiddleware([]string{"admin", "worker"}))
+		api.PATCH("/workers", controllers.UpdateWorker)
+		api.DELETE("/workers/:id", controllers.DeleteWorker)
+
+		api.POST("/products", controllers.CreateProduct)
+		api.PATCH("/products", controllers.UpdateProduct)
+		api.DELETE("/products/:id", controllers.DeleteProduct)
+		api.PATCH("/products/:id/quantity", controllers.UpdateQuantity)
+		protected := api.Group("", middleware.AuthMiddleware([]string{"admin"}))
 		{
-			protected.POST("/products", controllers.CreateProduct)
-			protected.PATCH("/products", controllers.UpdateProduct)
-			protected.DELETE("/products/:id", controllers.DeleteProduct)
-			protected.PATCH("/products/:id/quantity", controllers.UpdateQuantity)
+			protected.GET("/hello", func(c *gin.Context) { c.String(200, "world") })
 		}
+
+		// Пояснение тому кто хочет потыкать
+		// в группу протектед в мидлвару добавлять те роли доступ которым нужен к эндпойнту
 
 	}
 	return r
