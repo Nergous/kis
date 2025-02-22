@@ -126,3 +126,5 @@
 1.7401711226988347e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 401 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
 1.740171127518334e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 403 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
 1.7401711388070428e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 200 | Latency: 1.1314ms   | IP: 127.0.0.1       | User-Agent: insomnia/9.3.3
+1.7402075151927826e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 200 | Latency: 995.4µs    | IP: 127.0.0.1       | User-Agent: Thunder Client (https://www.thunderclient.com)
+1.7402077744295483e+09	info	middleware/logger.go:86	HTTP request: GET     /api/hello                | Status: 401 | Latency: 0s         | IP: 127.0.0.1       | User-Agent: Thunder Client (https://www.thunderclient.com)
