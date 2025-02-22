@@ -32,7 +32,7 @@ const products = [
 ];
 
 // жоска зарефакторил
-const Main = () => {
+const MainPage = () => {
     return (
         <Row gutter={[16, 16]} justify="center">
             {products.map((product, index) => (
@@ -108,4 +108,4 @@ const Main = () => {
     );
 };
 
-export default Main;
+export default MainPage;

@@ -1,16 +1,14 @@
 import React from "react";
-import Main from "../pages/Main/Main";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import MainLayout from "../pages/Main/layout/MainLayout";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminPanel from "../pages/Admin/AdminPanel";
+import MainPanel from "../pages/Main/MainPanel";
 
 const AppRouter = () => {
     return (
         <BrowserRouter>
             <Routes> 
-                <Route path="/" element={<MainLayout> <Main /> </MainLayout>} />
-                <Route path="/admin" element={<AdminPanel />} />
-                <Route path="/*" element={<Navigate to="/" />} />
+                <Route path="/*" element={<MainPanel/>} />
+                <Route path="/admin/*" element={<AdminPanel />} />
             </Routes>
         </BrowserRouter>
     );

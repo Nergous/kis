@@ -13,6 +13,10 @@ const AdminPanel = () => {
                         <AdminLayout>
                             <Routes>
                                 <Route path="/" element={<MainAdminPage />} />
+                                <Route
+                                    path="/*"
+                                    element={<Navigate to="/admin" />}
+                                />
                             </Routes>
                         </AdminLayout>
                     }
