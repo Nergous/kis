@@ -13,6 +13,7 @@ import {
 } from "@ant-design/icons";
 import api from "../../../utils/api";
 import styled from "styled-components";
+import { logIn } from "../../../utils/auth";
 
 const StyledInput = styled(Input)`
     ::-webkit-input-placeholder {
@@ -41,7 +42,11 @@ const RegisterPage = () => {
 
         try {
             const response = await api().post("/register", values);
-            console.log("Registration successful:", response.data);
+            const token = response.data.token;
+            const role = response.data.role;
+            logIn(token, role);
+            navigate("/admin");
+            // console.log("Registration successful:", response.data);
             // Перенаправление на страницу входа или другую страницу
         } catch (error) {
             console.error("Registration failed:", error);
