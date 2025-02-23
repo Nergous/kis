@@ -27,7 +27,7 @@ func SetupRoutes() *gin.Engine {
 		api.PATCH("/workers", controllers.UpdateWorker)
 		api.DELETE("/workers/:id", controllers.DeleteWorker)
 
-		api.POST("/products", controllers.CreateProduct)
+		api.POST("/products", middleware.UploadImage("../client/public/uploads"), controllers.CreateProduct)
 		api.PATCH("/products", controllers.UpdateProduct)
 		api.DELETE("/products/:id", controllers.DeleteProduct)
 		api.PATCH("/products/:id/quantity", controllers.UpdateQuantity)
