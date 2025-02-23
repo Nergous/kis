@@ -131,7 +131,7 @@ func UpdateQuantity(c *gin.Context) {
 		})
 		return
 	}
-	// quantity from body as json
+
 	var request struct {
 		Quantity int `json:"quantity" binding:"required,min=1"`
 	}
