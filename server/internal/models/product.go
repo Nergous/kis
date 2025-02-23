@@ -7,11 +7,12 @@ import (
 
 type Product struct {
 	gorm.Model
-	Name            string  `gorm:"type:varchar(255);not null" json:"name" validate:"required,min=1"`
-	Price           float64 `gorm:"type:decimal(10,2);not null" json:"price" validate:"required,gte=1"`
-	Quantity        int     `gorm:"type:int;not null" json:"quantity" validate:"required,gte=1"`
-	Variety         string  `gorm:"type:varchar(255);not null" json:"variety" validate:"required,min=1"`
-	Characteristics string  `gorm:"type:text;not null" json:"characteristics" validate:"required,min=1"`
+	Name            string  `gorm:"type:varchar(255);not null" json:"name" validate:"required,min=1" form:"name"`
+	Price           float64 `gorm:"type:decimal(10,2);not null" json:"price" validate:"required,gte=1" form:"price"`
+	Quantity        int     `gorm:"type:int;not null" json:"quantity" validate:"required,gte=1" form:"quantity"`
+	Variety         string  `gorm:"type:varchar(255);not null" json:"variety" validate:"required,min=1" form:"variety"`
+	Characteristics string  `gorm:"type:text;not null" json:"characteristics" validate:"required,min=1" form:"characteristics"`
+	ImgPath         string  `gorm:"type:varchar(255);not null" json:"img_path" validate:"required,min=1"`
 }
 
 func CreateProductsTable(db *gorm.DB) error {

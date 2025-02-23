@@ -16,6 +16,7 @@ func GetProductByID(id uint) (*models.Product, error) {
 
 func CreateProduct(product *models.Product) (*models.Product, error) {
 
+	fmt.Println(product)
 	if err := product.Validate(); err != nil {
 		return nil, fmt.Errorf("ошибка валидации: %w", err)
 	}

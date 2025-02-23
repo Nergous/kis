@@ -18,13 +18,13 @@ func LoginWorker(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат запроса"})
 		return
 	}
 
 	token, workerRole, err := services.LoginWorker(input.Login, input.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Ошибка авторизации: " + err.Error()})
 		return
 	}
 
@@ -39,13 +39,13 @@ func LoginCustomer(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат запроса"})
 		return
 	}
 
 	token, err := services.LoginCustomer(input.Email, input.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Ошибка авторизации: " + err.Error()})
 		return
 	}
 
