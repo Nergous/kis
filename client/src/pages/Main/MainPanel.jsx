@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import MainPage from "./pages/MainPage";
 import MainLayout from "./layout/MainLayout";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 const MainPanel = () => {
     return (
@@ -13,13 +14,17 @@ const MainPanel = () => {
                     element={
                         <MainLayout>
                             <Routes>
-                                <Route path="/*" element={<Navigate to="/" />} />
                                 <Route path="/" element={<MainPage />} />
-                                <Route path="/login" element={<LoginPage />} />
+                                <Route
+                                    path="/*"
+                                    element={<Navigate to="/" />}
+                                />
                             </Routes>
                         </MainLayout>
                     }
                 />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
             </Routes>
         </>
     );
