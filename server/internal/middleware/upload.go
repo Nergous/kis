@@ -15,6 +15,11 @@ import (
 func UploadImage(saveDir string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		file, header, err := c.Request.FormFile("product_image")
+		// if no image in request then skip
+		if err == http.ErrMissingFile {
+			c.Next()
+			return
+		}
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Не удалось получить изображение"})
 			c.Abort()
