@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"project_backend/internal/models"
 	"project_backend/internal/repositories"
 )
@@ -29,10 +30,32 @@ func UpdateProduct(product *models.Product) (*models.Product, error) {
 		return nil, fmt.Errorf("ошибка валидации: %w", err)
 	}
 
+	existingProduct, err := repositories.GetProductByID(product.ID)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при получении продукта: %w", err)
+	}
+
+	if product.ImgPath != existingProduct.ImgPath && existingProduct.ImgPath != "" {
+		err = os.Remove(existingProduct.ImgPath)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка при удалении старого изображения: %w", err)
+		}
+	}
+
 	return repositories.UpdateProduct(product)
 }
 
 func DeleteProduct(id uint) error {
+	product, err := repositories.GetProductByID(id)
+	if err != nil {
+		return err
+	}
+	if product.ImgPath != "" {
+		err := os.Remove(product.ImgPath)
+		if err != nil {
+			return err
+		}
+	}
 	return repositories.DeleteProduct(id)
 }
 

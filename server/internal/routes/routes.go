@@ -28,7 +28,7 @@ func SetupRoutes() *gin.Engine {
 		api.DELETE("/workers/:id", controllers.DeleteWorker)
 
 		api.POST("/products", middleware.UploadImage("../client/public/uploads"), controllers.CreateProduct)
-		api.PATCH("/products", controllers.UpdateProduct)
+		api.PATCH("/products", middleware.UploadImage("../client/public/uploads"), controllers.UpdateProduct)
 		api.DELETE("/products/:id", controllers.DeleteProduct)
 		api.PATCH("/products/:id/quantity", controllers.UpdateQuantity)
 		protected := api.Group("", middleware.AuthMiddleware([]string{"admin"}))

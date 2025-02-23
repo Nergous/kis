@@ -64,7 +64,7 @@ func UpdateWorker(c *gin.Context) {
 	var updatedWorkerIn models.Worker
 	if err := c.ShouldBindJSON(&updatedWorkerIn); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": "Неверный формат работника",
 		})
 		return
 	}

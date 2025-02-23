@@ -72,9 +72,9 @@ func CreateProduct(c *gin.Context) {
 func UpdateProduct(c *gin.Context) {
 
 	var updatedProductIn models.Product
-	if err := c.ShouldBindJSON(&updatedProductIn); err != nil {
+	if err := c.ShouldBind(&updatedProductIn); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Неверный формат продукта: " + err.Error(),
+			"error": "Неверный формат продукта",
 		})
 		return
 	}
@@ -86,10 +86,16 @@ func UpdateProduct(c *gin.Context) {
 		return
 	}
 
+	filePath, exists := c.Get("uploaded_file_path")
+	if !exists {
+		filePath = updatedProductIn.ImgPath
+	}
+	updatedProductIn.ImgPath = filePath.(string)
+
 	updatedProductOut, err := services.UpdateProduct(&updatedProductIn)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось обновить продукт",
+			"error": "Не удалось обновить продукт: " + err.Error(),
 		})
 		return
 	}
