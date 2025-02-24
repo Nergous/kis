@@ -1,25 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Card } from "antd";
+import { Form, Button, Card } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import api from "../../../utils/api";
 import { logIn } from "../../../utils/auth";
 import RegLogLayout from "../layout/RegLogLayout";
-import styled from "styled-components";
+import FormInput from "../components/FormInput/FormInput";
 
-const StyledInput = styled(Input)`
-    ::-webkit-input-placeholder {
-        color: black !important;
-        opacity: 1 !important;
-    }
-`;
-
-const StyledInputPassword = styled(Input.Password)`
-    ::-webkit-input-placeholder {
-        color: black !important;
-        opacity: 1 !important;
-    }
-`;
 // import logo_2 from "../../../logo_2.png";
 
 const LoginPage = () => {
@@ -96,7 +83,7 @@ const LoginPage = () => {
                     {isWorker ? (
 
                         // {/* Логин */}
-                        <Form.Item
+                        <FormInput
                             name="login"
                             rules={[
                                 {
@@ -104,21 +91,14 @@ const LoginPage = () => {
                                     message: "Пожалуйста, введите ваш логин!",
                                 },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<UserOutlined />}
-                                placeholder="Логин"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            placeholder="Логин"
+                            prefix={<UserOutlined />}
+                            type="input"
+                        />
                     ) : (
 
                         // {/* Email */}
-                        <Form.Item
+                        <FormInput
                             name="email"
                             rules={[
                                 {
@@ -130,21 +110,14 @@ const LoginPage = () => {
                                     message: "Введите корректный email!",
                                 },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<UserOutlined />}
-                                placeholder="Email"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            placeholder="Email"
+                            prefix={<UserOutlined />}
+                            type="email"
+                        />
                     )}
 
                     {/* Пароль */}
-                    <Form.Item
+                    <FormInput
                         name="password"
                         rules={[
                             {
@@ -152,17 +125,10 @@ const LoginPage = () => {
                                 message: "Пожалуйста, введите ваш пароль!",
                             },
                         ]}
-                    >
-                        <StyledInputPassword
-                            prefix={<LockOutlined />}
-                            placeholder="Пароль"
-                            style={{
-                                transition: "all 0.3s",
-                                height: 40,
-                                fontSize: 16,
-                            }}
-                        />
-                    </Form.Item>
+                        placeholder="Пароль"
+                        prefix={<LockOutlined />}
+                        type="password"
+                    />
                 
                     <Form.Item>
                         {sending ? (
