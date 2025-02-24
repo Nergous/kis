@@ -34,8 +34,10 @@ const AdminStoragePage = () => {
 
     // Обработка обновления продукта
     const handleChange = (id) => {
-        console.log("Обновить продукт с id:", id);
-        // Здесь можно добавить запрос на обновление
+        const product = data.find((item) => item.id === id);
+        if (product) {
+            navigate(`/admin/storage/${id}`, { state: { product } });
+        }
     };
 
     // Колонки таблицы

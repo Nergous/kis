@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Layout, Menu } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -34,8 +34,17 @@ const AppSidebar = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
+    const [selectedKey, setSelectedKey] = useState("0");
 
-    const selectedKey = items.find((item) => item.to === location.pathname)?.key || "0";
+    // Логируем текущий путь и выбранный ключ
+    useEffect(() => {
+        console.log("Current path:", location.pathname);
+        const currentItem = items.find((item) =>
+            location.pathname.startsWith(item.to)
+        );
+        console.log("Selected key:", currentItem?.key || "0");
+        setSelectedKey(currentItem?.key || "0");
+    }, [location.pathname]);
 
     const menuItems = items.map((item) => ({
         key: item.key,
@@ -58,7 +67,6 @@ const AppSidebar = () => {
             <Menu
                 theme="light"
                 mode="inline"
-                defaultSelectedKeys={["0"]}
                 selectedKeys={[selectedKey]}
                 items={menuItems}
             />
