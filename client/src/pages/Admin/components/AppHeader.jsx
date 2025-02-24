@@ -19,8 +19,10 @@ const AppHeader = () => {
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "10px 20px",
-            }}
-        >
+                position: "sticky",
+                top: 0,
+                zIndex: 10,
+            }}>
             <img
                 src={logo_2}
                 alt="logo_2"
@@ -28,14 +30,12 @@ const AppHeader = () => {
                 onClick={() => navigate("/")}
                 onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "scale(1.1)";
-                    e.currentTarget.style.transition =
-                        "transform 0.3s ease-in-out";
+                    e.currentTarget.style.transition = "transform 0.3s ease-in-out";
                     e.currentTarget.style.cursor = "pointer";
                 }}
                 onMouseLeave={(e) => {
                     e.currentTarget.style.transform = "scale(1)";
-                    e.currentTarget.style.transition =
-                        "transform 0.3s ease-in-out";
+                    e.currentTarget.style.transition = "transform 0.3s ease-in-out";
                 }}
             />
             <div>

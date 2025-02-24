@@ -18,14 +18,12 @@ const AppHeader = () => {
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "10px 20px",
-            }}
-        >
+                position: "sticky",
+                top: 0,
+                zIndex: 10,
+            }}>
             <img src={logo} alt="logo" style={{ height: 40 }} />
-            <Input
-                placeholder="Поиск..."
-                prefix={<SearchIcon />}
-                style={{ width: "80%", borderRadius: 20, padding: "5px 10px" }}
-            />
+            <Input placeholder="Поиск..." prefix={<SearchIcon />} style={{ width: "80%", borderRadius: 20, padding: "5px 10px" }} />
             <div>
                 <IconButton style={{ color: "white" }}>
                     <AccountCircleIcon />
