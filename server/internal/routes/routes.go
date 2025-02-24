@@ -10,7 +10,7 @@ import (
 func SetupRoutes() *gin.Engine {
 	r := gin.Default()
 
-	api := r.Group("/api", middleware.LogMiddleware())
+	api := r.Group("/api", middleware.LogMiddleware(), middleware.HeaderAccessAllow())
 	{
 
 		api.GET("/products", controllers.GetAllProducts)

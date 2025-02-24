@@ -10,7 +10,7 @@ const { Content } = Layout;
 
 const AdminLayout = ({ children }) => {
     return (
-        <Layout style={{ minHeight: "100vh", position: "relative", background: "white" }}>
+        <Layout style={{ maxHeight: "100vh", position: "relative", background: "white" }}>
             {/* Левая клякса */}
             <div
                 style={{
@@ -57,14 +57,18 @@ const AdminLayout = ({ children }) => {
                 <AppHeader />
             {/* </div> */}
             <Layout>
+                
                 <AppSidebar />
                 <Content
                     style={{
                         padding: 20,
                         position: "relative",
                         zIndex: 1,
-                        
-                        minHeight: "100vh",
+                        height: "100vh",
+                        overflow: "auto",
+                        display: "flex",
+                        flexDirection: "column",
+                        marginLeft: "250px" // Да да, захардкодил, но по другому я хз как
                     }}>
                     {children}
                 </Content>

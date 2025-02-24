@@ -19,7 +19,6 @@ func GetAllProducts(c *gin.Context) {
 		})
 		return
 	}
-	c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
 	c.JSON(http.StatusOK, products)
 }
 

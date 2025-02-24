@@ -49,7 +49,6 @@ func main() {
 	r.Use(middleware.LogMiddleware())
 
 	r.Use(middleware.CorsMiddleware())
-	r.Use(middleware.HeaderAccessAllow())
 
 	port := fmt.Sprintf(":%d", config.AppConfig.App.Port)
 	addr := "127.0.0.1" + port

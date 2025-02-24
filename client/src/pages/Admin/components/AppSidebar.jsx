@@ -61,6 +61,10 @@ const AppSidebar = () => {
             style={{
                 background: "#fff",
                 boxShadow: "3px 0 8px 0 rgba(0, 0, 0, 0.1)",
+                position: "fixed",
+                height: "100vh",
+                overflow: "auto",
+                zIndex: 10,
             }}
             
         >
