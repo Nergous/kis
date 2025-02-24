@@ -47,6 +47,7 @@ func main() {
 
 	r := routes.SetupRoutes()
 	r.Use(middleware.LogMiddleware())
+	r.Use(middleware.CorsMiddleware())
 
 	port := fmt.Sprintf(":%d", config.AppConfig.App.Port)
 	addr := "127.0.0.1" + port

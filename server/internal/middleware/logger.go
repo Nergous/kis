@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,20 +16,57 @@ var Logger *zap.SugaredLogger
 // InitLogger инициализирует логгер с заданным уровнем логирования
 func InitLogger(level string) {
 	// Конфигурация логгера
-	config := zap.NewProductionConfig()
-	config.Encoding = "console" // Используем консольный формат для удобства разработки
-	config.Level.SetLevel(parseLogLevel(level))
-	config.OutputPaths = []string{"stdout", "logs/app.log"} // Логи будут записываться в stdout и файл
-	config.ErrorOutputPaths = []string{"stderr", "logs/error.log"}
+	appEncoderConfig := zap.NewProductionEncoderConfig()
+	appEncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	// check if app.log and error.log exist and create them if they don't
+	if _, err := os.Stat("logs/app.log"); os.IsNotExist(err) {
+		file, err := os.Create("logs/app.log")
+		if err != nil {
+			panic(err)
+		}
+		file.Close()
+	}
+
+	if _, err := os.Stat("logs/error.log"); os.IsNotExist(err) {
+		file, err := os.Create("logs/error.log")
+		if err != nil {
+			panic(err)
+		}
+		file.Close()
+	}
+	appCore := zapcore.NewCore(
+		zapcore.NewJSONEncoder(appEncoderConfig),
+		zapcore.NewMultiWriteSyncer(
+			zapcore.AddSync(os.Stdout),
+			zapcore.AddSync(getFile("logs/app.log")),
+		),
+		parseLogLevel(level),
+	)
+
+	errorEncoderConfig := zap.NewProductionEncoderConfig()
+	errorEncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	errorCore := zapcore.NewCore(
+		zapcore.NewJSONEncoder(errorEncoderConfig),
+		zapcore.NewMultiWriteSyncer(
+			zapcore.AddSync(os.Stderr),
+			zapcore.AddSync(getFile("logs/error.log")),
+		),
+		zap.ErrorLevel,
+	)
+
+	core := zapcore.NewTee(appCore, errorCore)
 
 	// Создаем логгер
-	logger, err := config.Build()
-	if err != nil {
-		panic(err)
-	}
+	logger := zap.New(core)
+	defer logger.Sync()
 
 	// Устанавливаем SugaredLogger для более простого синтаксиса
 	Logger = logger.Sugar()
+
+	Logger.Infow("Логгер инициализирован",
+		"level", level,
+		"time", time.Now().Format(time.RFC3339),
+	)
 
 	// Очистка ресурсов при завершении программы
 	defer func() {
@@ -57,6 +95,14 @@ func parseLogLevel(level string) zapcore.Level {
 	default:
 		return zap.InfoLevel
 	}
+}
+
+func getFile(filename string) *os.File {
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		panic(fmt.Sprintf("Не удалось создать файл логов %s: %v", filename, err))
+	}
+	return f
 }
 
 // LogMiddleware создает middleware для логирования HTTP-запросов
