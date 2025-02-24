@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Layout, Menu } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -11,7 +11,7 @@ import {
 const { Sider } = Layout;
 
 const AppSidebar = () => {
-    const items = [
+    const items = useMemo(() => [
         {
             key: "0",
             icon: <HomeOutlined />,
@@ -30,21 +30,26 @@ const AppSidebar = () => {
             label: "Упаковка",
             to: "/admin/packing",
         },
-    ];
+    ], [] );
 
     const navigate = useNavigate();
     const location = useLocation();
     const [selectedKey, setSelectedKey] = useState("0");
 
-    // Логируем текущий путь и выбранный ключ
+    // Функция для разделения пути
+    const getBasePath = (path) => {
+        const segments = path.split("/").filter(Boolean); // Убираем пустые строки
+        return `/${segments.slice(0, 2).join("/")}`; // Берем первые два сегмента
+    };
+
+    // Обновляем selectedKey при изменении location.pathname
     useEffect(() => {
-        console.log("Current path:", location.pathname);
-        const currentItem = items.find((item) =>
-            location.pathname.startsWith(item.to)
-        );
-        console.log("Selected key:", currentItem?.key || "0");
+        const basePath = getBasePath(location.pathname);
+        console.log("Base path:", basePath); // Для отладки
+
+        const currentItem = items.find((item) => item.to === basePath);
         setSelectedKey(currentItem?.key || "0");
-    }, [location.pathname]);
+    }, [location.pathname, items]);
 
     const menuItems = items.map((item) => ({
         key: item.key,
@@ -66,9 +71,7 @@ const AppSidebar = () => {
                 overflow: "auto",
                 zIndex: 10,
             }}
-            
         >
-            <div className="logo" />
             <Menu
                 theme="light"
                 mode="inline"
