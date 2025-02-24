@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import RegLogLayout from "../layout/RegLogLayout";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Card } from "antd";
+import { Form, Button, Card } from "antd";
 import {
     UserOutlined,
     LockOutlined,
@@ -10,24 +10,11 @@ import {
     UserAddOutlined,
     BankOutlined,
     CreditCardOutlined,
+    BarcodeOutlined,
 } from "@ant-design/icons";
 import api from "../../../utils/api";
-import styled from "styled-components";
+import FormInput from "../components/FormInput/FormInput";
 import { logIn } from "../../../utils/auth";
-
-const StyledInput = styled(Input)`
-    ::-webkit-input-placeholder {
-        color: black !important;
-        opacity: 1 !important;
-    }
-`;
-
-const StyledInputPassword = styled(Input.Password)`
-    ::-webkit-input-placeholder {
-        color: black !important;
-        opacity: 1 !important;
-    }
-`;
 
 
 const RegisterPage = () => {
@@ -35,6 +22,10 @@ const RegisterPage = () => {
     const [sending, setSending] = useState(false);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        document.title = "Регистрация";
+    }, []);
 
     const onFinish = async (values) => {
         console.log("Received values:", values);
@@ -86,25 +77,17 @@ const RegisterPage = () => {
                 >
                     <Form form={form} onFinish={onFinish}>
                         {/* Имя */}
-                        <Form.Item
+                        <FormInput
                             name="name"
-                            rules={[
-                                { required: true, message: "Введите ваше имя!" },
-                            ]}
-                        >
-                            <StyledInput
-                                prefix={<UserAddOutlined />}
-                                placeholder="Имя"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            rules={[{ required: true, message: "Введите ваше имя!" }]}
+                            type="input"
+                            prefix={<UserAddOutlined />}
+                            placeholder="Имя"
+                        />
+
 
                         {/* Email */}
-                        <Form.Item
+                        <FormInput
                             name="email"
                             rules={[
                                 { required: true, message: "Введите ваш email!" },
@@ -113,58 +96,37 @@ const RegisterPage = () => {
                                     message: "Введите корректный email!",
                                 },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<MailOutlined />}
-                                placeholder="Email"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            type="input"
+                            prefix={<MailOutlined />}
+                            placeholder="Email"
+                        />
 
                         {/* Пароль */}
-                        <Form.Item
+                        <FormInput
                             name="password"
                             rules={[
                                 { required: true, message: "Введите ваш пароль!" },
                             ]}
-                        >
-                            <StyledInputPassword
-                                prefix={<LockOutlined />}
-                                placeholder="Пароль"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            type="password"
+                            prefix={<LockOutlined />}
+                            placeholder="Пароль"
+                        />
 
                         {/* ИНН */}
-                        <Form.Item
+                        <FormInput
                             name="inn"
                             rules={[
-                                { required: true, message: "Введите ИНН!" },
+                                { required: true, message: "Введите ваш ИНН!" },
                                 { min: 12, message: "Длина ИНН должна быть 12 символов" },
                                 { max: 12, message: "Длина ИНН должна быть 12 символов" },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<FileDoneOutlined />}
-                                placeholder="ИНН"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            type="input"
+                            prefix={<FileDoneOutlined />}
+                            placeholder="ИНН"
+                        />
 
                         {/* Главный бухгалтер */}
-                        <Form.Item
+                        <FormInput
                             name="main_booker"
                             rules={[
                                 {
@@ -172,20 +134,13 @@ const RegisterPage = () => {
                                     message: "Введите ФИО главного бухгалтера!",
                                 },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<UserOutlined />}
-                                placeholder="Главный бухгалтер"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            type="input"
+                            prefix={<UserOutlined />}
+                            placeholder="Главный бухгалтер"
+                        />
 
                         {/* Директор */}
-                        <Form.Item
+                        <FormInput
                             name="director"
                             rules={[
                                 {
@@ -193,40 +148,26 @@ const RegisterPage = () => {
                                     message: "Введите ФИО директора!",
                                 },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<UserOutlined />}
-                                placeholder="Директор"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            type="input"
+                            prefix={<UserOutlined />}
+                            placeholder="Директор"
+                        />
 
                         {/* БИК */}
-                        <Form.Item
+                        <FormInput
                             name="bik"
                             rules={[
-                                { required: true, message: "Введите БИК!" },
+                                { required: true, message: "Введите ваш БИК!" },
                                 { min: 9, message: "Длина БИК должна быть 9 символов" },
                                 { max: 9, message: "Длина БИК должна быть 9 символов" },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<BankOutlined />}
-                                placeholder="БИК"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            type="input"
+                            prefix={<BarcodeOutlined />}
+                            placeholder="БИК"
+                        />
 
                         {/* Расчетный счет */}
-                        <Form.Item
+                        <FormInput
                             name="payment_number"
                             rules={[
                                 {
@@ -236,20 +177,13 @@ const RegisterPage = () => {
                                 { min: 20, message: "Длина расчетного счета должна быть 20 символов" },
                                 { max: 20, message: "Длина расчетного счета должна быть 20 символов" },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<CreditCardOutlined />}
-                                placeholder="Расчетный счет"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            type="input"
+                            prefix={<CreditCardOutlined />}
+                            placeholder="Расчетный счет"
+                        />
 
                         {/* Банк */}
-                        <Form.Item
+                        <FormInput
                             name="bank"
                             rules={[
                                 {
@@ -257,17 +191,10 @@ const RegisterPage = () => {
                                     message: "Введите название банка!",
                                 },
                             ]}
-                        >
-                            <StyledInput
-                                prefix={<BankOutlined />}
-                                placeholder="Банк"
-                                style={{
-                                    transition: "all 0.3s",
-                                    height: 40,
-                                    fontSize: 16,
-                                }}
-                            />
-                        </Form.Item>
+                            type="input"
+                            prefix={<BankOutlined />}
+                            placeholder="Банк"
+                        />
                     </Form>
                 </div>
 
