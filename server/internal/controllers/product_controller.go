@@ -13,11 +13,13 @@ import (
 func GetAllProducts(c *gin.Context) {
 	products, err := services.GetAllProducts()
 	if err != nil {
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Не удалось получить все продукты",
 		})
 		return
 	}
+	c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
 	c.JSON(http.StatusOK, products)
 }
 
