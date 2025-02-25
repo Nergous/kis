@@ -198,7 +198,7 @@ const MainPage = () => {
                     </Badge>
                 </IconButton>
 
-                <Row gutter={[5, 100]} justify="center" style={{ paddingTop: 70 }}>
+                <Row gutter={[5, 100]} justify="center" style={{ paddingTop: 40 }}>
                     {products.map((product, index) => {
                         const [price, measure] = product.price.split(/р?\//);
 
