@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, InputNumber, Upload, Image } from "antd";
+import { Button, Form, Input, InputNumber, Upload, Image, Card } from "antd";
 import { UploadOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import api from "../../../../../utils/api";
-import { showSuccessNotification, showErrorNotification } from "../../../../../ui/Notification/Notification";
+import {
+    showSuccessNotification,
+    showErrorNotification,
+} from "../../../../../ui/Notification/Notification";
+import ButtonBack from "../../../components/ButtonBack/ButtonBack";
+import CardBackgroundImages from "../../../components/CardBackgroundImages/CardBackgroundImages";
 
 const CreateProductPage = () => {
     const [form] = Form.useForm();
@@ -39,7 +44,9 @@ const CreateProductPage = () => {
         ].includes(file.type);
 
         if (!isImage || !isAllowedFormat) {
-            showErrorNotification("Вы можете загрузить только изображения в формате JPG, JPEG, PNG или GIF!");
+            showErrorNotification(
+                "Вы можете загрузить только изображения в формате JPG, JPEG, PNG или GIF!"
+            );
             return Upload.LIST_IGNORE; // Игнорируем файл, если он не подходит
         }
 
@@ -55,7 +62,9 @@ const CreateProductPage = () => {
     // Обработка создания нового товара
     const onFinish = async (values) => {
         if (fileList.length === 0) {
-            showErrorNotification("Пожалуйста, загрузите изображение продукта!");
+            showErrorNotification(
+                "Пожалуйста, загрузите изображение продукта!"
+            );
             return;
         }
 
@@ -87,11 +96,14 @@ const CreateProductPage = () => {
 
     return (
         <div style={{ maxWidth: 600 }}>
-            <Button type="primary" ghost icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
-                Назад
-            </Button>
+            <ButtonBack navigateTo="/admin/storage" />
             <h1>Создание нового продукта</h1>
-            <Form form={form} onFinish={onFinish} onSubmit={(e) => e.preventDefault()} layout="vertical" >
+            <Form
+                form={form}
+                onFinish={onFinish}
+                onSubmit={(e) => e.preventDefault()}
+                layout="vertical"
+            >
                 {/* Поле для названия товара */}
                 <Form.Item
                     label="Название"
@@ -210,11 +222,13 @@ const CreateProductPage = () => {
                 {/* Превью загруженного изображения */}
                 {previewImage && (
                     <Form.Item label="Превью изображения">
-                        <Image
-                            width={200}
-                            src={previewImage}
-                            alt="Превью изображения товара"
-                        />
+                        <CardBackgroundImages width="max-content" >
+                            <Image
+                                width={200}
+                                src={previewImage}
+                                alt="Превью изображения товара"
+                            />
+                        </CardBackgroundImages>
                     </Form.Item>
                 )}
 
