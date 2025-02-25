@@ -90,7 +90,8 @@
 
 ### **Request**
 - **Headers**: Нет
-- **Form Data**:
+- **Form Data**: 
+  - `ID` (uint): ID продукта
   - `product_image` (file): Изображение продукта
   - `name` (string): Название продукта
   - `price` (float): Цена продукта

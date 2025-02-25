@@ -16,7 +16,6 @@ const AppHeader = () => {
 
     // Функция для получения общего количества товаров в корзине
     const getCartTotalItems = () => {
-        console.log("getCartTotalItems");
         const cart = JSON.parse(localStorage.getItem("cart")) || {};
         const total = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
         setCartTotalItems(total);
