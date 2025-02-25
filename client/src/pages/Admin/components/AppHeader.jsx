@@ -2,7 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "antd";
 import { IconButton } from "@mui/material";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import "antd/dist/reset.css";
 import logo_2 from "../../../logo_2.png";
@@ -41,9 +40,6 @@ const AppHeader = () => {
             <div>
                 <IconButton style={{ color: "white" }}>
                     <AccountCircleIcon />
-                </IconButton>
-                <IconButton style={{ color: "white" }}>
-                    <ShoppingCartIcon />
                 </IconButton>
             </div>
         </Header>

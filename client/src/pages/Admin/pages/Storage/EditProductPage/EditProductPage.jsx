@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Form, Input, InputNumber, message, Upload, Image } from "antd";
 import { UploadOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import api from "../../../../../utils/api";
 
 const EditProductPage = () => {
-    const { id } = useParams();
+    // const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
     const [form] = Form.useForm();
