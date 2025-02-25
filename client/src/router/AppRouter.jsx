@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminPanel from "../pages/Admin/AdminPanel";
 import MainPanel from "../pages/Main/MainPanel";
 import LoginPage from "../pages/Main/pages/LoginPage";
+import ClientPage from "../pages/Main/pages/ClientPage";
 
 const AppRouter = () => {
     return (
@@ -11,6 +12,7 @@ const AppRouter = () => {
                 <Route path="/*" element={<MainPanel/>} />
                 <Route path="/admin/*" element={<AdminPanel />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/client" element={<ClientPage />} />
             </Routes>
         </BrowserRouter>
     );
