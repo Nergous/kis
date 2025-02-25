@@ -44,7 +44,7 @@ const AdminStoragePage = () => {
         try {
             const response = await api().get("/api/products");
             setData(response.data);
-            showSuccessNotification("Данные успешно загружены");
+            // showSuccessNotification("Данные успешно загружены");  // Нахер не нужно
         } catch (error) {
             showErrorNotification("Ошибка при загрузке данных");
         } finally {

@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Button, Form, Input, InputNumber, message, Upload, Image } from "antd";
-import { UploadOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { Button, Form, Input, InputNumber, Upload, Image, Card } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import api from "../../../../../utils/api";
+import {
+    showErrorNotification,
+    showSuccessNotification,
+} from "../../../../../ui/Notification/Notification";
+import ButtonBack from "../../../components/ButtonBack/ButtonBack";
+import CardBackgroundImages from "../../../components/CardBackgroundImages/CardBackgroundImages";
 
 const EditProductPage = () => {
-    // const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState([]); // Состояние для хранения загруженных файлов
+    const [newImage, setNewImage] = useState(null); // Состояние для хранения нового изображения
 
     // Получаем данные продукта из location.state
     const product = location.state?.product;
@@ -22,21 +28,38 @@ const EditProductPage = () => {
     // Обработка загрузки файлов
     const handleUpload = ({ fileList }) => {
         setFileList(fileList); // Обновляем состояние файлов
+        if (fileList.length > 0) {
+            const file = fileList[0].originFileObj;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setNewImage(e.target.result); // Устанавливаем новое изображение
+            };
+            reader.readAsDataURL(file); // Читаем файл как Data URL
+        } else {
+            setNewImage(null); // Если файл удален, сбрасываем новое изображение
+        }
     };
 
     // Валидация файлов перед загрузкой
     const beforeUpload = (file) => {
         const isImage = file.type.startsWith("image/");
-        const isAllowedFormat = ["image/jpeg", "image/jpg", "image/png", "image/gif"].includes(file.type);
+        const isAllowedFormat = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/gif",
+        ].includes(file.type);
 
         if (!isImage || !isAllowedFormat) {
-            message.error("Вы можете загрузить только изображения в формате JPG, JPEG, PNG или GIF!");
+            showErrorNotification(
+                "Вы можете загрузить только изображения в формате JPG, JPEG, PNG или GIF!"
+            );
             return Upload.LIST_IGNORE; // Игнорируем файл, если он не подходит
         }
 
         const isLt2M = file.size / 1024 / 1024 < 2; // Проверка на размер файла (меньше 2MB)
         if (!isLt2M) {
-            message.error("Изображение должно быть меньше 2MB!");
+            showErrorNotification("Изображение должно быть меньше 2MB!");
             return Upload.LIST_IGNORE;
         }
 
@@ -45,18 +68,20 @@ const EditProductPage = () => {
 
     // Обработка сохранения изменений
     const onFinish = async (values) => {
-        console.log("Received values:", values);
+        const img_path = product.img_path; // ЕБУЧИЙ КОСТЫЛЬ
         values["ID"] = product.ID;
 
         // Если загружено новое изображение, добавляем его в FormData
         if (fileList.length > 0) {
             const formData = new FormData();
-            formData.append("image", fileList[0].originFileObj);
+            formData.append("ID", values.ID);
+            formData.append("product_image", fileList[0].originFileObj);
             formData.append("name", values.name);
             formData.append("price", values.price);
             formData.append("quantity", values.quantity);
             formData.append("variety", values.variety);
             formData.append("characteristics", values.characteristics);
+            formData.append("img_path", img_path);
 
             try {
                 await api().patch("/api/products", formData, {
@@ -64,21 +89,23 @@ const EditProductPage = () => {
                         "Content-Type": "multipart/form-data",
                     },
                 });
-                message.success("Продукт успешно обновлен");
-                navigate(-1); // Возвращаемся на предыдущую страницу
+                showSuccessNotification(
+                    "Продукт с новым изображением успешно обновлен"
+                );
+                navigate("/admin/storage"); // Возвращаемся на предыдущую страницу
             } catch (error) {
                 console.error("Ошибка при обновлении продукта:", error);
-                message.error("Не удалось обновить продукт");
+                showErrorNotification("Не удалось обновить продукт");
             }
         } else {
             // Если новое изображение не загружено, отправляем только текстовые данные
             try {
                 await api().patch("/api/products", values);
-                message.success("Продукт успешно обновлен");
+                showSuccessNotification("Продукт успешно обновлен");
                 navigate(-1); // Возвращаемся на предыдущую страницу
             } catch (error) {
                 console.error("Ошибка при обновлении продукта:", error);
-                message.error("Не удалось обновить продукт");
+                showErrorNotification("Не удалось обновить продукт");
             }
         }
     };
@@ -91,12 +118,15 @@ const EditProductPage = () => {
 
     return (
         <div style={{ maxWidth: 600 }}>
-            <Button type="primary" ghost icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
-                Назад
-            </Button>
+            <ButtonBack navigateTo={-1} />
 
             <h1>Редактирование продукта: {product.name}</h1>
-            <Form form={form} initialValues={product} onFinish={onFinish} layout="vertical">
+            <Form
+                form={form}
+                initialValues={product}
+                onFinish={onFinish}
+                layout="vertical"
+            >
                 {/* Поле для названия товара */}
                 <Form.Item label="Название" name="name">
                     <Input />
@@ -123,7 +153,7 @@ const EditProductPage = () => {
                 </Form.Item>
 
                 {/* Поле для загрузки изображения */}
-                <Form.Item label="Изображение товара" name="image">
+                <Form.Item label="Изображение товара" name="img_path">
                     <Upload
                         fileList={fileList}
                         beforeUpload={beforeUpload}
@@ -134,20 +164,75 @@ const EditProductPage = () => {
                             onSuccess("ok"); // Отключаем автоматическую загрузку
                         }}
                     >
-                        <Button icon={<UploadOutlined />}>Загрузить новое изображение</Button>
+                        <Button icon={<UploadOutlined />}>
+                            Загрузить новое изображение
+                        </Button>
+
+                        {/* Для Upload.Dragger
+                         <p className="ant-upload-drag-icon">
+                            <InboxOutlined />
+                        </p>
+                        <p className="ant-upload-text">
+                            Нажмите или перетащите файл для загрузки
+                        </p>
+                        <p className="ant-upload-hint">
+                            Поддерживаются только файлы в формате JPG, JPEG, PNG
+                            или GIF (макс. 2MB)
+                        </p>  */}
                     </Upload>
                 </Form.Item>
 
-                {/* Предпросмотр текущего изображения */}
-                {product.img_path && (
-                    <Form.Item label="Текущее изображение">
-                        <Image
-                            width={200}
-                            src={`${formatImagePath(product.img_path)}`} // Укажите правильный базовый URL
-                            alt="Текущее изображение товара"
-                        />
-                    </Form.Item>
-                )}
+                {/* Предпросмотр текущего и нового изображения */}
+                <Form.Item label="Изображения">
+                    <CardBackgroundImages width="90%">
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            {/* Текущее изображение */}
+                            {product.img_path && (
+                                <div>
+                                    <div
+                                        style={{
+                                            textAlign: "center",
+                                            marginBottom: 8,
+                                            fontWeight: "bold",
+                                            fontFamily:
+                                                "'DMSans-Medium', sans-serif",
+                                        }}
+                                    >
+                                        Текущее изображение
+                                    </div>
+                                    <Image
+                                        width={200}
+                                        src={`${formatImagePath(
+                                            product.img_path
+                                        )}`}
+                                        alt="Текущее изображение товара"
+                                    />
+                                </div>
+                            )}
+                            {/* Новое загруженное изображение */}
+                            {newImage && (
+                                <div>
+                                    <div
+                                        style={{
+                                            textAlign: "center",
+                                            fontWeight: "bold",
+                                            marginBottom: 8,
+                                            fontFamily:
+                                                "'DMSans-Medium', sans-serif",
+                                        }}
+                                    >
+                                        Новое изображение
+                                    </div>
+                                    <Image
+                                        width={200}
+                                        src={newImage}
+                                        alt="Новое изображение товара"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </CardBackgroundImages>
+                </Form.Item>
 
                 {/* Кнопка для сохранения изменений */}
                 <Form.Item>
