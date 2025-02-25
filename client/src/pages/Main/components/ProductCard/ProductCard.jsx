@@ -3,7 +3,11 @@ import { IconButton } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 const ProductCard = ({ product, addToCart }) => {
-    const [price, measure] = product.price.split(/р?\//);
+
+    const imgSlashChange = (img_path) => {
+        img_path = img_path.replace(/\\/g, "/").split("public")[1];
+        return img_path
+    }
 
     return (
         <div
@@ -38,11 +42,11 @@ const ProductCard = ({ product, addToCart }) => {
                 fontFamily: "'DMSans-Medium', sans-serif",
                 color: "rgb(8, 86, 21)"
             }}>
-                {product.title}
+                {product.name}
             </h3>
             <img
-                src={product.image}
-                alt={product.title}
+                src={imgSlashChange(product.img_path)}
+                alt={product.name}
                 style={{
                     width: "100%",
                     height: "250px",
@@ -71,14 +75,14 @@ const ProductCard = ({ product, addToCart }) => {
                         fontWeight: "bold",
                         fontFamily: "'DMSans-Medium', sans-serif"
                     }}>
-                        {price.trim()}
+                        {product.price}
                     </span>
                     <span style={{ 
                         fontSize: "12px", 
                         color: "#666",
                         fontFamily: "'DMSans-Medium', sans-serif"
                     }}>
-                        /{measure.trim()}
+                        /{" ₽"}
                     </span>
                 </div>
                 <IconButton
