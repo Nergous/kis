@@ -5,6 +5,7 @@ import leftBlob from "../../../assets/left.png"; // Убедитесь в пра
 import rightBlob from "../../../assets/right.png"; // Убедитесь в правильности пути
 import AppHeader from "../components/AppHeader";
 import AppSidebar from "../components/AppSidebar";
+import Notification from "../../../ui/Notification/Notification";
 
 const { Content } = Layout;
 
@@ -77,6 +78,7 @@ const AdminLayout = ({ children }) => {
                     }}
                 >
                     {children}
+                    <Notification />
                 </Content>
             </Layout>
         </Layout>

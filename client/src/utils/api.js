@@ -12,8 +12,7 @@ const api = () => {
         headers: {
             "Content-Type": "application/json",
         },
-        withCredentials: true,
-        withXSRFToken: true
+        withCredentials: true
     });
 
     // Добавляем перехватчик для добавления токена в заголовки

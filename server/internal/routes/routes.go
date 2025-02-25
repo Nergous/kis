@@ -21,6 +21,12 @@ func SetupRoutes() *gin.Engine {
 
 		api.POST("/login-worker", controllers.LoginWorker)
 
+		api.GET("/customer", controllers.GetAllCustomers)
+		api.GET("/customer/:id", controllers.GetCustomerByID)
+		api.POST("/customer", controllers.CreateCustomer)
+		api.PATCH("/customer", controllers.UpdateCustomer)
+		api.DELETE("/customer/:id", controllers.DeleteCustomer)
+
 		api.GET("/workers", controllers.GetAllWorkers)
 		api.GET("/workers/:id", controllers.GetWorkerByID)
 		api.POST("/workers", controllers.CreateWorker)

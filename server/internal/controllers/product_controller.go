@@ -75,7 +75,7 @@ func UpdateProduct(c *gin.Context) {
 	var updatedProductIn models.Product
 	if err := c.ShouldBind(&updatedProductIn); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Неверный формат продукта",
+			"error": err.Error(),
 		})
 		return
 	}

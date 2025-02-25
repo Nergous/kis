@@ -45,7 +45,7 @@ const AppSidebar = () => {
     // Обновляем selectedKey при изменении location.pathname
     useEffect(() => {
         const basePath = getBasePath(location.pathname);
-        console.log("Base path:", basePath); // Для отладки
+        // console.log("Base path:", basePath); // Для отладки
 
         const currentItem = items.find((item) => item.to === basePath);
         setSelectedKey(currentItem?.key || "0");
