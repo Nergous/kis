@@ -1,35 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col } from "antd";
+import { Row, Col, Skeleton } from "antd";
 import { IconButton, Badge } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CartDrawer from "../components/CartDrawer/CartDrawer";
 import ProductCard from "../components/ProductCard/ProductCard";
+import api from "../../../utils/api";
 import "antd/dist/reset.css";
 import "../../../fonts.css";
-
-const products = [
-    { id: 1, title: "Брус клеёный", price: "1.110₽ /шт", image: "image1.png" },
-    { id: 2, title: "Доска обрезная хвойных пород", price: "10.050₽ /м3", image: "image2.png" },
-    { id: 3, title: "Рейка деревянная", price: "17₽ /пм", image: "image3.png" },
-    { id: 4, title: "Брус с ленточным распилом", price: "20.500₽ /м3", image: "image4.png" },
-    { id: 5, title: "Брусок строганный сухой", price: "35₽ /пм", image: "image5.png" },
-    { id: 6, title: "Доска сухая строганная", price: "1.370₽ /шт", image: "image6.png" },
-    { id: 7, title: "Доска сухая строганная (сосна)", price: "140₽ /шт", image: "image7.png" },
-    { id: 8, title: "Лист фанеры", price: "420₽ /л", image: "image8.png" },
-];
 
 const MainPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [products, setProducts] = useState([]);
+    const [isLoading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedCart = JSON.parse(localStorage.getItem("cart")) || {};
-        const cartItemsArray = Object.keys(storedCart).map(key => ({
-            ...products.find(product => product.id === parseInt(key)),
-            quantity: storedCart[key]
-        }));
-        setCartItems(cartItemsArray);
-        window.addEventListener("openCart", () => setIsCartOpen(true));
+        const fetchProducts = async () => {
+            try {
+                const response = await api().get("/api/products");
+                setProducts(response.data);
+                const storedCart = JSON.parse(localStorage.getItem("cart")) || {};
+                const cartItemsArray = Object.keys(storedCart).map((key) => ({
+                    ...response.data.find((product) => product.ID === parseInt(key)),
+                    quantity: storedCart[key],
+                }));
+                setCartItems(cartItemsArray);
+                window.addEventListener("openCart", () => setIsCartOpen(true));
+                setLoading(false)
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
+        };
+
+        fetchProducts();
     }, []);
 
     const clearCart = () => {
@@ -40,7 +43,7 @@ const MainPage = () => {
 
     const saveCartToLocalStorage = (cart) => {
         const cartObject = cart.reduce((acc, item) => {
-            acc[item.id] = item.quantity;
+            acc[item.ID] = item.quantity;
             return acc;
         }, {});
         localStorage.setItem("cart", JSON.stringify(cartObject));
@@ -48,14 +51,11 @@ const MainPage = () => {
     };
 
     const addToCart = (product) => {
-        const existing = cartItems.find(item => item.id === product.id);
+        console.log(cartItems);
+        const existing = cartItems.find((item) => item.ID === product.ID);
         let newCartItems;
         if (existing) {
-            newCartItems = cartItems.map(item =>
-                item.id === product.id 
-                    ? { ...item, quantity: item.quantity + 1 } 
-                    : item
-            );
+            newCartItems = cartItems.map((item) => (item.ID === product.ID ? { ...item, quantity: item.quantity + 1 } : item));
         } else {
             newCartItems = [...cartItems, { ...product, quantity: 1 }];
         }
@@ -65,18 +65,14 @@ const MainPage = () => {
     };
 
     const removeFromCart = (productId) => {
-        const newCartItems = cartItems.filter(item => item.id !== productId);
+        const newCartItems = cartItems.filter((item) => item.ID !== productId);
         setCartItems(newCartItems);
         saveCartToLocalStorage(newCartItems);
     };
 
     const updateQuantity = (productId, newQuantity) => {
         if (newQuantity < 1) return;
-        const newCartItems = cartItems.map(item =>
-            item.id === productId 
-                ? { ...item, quantity: newQuantity } 
-                : item
-        );
+        const newCartItems = cartItems.map((item) => (item.ID === productId ? { ...item, quantity: newQuantity } : item));
         setCartItems(newCartItems);
         saveCartToLocalStorage(newCartItems);
     };
@@ -84,51 +80,62 @@ const MainPage = () => {
     const cartTotalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: "relative" }}>
             <IconButton
                 style={{
-                    position: 'fixed',
+                    position: "fixed",
                     right: 20,
                     top: 20,
                     zIndex: 1000,
-                    background: '#4caf50',
-                    color: 'white'
+                    background: "#4caf50",
+                    color: "white",
                 }}
-                onClick={() => setIsCartOpen(true)}
-            >
-                <Badge 
-                    badgeContent={cartTotalItems} 
+                onClick={() => setIsCartOpen(true)}>
+                <Badge
+                    badgeContent={cartTotalItems}
                     color="error"
-                    sx={{ 
-                        '& .MuiBadge-badge': {
-                            fontFamily: "'DMSans-Medium', sans-serif"
-                        } 
-                    }}
-                >
+                    sx={{
+                        "& .MuiBadge-badge": {
+                            fontFamily: "'DMSans-Medium', sans-serif",
+                        },
+                    }}>
                     <ShoppingCartIcon />
                 </Badge>
             </IconButton>
 
             <Row gutter={[5, 100]} justify="center" style={{ paddingTop: 40 }}>
-                {products.map((product, index) => (
-                    <Col
-                        xs={24}
-                        sm={12}
-                        md={8}
-                        lg={6}
-                        key={index}
-                        style={{ display: "flex", justifyContent: "center" }}
-                    >
-                        <ProductCard product={product} addToCart={addToCart} />
-                    </Col>
-                ))}
+                {isLoading ? (
+                    // render <Skeleton> 20 times
+                    [...Array(12)].map((_, index) => (
+                        <Col xs={24} sm={12} md={8} lg={6} key={index} style={{ display: "flex", justifyContent: "center" }}>
+                            <Skeleton 
+                                active 
+                                style={{
+                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                    margin: "0 10px",
+                                    padding: "15px",
+                                    maxWidth: "300px",
+                                    gap: "12px",
+                                    borderRadius: "20px",
+                                    }} 
+                            />
+                        </Col>
+                    ))
+                    
+                ) : (
+                    products.map((product, index) => (
+                        <Col xs={24} sm={12} md={8} lg={6} key={index} style={{ display: "flex", justifyContent: "center" }}>
+                            <ProductCard product={product} addToCart={addToCart} />
+                        </Col>
+                    ))
+                )}
             </Row>
 
-            <CartDrawer 
-                isCartOpen={isCartOpen} 
-                closeCart={() => setIsCartOpen(false)} 
-                cartItems={cartItems} 
-                updateQuantity={updateQuantity} 
+            <CartDrawer
+                isCartOpen={isCartOpen}
+                closeCart={() => setIsCartOpen(false)}
+                cartItems={cartItems}
+                updateQuantity={updateQuantity}
                 removeFromCart={removeFromCart}
                 clearCart={clearCart}
             />

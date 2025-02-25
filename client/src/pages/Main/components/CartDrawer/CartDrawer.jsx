@@ -6,6 +6,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Button } from "antd";
 
 const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFromCart, clearCart }) => {
+
+    const imgSlashChange = (img_path) => {
+        img_path = img_path.replace(/\\/g, "/").split("public")[1];
+        return img_path
+    }
+
     
     return (
         <Drawer
@@ -40,7 +46,7 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
             ) : (
                 cartItems.map((item) => (
                     <Box 
-                        key={item.id} 
+                        key={item.ID} 
                         sx={{ 
                             display: 'flex', 
                             gap: 2, 
@@ -53,8 +59,8 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                         }}
                     >
                         <img
-                            src={item.image}
-                            alt={item.title}
+                            src={imgSlashChange(item.img_path)}
+                            alt={item.name}
                             style={{ 
                                 width: 50, 
                                 height: 50, 
@@ -69,7 +75,7 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                                 fontFamily: "'DMSans-Medium', sans-serif",
                                 color: "#085615"
                             }}>
-                                {item.title}
+                                {item.name}
                             </div>
                             <div style={{ 
                                 fontSize: 12, 
@@ -86,7 +92,7 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                             }}>
                                 <IconButton 
                                     size="small" 
-                                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                    onClick={() => updateQuantity(item.ID, item.quantity - 1)}
                                     disabled={item.quantity === 1}
                                     sx={{ color: "#085615" }}
                                 >
@@ -97,7 +103,7 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                                 </span>
                                 <IconButton 
                                     size="small" 
-                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                    onClick={() => updateQuantity(item.ID, item.quantity + 1)}
                                     sx={{ color: "#085615" }}
                                 >
                                     <AddIcon fontSize="small" />
@@ -105,7 +111,7 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                             </Box>
                         </Box>
                         <IconButton 
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(item.ID)}
                             sx={{ color: "#ff4444" }}
                         >
                             <CloseIcon fontSize="small" />
