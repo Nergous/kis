@@ -10,7 +10,7 @@ import (
 func SetupRoutes() *gin.Engine {
 	r := gin.Default()
 
-	api := r.Group("/api", middleware.LogMiddleware())
+	api := r.Group("/api", middleware.LogMiddleware(), middleware.HeaderAccessAllow())
 	{
 
 		api.GET("/products", controllers.GetAllProducts)
@@ -20,6 +20,12 @@ func SetupRoutes() *gin.Engine {
 		api.POST("/register", controllers.RegisterCustomer)
 
 		api.POST("/login-worker", controllers.LoginWorker)
+
+		api.GET("/customer", controllers.GetAllCustomers)
+		api.GET("/customer/:id", controllers.GetCustomerByID)
+		api.POST("/customer", controllers.CreateCustomer)
+		api.PATCH("/customer", controllers.UpdateCustomer)
+		api.DELETE("/customer/:id", controllers.DeleteCustomer)
 
 		api.GET("/workers", controllers.GetAllWorkers)
 		api.GET("/workers/:id", controllers.GetWorkerByID)
