@@ -5,7 +5,7 @@ import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import api from "../../../utils/api";
 import { logIn } from "../../../utils/auth";
 import RegLogLayout from "../layout/RegLogLayout";
-import FormInput from "../components/FormInput/FormInput";
+import FormInput from "../../../ui/FormInput/FormInput"
 
 // import logo_2 from "../../../logo_2.png";
 

@@ -13,7 +13,7 @@ import {
     BarcodeOutlined,
 } from "@ant-design/icons";
 import api from "../../../utils/api";
-import FormInput from "../components/FormInput/FormInput";
+import FormInput from "../../../ui/FormInput/FormInput"
 import { logIn } from "../../../utils/auth";
 
 
