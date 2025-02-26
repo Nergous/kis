@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, InputNumber, Upload, Image, Card } from "antd";
-import { UploadOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { Button, Form, Input, InputNumber, Upload, Image } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import api from "../../../../../utils/api";
 import {
     showSuccessNotification,
@@ -118,6 +118,38 @@ const CreateProductPage = () => {
                     <Input placeholder="Введите название продукта" />
                 </Form.Item>
 
+                {/* Поле для вида/сорта товара */}
+                <Form.Item
+                    label="Вид/Сорт"
+                    name="variety"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Пожалуйста, введите вид/сорт продукта!",
+                        },
+                    ]}
+                >
+                    <Input placeholder="Введите вид/сорт продукта" />
+                </Form.Item>
+
+                {/* Поле для характеристик товара */}
+                <Form.Item
+                    label="Характеристики"
+                    name="characteristics"
+                    rules={[
+                        {
+                            required: true,
+                            message:
+                                "Пожалуйста, введите характеристики продукта!",
+                        },
+                    ]}
+                >
+                    <Input.TextArea
+                        rows={4}
+                        placeholder="Введите характеристики продукта"
+                    />
+                </Form.Item>
+
                 {/* Поле для цены товара */}
                 <Form.Item
                     label="Цена"
@@ -158,37 +190,6 @@ const CreateProductPage = () => {
                     />
                 </Form.Item>
 
-                {/* Поле для вида/сорта товара */}
-                <Form.Item
-                    label="Вид/Сорт"
-                    name="variety"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Пожалуйста, введите вид/сорт продукта!",
-                        },
-                    ]}
-                >
-                    <Input placeholder="Введите вид/сорт продукта" />
-                </Form.Item>
-
-                {/* Поле для характеристик товара */}
-                <Form.Item
-                    label="Характеристики"
-                    name="characteristics"
-                    rules={[
-                        {
-                            required: true,
-                            message:
-                                "Пожалуйста, введите характеристики продукта!",
-                        },
-                    ]}
-                >
-                    <Input.TextArea
-                        rows={4}
-                        placeholder="Введите характеристики продукта"
-                    />
-                </Form.Item>
 
                 {/* Поле для загрузки изображения */}
                 <Form.Item

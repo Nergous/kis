@@ -75,12 +75,12 @@ const EditProductPage = () => {
         if (fileList.length > 0) {
             const formData = new FormData();
             formData.append("ID", values.ID);
-            formData.append("product_image", fileList[0].originFileObj);
-            formData.append("name", values.name);
+            formData.append("name", values.name);            
             formData.append("price", values.price);
             formData.append("quantity", values.quantity);
             formData.append("variety", values.variety);
             formData.append("characteristics", values.characteristics);
+            formData.append("product_image", fileList[0].originFileObj);
             formData.append("img_path", img_path);
 
             try {
@@ -128,18 +128,8 @@ const EditProductPage = () => {
                 layout="vertical"
             >
                 {/* Поле для названия товара */}
-                <Form.Item label="Название" name="name">
+                <Form.Item label="Наименование" name="name">
                     <Input />
-                </Form.Item>
-
-                {/* Поле для цены товара */}
-                <Form.Item label="Цена" name="price">
-                    <InputNumber min={0} />
-                </Form.Item>
-
-                {/* Поле для количества товара */}
-                <Form.Item label="Количество" name="quantity">
-                    <InputNumber min={0} />
                 </Form.Item>
 
                 {/* Поле для вида/сорта товара */}
@@ -150,6 +140,16 @@ const EditProductPage = () => {
                 {/* Поле для характеристик товара */}
                 <Form.Item label="Характеристики" name="characteristics">
                     <Input.TextArea />
+                </Form.Item>
+
+                {/* Поле для цены товара */}
+                <Form.Item label="Цена" name="price">
+                    <InputNumber min={0} />
+                </Form.Item>
+
+                {/* Поле для количества товара */}
+                <Form.Item label="Количество (куб. м)" name="quantity">
+                    <InputNumber min={0} />
                 </Form.Item>
 
                 {/* Поле для загрузки изображения */}
