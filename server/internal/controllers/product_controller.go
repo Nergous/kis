@@ -153,3 +153,34 @@ func UpdateQuantity(c *gin.Context) {
 		"message": "Количество продукта успешно обновлено",
 	})
 }
+
+func UpdatePrice(c *gin.Context) {
+	id := c.Param("id")
+	productID, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Неверный формат ID",
+		})
+		return
+	}
+
+	var request struct {
+		Price float64 `json:"price" binding:"required,min=0.01"`
+	}
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Неверный формат запроса",
+		})
+		return
+	}
+	err = services.UpdatePrice(uint(productID), request.Price)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Не удалось обновить цену продукта",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Цена продукта успешно обновлена",
+	})
+}

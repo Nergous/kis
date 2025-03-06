@@ -312,6 +312,46 @@
     ```
 
 ---
+## 15. Обновление цены продукта
+
+### **Endpoint**
+
+`PATCH /products/:id/price`
+
+### **Description**
+
+Обновить цену продукта.
+
+### **Request**
+
+-   **Headers**: `Content-Type: application/json`
+-   **Path Parameters**:
+    -   `ID` (integer): ID продукта
+-   **Body**:
+    ```json
+    {
+        "price": 15.0
+    }
+    ```
+
+### **Response**
+
+-   **Status Code**: `200 OK`
+-   **Body**:
+    ```json
+    {
+        "message": "Цена продукта успешно обновлена"
+    }
+    ```
+-   **Status Code**: `400 Bad Request`
+-   **Body**:
+    ```json
+    {
+        "error": "Неверный формат данных"
+    }
+    ```
+
+---
 
 # Авторизация и аутентификация
 

@@ -6,7 +6,7 @@ import (
 )
 
 type PaymentChar struct {
-	gorm.Model
+	BaseModel
 	BIK           string `gorm:"type:varchar(255);not null" json:"bik" validate:"required,min=1"`
 	PaymentNumber string `gorm:"type:varchar(255);not null" json:"payment_number" validate:"required,min=1"`
 	Bank          string `gorm:"type:varchar(255);not null" json:"bank" validate:"required,min=1"`
