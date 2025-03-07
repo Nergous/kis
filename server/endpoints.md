@@ -100,6 +100,7 @@
     ```
 -   **Status Code**: `400 Bad Request`
 -   **Body**:
+
     ```json
     {
         "error": "Неверный формат ID"
@@ -154,6 +155,7 @@
     ```
 -   **Status Code**: `400 Bad Request`
 -   **Body**:
+
     ```json
     {
         "error": "Неверный формат продукта"
@@ -162,6 +164,7 @@
 
 -   **Status Code**: `500 Internal Server Error`
 -   **Body**:
+
     ```json
     {
         "error": "Файл не найден"
@@ -175,6 +178,7 @@
         "error": "Не удалось создать продукт: " + err.Error()
     }
     ```
+
 ---
 
 ## 4. Обновление продукта
@@ -204,6 +208,7 @@
 
 -   **Status Code**: `200 OK`
 -   **Body**:
+
     ```json
     {
         "id": 1,
@@ -218,6 +223,7 @@
 
 -   **Status Code**: `400 Bad Request`
 -   **Body**:
+
     ```json
     {
         "error": "ID продукта не указан"
@@ -312,6 +318,7 @@
     ```
 
 ---
+
 ## 15. Обновление цены продукта
 
 ### **Endpoint**
@@ -706,3 +713,322 @@
         "error": "Недостаточно прав"
     }
     ```
+
+# Заказы
+
+## 1. Получение всех заказов
+
+### **Endpoint**
+
+`GET /orders`
+
+### **Description**
+
+Получить список всех заказов.
+
+### **Request**
+
+-   **Headers**: Нет
+-   **Body**: Нет
+
+### **Response**
+
+-   **Status Code**: `200 OK`
+-   **Body**:
+
+    ```json
+    [
+        {
+            "ID": 1,
+            "order_id_unique": 1741265386758508500,
+            "address": "address",
+            "delivery_date": "2023-10-25T17:30:00+03:00",
+            "payment_terms": "prepayment",
+            "status": "in_processing",
+            "payment_time": "0001-01-01T00:00:00Z",
+            "customer_id": 1,
+            "total_price": 3000,
+            "order_content": [
+                {
+                    "ID": 7,
+                    "product_id": 1,
+                    "order_id": 4,
+                    "quantity": 1,
+                    "price": 69.69,
+                    "total_product_price": 1000,
+                    "product": {
+                        "ID": 1,
+                        "name": "доска",
+                        "price": 123,
+                        "quantity": 123,
+                        "variety": "доска",
+                        "characteristics": "доска",
+                        "img_path": "..\\client\\public\\uploads\\1741186597689753400.jpg"
+                    }
+                },
+                {
+                    "ID": 8,
+                    "product_id": 2,
+                    "order_id": 4,
+                    "quantity": 1,
+                    "price": 13.37,
+                    "total_product_price": 2000,
+                    "product": {
+                        "ID": 2,
+                        "name": "гвоздь",
+                        "price": 123,
+                        "quantity": 123,
+                        "variety": "гвоздь",
+                        "characteristics": "гвоздь",
+                        "img_path": "..\\client\\public\\uploads\\1741186617066215000.gif"
+                    }
+                }
+            ]
+        }
+    ]
+    ```
+
+-   **Status Code**: `500 Internal Server Error`
+
+-   **Body**:
+
+    ```json
+    {
+        "error": "Не удалось получить все заказы"
+    }
+    ```
+
+---
+
+## 2. Получение заказа по ID
+
+### **Endpoint**
+
+`GET /orders/:id`
+
+### **Description**
+
+Получить заказ по ID.
+
+### **Request**
+
+-   **Path Parameters**:
+    -   `id` (integer): ID заказа
+-   **Headers**: Нет
+-   **Body**: Нет
+
+### **Response**
+
+-   **Status Code**: `200 OK`
+-   **Body**:
+
+    ```json
+    {
+        "ID": 1,
+        "order_id_unique": 1741265386758508500,
+        "address": "address",
+        "delivery_date": "2023-10-25T17:30:00+03:00",
+        "payment_terms": "prepayment",
+        "status": "in_processing",
+        "payment_time": "0001-01-01T00:00:00Z",
+        "customer_id": 1,
+        "total_price": 3000,
+        "order_content": [
+            {
+                "ID": 7,
+                "product_id": 1,
+                "order_id": 4,
+                "quantity": 1,
+                "price": 69.69,
+                "total_product_price": 1000,
+                "product": {
+                    "ID": 1,
+                    "name": "доска",
+                    "price": 123,
+                    "quantity": 123,
+                    "variety": "доска",
+                    "characteristics": "доска",
+                    "img_path": "..\\client\\public\\uploads\\1741186597689753400.jpg"
+                }
+            },
+            {
+                "ID": 8,
+                "product_id": 2,
+                "order_id": 4,
+                "quantity": 1,
+                "price": 13.37,
+                "total_product_price": 2000,
+                "product": {
+                    "ID": 2,
+                    "name": "гвоздь",
+                    "price": 123,
+                    "quantity": 123,
+                    "variety": "гвоздь",
+                    "characteristics": "гвоздь",
+                    "img_path": "..\\client\\public\\uploads\\1741186617066215000.gif"
+                }
+            }
+        ]
+    }
+    ```
+
+-   **Status Code**: `500 Internal Server Error`
+
+-   **Body**:
+
+    ```json
+    {
+        "error": "Не удалось получить заказ"
+    }
+    ```
+
+---
+
+## 3. Создание заказа
+
+### **Endpoint**
+
+`POST /orders`
+
+### **Description**
+
+Создать заказ авторизованным клиентом
+
+### **Request**
+
+-   **Headers**:
+    -   `Authorization`: Токен авторизации (Bearer <token>).
+-   **Body**:
+
+```json
+{
+    "address": "string (обязательно)",
+    "delivery_date": "date-time (обязательно) (формат ISO 8601)",
+    "payment_terms": "string (обязательно, допустимые значения: prepayment, postpayment, full_payment)",
+    "total_price": "число",
+    "order_content": [
+        {
+            "product_id": "integer (обязательно, >=1)",
+            "quantity": "integer (обязательно, >=1)",
+            "price": "число",
+            "total_product_price": "число"
+        }
+    ]
+}
+```
+
+### **Response**
+
+-   **Status Code**: `201 Created`
+-   **Body**:
+
+    ```json
+    { "ID": 123 }
+    ```
+
+-   **Status Code**: `500 Internal Server Error`
+
+-   **Body**:
+
+    ```json
+    {
+        "error": "Не удалось создать"
+    }
+    ```
+
+---
+
+## 4. Обновление цен в заказе
+
+### **Endpoint**
+
+`PATCH /orders/:id/change-price`
+
+### **Description**
+
+Обновить цены в заказе
+
+### **Request**
+
+-   **Path Parameters**:
+    -   `id` (integer): ID заказа
+-   **Headers**:
+-   **Body**:
+
+```json
+{
+    "products": [
+        {
+            "product_id": "integer (обязательно, >=1)",
+            "price": "число (обязательно, >=0)",
+            "total_product_price": "число (обязательно, >=0)"
+        }
+    ],
+    "total_order_price": "число (обязательно, >=0)"
+}
+```
+
+### **Response**
+
+-   **Status Code**: `200 OK`
+-   **Body**:
+
+    ```json
+    { "message": "Цены успешно обновлены" }
+    ```
+
+-   **Status Code**: `500 Internal Server Error`
+
+-   **Body**:
+
+    ```json
+    {
+        "error": "Не удалось обновить"
+    }
+    ```
+
+---
+
+## 5. Обновление статуса заказа
+
+### **Endpoint**
+
+`PATCH /orders/:id/status`
+
+### **Description**
+
+Изменение статуса заказа
+
+### **Request**
+
+-   **Path Parameters**:
+    -   `id` (integer): ID заказа
+-   **Headers**:
+-   **Body**:
+
+```json
+{
+    "status": "string (обязательно, допустимые значения: in_processing, awaiting_payment, in_assembly, awaiting_shipment, in_transit, received)"
+}
+```
+
+### **Response**
+
+-   **Status Code**: `200 OK`
+-   **Body**:
+
+    ```json
+    { "message": "Статус успешно обновлен" }
+    ```
+
+-   **Status Code**: `500 Internal Server Error`
+
+-   **Body**:
+
+    ```json
+    {
+        "error": "Не удалось обновить"
+    }
+    ```
+
+---
