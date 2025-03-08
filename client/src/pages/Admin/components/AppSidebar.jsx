@@ -5,7 +5,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
     DropboxOutlined,
     HomeOutlined,
-    AppstoreOutlined
+    AppstoreOutlined,
+    UsergroupAddOutlined,
+    ShoppingCartOutlined,
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
@@ -30,7 +32,29 @@ const AppSidebar = () => {
             label: "Упаковка",
             to: "/admin/packing",
         },
+        {
+            key: "3",
+            icon: <UsergroupAddOutlined />,
+            label: "Работники",
+            to: "/admin/employees",
+        },
+        {
+            key: "4",
+            icon: <ShoppingCartOutlined />,
+            label: "Заказы",
+            to: "/admin/orders",
+        }
     ], [] );
+
+    // const role = localStorage.getItem("role");
+
+    // if (role === "admin") {
+    //     items.push({
+    //         key: "3",
+    //         icon: <AppstoreOutlined />,
+    //         label: "Менеджер",
+    //         to: "/admin/manager",
+    //     });
 
     const navigate = useNavigate();
     const location = useLocation();

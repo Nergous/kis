@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Button, Form, Input, InputNumber, Upload, Image, Card } from "antd";
+import { Button, Form, Input, InputNumber, Upload, Image } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import api from "../../../../../utils/api";
 import {
@@ -75,8 +75,8 @@ const EditProductPage = () => {
         if (fileList.length > 0) {
             const formData = new FormData();
             formData.append("ID", values.ID);
-            formData.append("name", values.name);            
-            formData.append("price", values.price);
+            formData.append("name", values.name);
+            // formData.append("price", values.price);
             formData.append("quantity", values.quantity);
             formData.append("variety", values.variety);
             formData.append("characteristics", values.characteristics);
@@ -143,8 +143,20 @@ const EditProductPage = () => {
                 </Form.Item>
 
                 {/* Поле для цены товара */}
-                <Form.Item label="Цена" name="price">
-                    <InputNumber min={0} />
+                <Form.Item
+                    label={
+                        <div
+                            style={{ display: "flex", flexDirection: "column" }}
+                        >
+                            Цена{" "}
+                            <span style={{ color: "red", fontSize: 10 }}>
+                                (назначает менеджер)
+                            </span>
+                        </div>
+                    }
+                    name="price"
+                >
+                    <InputNumber min={0} disabled />
                 </Form.Item>
 
                 {/* Поле для количества товара */}
@@ -185,7 +197,12 @@ const EditProductPage = () => {
                 {/* Предпросмотр текущего и нового изображения */}
                 <Form.Item label="Изображения">
                     <CardBackgroundImages width="90%">
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                            }}
+                        >
                             {/* Текущее изображение */}
                             {product.img_path && (
                                 <div>
