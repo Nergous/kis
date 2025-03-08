@@ -15,10 +15,12 @@ import {
     SyncOutlined,
     DeleteOutlined,
     PlusCircleOutlined,
+    EditOutlined,
 } from "@ant-design/icons";
 import api from "../../../../utils/api";
 import AddQuantityModal from "./AddQuantityModal/AddQuantityModal";
 import DeleteProductModal from "./DeleteProductModal/DeleteProductModal";
+import EditPriceModal from "./EditPriceModal/EditPriceModal";
 import {
     showErrorNotification,
     showSuccessNotification,
@@ -28,89 +30,18 @@ const AdminStoragePage = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isAddQuantityModalVisible, setIsAddQuantityModalVisible] =
-        useState(false); // Состояние для отображения модального окна добавления количества
-    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // Состояние для отображения модального окна удаления
-    const [selectedProductId, setSelectedProductId] = useState(null); // ID выбранного продукта
-    const [selectedName, setSelectedName] = useState(null); // Название выбранного продукта
-    const [selectedQuantity, setSelectedQuantity] = useState(null); // Количество выбранного продукта
+        useState(false);
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [isEditPriceModalVisible, setIsEditPriceModalVisible] =
+        useState(false); // Состояние для модального окна изменения цены
+    const [selectedProductId, setSelectedProductId] = useState(null);
+    const [selectedName, setSelectedName] = useState(null);
+    const [selectedQuantity, setSelectedQuantity] = useState(null);
+    const [selectedPrice, setSelectedPrice] = useState(null); // Состояние для хранения текущей цены
+    const [role] = useState(localStorage.getItem("role")); // Получаем роль из localStorage
     const navigate = useNavigate();
 
-    // Загрузка данных с endpoint'а
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
-        try {
-            const response = await api().get("/api/products");
-            setData(response.data);
-            // showSuccessNotification("Данные успешно загружены");  // Нахер не нужно
-        } catch (error) {
-            showErrorNotification("Ошибка при загрузке данных");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Обработка удаления продукта
-    const handleDelete = async (id) => {
-        try {
-            await api().delete(`/api/products/${id}`);
-            showSuccessNotification("Продукт успешно удален");
-            fetchData(); // Обновляем данные после удаления
-        } catch (error) {
-            showErrorNotification("Ошибка при удалении продукта");
-        } finally {
-            setIsDeleteModalVisible(false); // Закрываем модальное окно
-        }
-    };
-
-    // Обработка добавления количества
-    const handleAddQuantity = (id, name, quantity) => {
-        setSelectedProductId(id); // Устанавливаем ID продукта
-        setSelectedName(name); // Устанавливаем название продукта
-        setSelectedQuantity(quantity); // Устанавливаем количество
-        setIsAddQuantityModalVisible(true); // Открываем модальное окно
-    };
-
-    // Обработка обновления продукта
-    const handleChange = (id) => {
-        const product = data.find((item) => item.ID === id);
-        if (product) {
-            navigate(`/admin/storage/${id}`, { state: { product } });
-        }
-    };
-
-    // Закрытие модального окна добавления количества
-    const handleAddQuantityModalClose = () => {
-        setIsAddQuantityModalVisible(false);
-        setSelectedProductId(null);
-        setSelectedName(null);
-        setSelectedQuantity(null);
-    };
-
-    // Обновление данных после успешного добавления количества
-    const handleQuantityAdded = () => {
-        fetchData(); // Обновляем данные
-        setIsAddQuantityModalVisible(false); // Закрываем модальное окно
-    };
-
-    // Открытие модального окна удаления
-    const handleDeleteClick = (id, name) => {
-        setSelectedProductId(id); // Устанавливаем ID продукта
-        setSelectedName(name); // Устанавливаем название продукта
-        setIsDeleteModalVisible(true); // Открываем модальное окно
-    };
-
-    // Закрытие модального окна удаления
-    const handleDeleteModalClose = () => {
-        setIsDeleteModalVisible(false);
-        setSelectedProductId(null);
-        setSelectedName(null);
-    };
-
-    // Элементы меню для Dropdown
-    const getMenuItems = (record) => [
+    const getStorageActions = (record) => [
         {
             key: "1",
             label: (
@@ -175,7 +106,141 @@ const AdminStoragePage = () => {
         },
     ];
 
-    // Колонки таблицы
+    const getManagerActions = (record) => [
+        {
+            key: "4",
+            label: (
+                <Button
+                    style={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                    }}
+                    variant="dashed"
+                    type="link"
+                    color="orange"
+                    onClick={() =>
+                        handleEditPrice(record.ID, record.name, record.price)
+                    }
+                >
+                    <EditOutlined />
+                    Изменить цену
+                </Button>
+            ),
+        },
+    ];
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const response = await api().get("/api/products");
+            setData(response.data);
+        } catch (error) {
+            showErrorNotification("Ошибка при загрузке данных");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await api().delete(`/api/products/${id}`);
+            showSuccessNotification("Продукт успешно удален");
+            fetchData();
+        } catch (error) {
+            showErrorNotification("Ошибка при удалении продукта");
+        } finally {
+            setIsDeleteModalVisible(false);
+        }
+    };
+
+    const handleAddQuantity = (id, name, quantity) => {
+        setSelectedProductId(id);
+        setSelectedName(name);
+        setSelectedQuantity(quantity);
+        setIsAddQuantityModalVisible(true);
+    };
+
+    const handleChange = (id) => {
+        const product = data.find((item) => item.ID === id);
+        if (product) {
+            navigate(`/admin/storage/${id}`, { state: { product } });
+        }
+    };
+
+    const handleAddQuantityModalClose = () => {
+        setIsAddQuantityModalVisible(false);
+        setSelectedProductId(null);
+        setSelectedName(null);
+        setSelectedQuantity(null);
+    };
+
+    const handleQuantityAdded = () => {
+        fetchData();
+        setIsAddQuantityModalVisible(false);
+    };
+
+    const handleDeleteClick = (id, name) => {
+        setSelectedProductId(id);
+        setSelectedName(name);
+        setIsDeleteModalVisible(true);
+    };
+
+    const handleDeleteModalClose = () => {
+        setIsDeleteModalVisible(false);
+        setSelectedProductId(null);
+        setSelectedName(null);
+    };
+
+    const handleEditPrice = (id, name, price) => {
+        setSelectedProductId(id);
+        setSelectedName(name);
+        setSelectedPrice(price);
+        setIsEditPriceModalVisible(true);
+    };
+
+    const handleEditPriceModalClose = () => {
+        setIsEditPriceModalVisible(false);
+        setSelectedProductId(null);
+        setSelectedName(null);
+        setSelectedPrice(null);
+    };
+
+    const handlePriceUpdated = async (newPrice) => {
+        try {
+            await api().patch(`/api/products/${selectedProductId}/price`, {
+                price: newPrice,
+            });
+            showSuccessNotification("Цена успешно обновлена");
+            fetchData();
+        } catch (error) {
+            showErrorNotification("Ошибка при обновлении цены");
+        } finally {
+            setIsEditPriceModalVisible(false);
+        }
+    };
+
+    const getMenuItems = (record) => {
+        let actions = [];
+
+        if (role === "storage") {
+            actions = getStorageActions(record);
+        } else if (role === "manager") {
+            actions = getManagerActions(record);
+        } else if (role === "admin") {
+            // Для admin объединяем действия storage и manager
+            actions = [
+                ...getStorageActions(record),
+                ...getManagerActions(record),
+            ];
+        }
+
+        return actions;
+    };
+
     const columns = [
         {
             title: "ID",
@@ -188,11 +253,11 @@ const AdminStoragePage = () => {
             key: "img_path",
             render: (img_path) => {
                 img_path = img_path.replace(/\\/g, "/").split("public")[1];
-                return <Image src={img_path} alt="product" width={100} />;
+                return <Image src={img_path} alt="product" width={110} height={110} />;
             },
         },
         {
-            title: "Название",
+            title: "Наименование",
             dataIndex: "name",
             key: "name",
         },
@@ -224,7 +289,7 @@ const AdminStoragePage = () => {
                 <Space size="middle">
                     <Dropdown
                         menu={{
-                            items: getMenuItems(record), // Используем items вместо menuItems
+                            items: getMenuItems(record),
                         }}
                         trigger={["click"]}
                     >
@@ -239,22 +304,23 @@ const AdminStoragePage = () => {
 
     return (
         <div>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    marginBottom: 16,
-                }}
-            >
-                {/* Кнопка "Добавить новый продукт" */}
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => navigate("/admin/storage/create")}
+            {(role === "storage" || role === "admin") && (
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginBottom: 16,
+                    }}
                 >
-                    Добавить новый продукт
-                </Button>
-            </div>
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => navigate("/admin/storage/create")}
+                    >
+                        Добавить новый продукт
+                    </Button>
+                </div>
+            )}
             {loading ? (
                 <Spin
                     size="large"
@@ -273,7 +339,7 @@ const AdminStoragePage = () => {
                     theme={{
                         components: {
                             Table: {
-                                cellFontSize: 18, // Увеличиваем шрифт в таблице
+                                cellFontSize: 18,
                             },
                         },
                     }}
@@ -288,7 +354,6 @@ const AdminStoragePage = () => {
                 </ConfigProvider>
             )}
 
-            {/* Модальное окно для добавления количества */}
             <AddQuantityModal
                 visible={isAddQuantityModalVisible}
                 onCancel={handleAddQuantityModalClose}
@@ -298,12 +363,20 @@ const AdminStoragePage = () => {
                 productQuantity={selectedQuantity}
             />
 
-            {/* Модальное окно для подтверждения удаления */}
             <DeleteProductModal
                 visible={isDeleteModalVisible}
                 onCancel={handleDeleteModalClose}
                 onConfirm={() => handleDelete(selectedProductId)}
                 productName={selectedName}
+            />
+
+            <EditPriceModal
+                visible={isEditPriceModalVisible}
+                onCancel={handleEditPriceModalClose}
+                onSuccess={handlePriceUpdated}
+                productId={selectedProductId}
+                productName={selectedName}
+                productPrice={selectedPrice}
             />
         </div>
     );

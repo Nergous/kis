@@ -6,15 +6,18 @@ import (
 )
 
 type Customer struct {
-	gorm.Model
+	BaseModel
+
 	Name          string      `gorm:"type:varchar(255);not null"                    json:"name" validate:"required,min=1"`
 	Email         string      `gorm:"type:varchar(255);not null;unique"             json:"email" validate:"required,min=1"`
-	Password      string      `gorm:"type:varchar(255);not null"                    json:"password" validate:"required,min=1"`
+	Password      string      `gorm:"type:varchar(255);not null"                    json:"-" validate:"required,min=1"`
 	INN           string      `gorm:"type:varchar(255);not null;unique"             json:"inn" validate:"required,min=1"`
 	MainBooker    string      `gorm:"type:varchar(255);not null"                    json:"main_booker" validate:"required,min=1"`
 	Director      string      `gorm:"type:varchar(255);not null"                    json:"director" validate:"required,min=1"`
-	PaymentCharID uint        `gorm:"not null;unique"                               json:"payment_char_id"`
+	PaymentCharID uint        `gorm:"not null;unique"                               json:"-"`
 	PaymentChar   PaymentChar `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"payment_char,omitempty"`
+
+	Orders []Order `gorm:"foreignKey:CustomerID;references:ID" json:"orders,omitempty"`
 }
 
 func CreateCustomersTable(db *gorm.DB) error {

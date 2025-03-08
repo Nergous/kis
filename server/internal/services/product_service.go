@@ -72,3 +72,17 @@ func UpdateQuantity(id uint, quantity int) error {
 	}
 	return nil
 }
+
+func UpdatePrice(id uint, price float64) error {
+	product, err := repositories.GetProductByID(id)
+	if err != nil {
+		return err
+	}
+
+	product.Price = price
+	_, err = repositories.UpdateProduct(product)
+	if err != nil {
+		return err
+	}
+	return nil
+}

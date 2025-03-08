@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"slices"
 	"strings"
@@ -72,7 +73,9 @@ func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
 			}
 
 			// Добавляем пользователя в контекст
-			c.Set("customer", customer)
+			c.Set("customer_id", customer.ID)
+			fmt.Println(customer)
+			fmt.Println("---------------------------")
 			c.Next()
 			return
 		} else {
@@ -82,7 +85,7 @@ func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			c.Set("worker", worker)
+			c.Set("worker_id", worker.ID)
 			c.Next()
 		}
 	}

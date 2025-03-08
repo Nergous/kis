@@ -13,7 +13,7 @@ import {
     BarcodeOutlined,
 } from "@ant-design/icons";
 import api from "../../../utils/api";
-import FormInput from "../components/FormInput/FormInput";
+import FormInput from "../../../ui/FormInput/FormInput"
 import { logIn } from "../../../utils/auth";
 
 
@@ -32,7 +32,7 @@ const RegisterPage = () => {
         setSending(true);
 
         try {
-            const response = await api().post("/register", values);
+            const response = await api().post("/api/register", values);
             const token = response.data.token;
             const role = response.data.role;
             logIn(token, role);

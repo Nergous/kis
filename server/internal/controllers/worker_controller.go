@@ -41,18 +41,31 @@ func GetWorkerByID(c *gin.Context) {
 
 // CreateWorker создает нового работника
 func CreateWorker(c *gin.Context) {
-	var workerIn models.Worker
-	if err := c.ShouldBindJSON(&workerIn); err != nil {
+	var input struct {
+		Login    string `json:"login" binding:"required,min=1"`
+		Password string `json:"password" binding:"required,min=1"`
+		Name     string `json:"name" binding:"required,min=1"`
+		Role     string `json:"role" binding:"required,oneof=admin storage intern manager"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Неверный формат работника: " + err.Error(),
+			"error": "Неверный формат запроса",
 		})
 		return
 	}
+	workerIn := models.Worker{
+		Login:    input.Login,
+		Password: input.Password,
+		Name:     input.Name,
+		Role:     input.Role,
+	}
+
 	_, err := services.CreateWorker(&workerIn)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось создать работника",
+			"error": "Не удалось создать работника" + err.Error(),
 		})
 		return
 	}

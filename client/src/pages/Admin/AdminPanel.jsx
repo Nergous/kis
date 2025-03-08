@@ -6,6 +6,8 @@ import AdminStoragePage from "./pages/Storage/AdminStoragePage";
 import AdminPackingPage from "./pages/AdminPackingPage";
 import EditProductPage from "./pages/Storage/EditProductPage/EditProductPage";
 import CreateProductPage from "./pages/Storage/CreateProductPage/CreateProductPage";
+import AdminEmployeesPage from "./pages/Employees/AdminEmployeesPage";
+import AdminOrdersPage from "./pages/Orders/AdminOrdersPage";
 
 const AdminPanel = () => {
     return (
@@ -23,6 +25,12 @@ const AdminPanel = () => {
                                 <Route path="/storage/create" element={<CreateProductPage />} />
 
                                 <Route path="/packing" element={<AdminPackingPage />} />
+
+                                <Route path="/employees" element={<AdminEmployeesPage />} />
+
+                                <Route path="/orders" element={<AdminOrdersPage />} />
+
+
                                 <Route
                                     path="/*"
                                     element={<Navigate to="/admin" />}

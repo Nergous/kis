@@ -44,6 +44,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка создания таблицы платежных характеристик: %v", err)
 	}
+	err = models.CreateOrdersTable(config.DB)
+	if err != nil {
+		log.Fatalf("Ошибка создания таблицы заказа: %v", err)
+	}
+	err = models.CreateOrderContentTable(config.DB)
+	if err != nil {
+		log.Fatalf("Ошибка создания таблицы состава заказа: %v", err)
+	}
 
 	r := routes.SetupRoutes()
 	r.Use(middleware.LogMiddleware())

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Button, Form, Input, InputNumber, Upload, Image, Card } from "antd";
+import { Button, Form, Input, InputNumber, Upload, Image } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import api from "../../../../../utils/api";
 import {
@@ -75,12 +75,12 @@ const EditProductPage = () => {
         if (fileList.length > 0) {
             const formData = new FormData();
             formData.append("ID", values.ID);
-            formData.append("product_image", fileList[0].originFileObj);
             formData.append("name", values.name);
-            formData.append("price", values.price);
+            // formData.append("price", values.price);
             formData.append("quantity", values.quantity);
             formData.append("variety", values.variety);
             formData.append("characteristics", values.characteristics);
+            formData.append("product_image", fileList[0].originFileObj);
             formData.append("img_path", img_path);
 
             try {
@@ -128,18 +128,8 @@ const EditProductPage = () => {
                 layout="vertical"
             >
                 {/* Поле для названия товара */}
-                <Form.Item label="Название" name="name">
+                <Form.Item label="Наименование" name="name">
                     <Input />
-                </Form.Item>
-
-                {/* Поле для цены товара */}
-                <Form.Item label="Цена" name="price">
-                    <InputNumber min={0} />
-                </Form.Item>
-
-                {/* Поле для количества товара */}
-                <Form.Item label="Количество" name="quantity">
-                    <InputNumber min={0} />
                 </Form.Item>
 
                 {/* Поле для вида/сорта товара */}
@@ -150,6 +140,28 @@ const EditProductPage = () => {
                 {/* Поле для характеристик товара */}
                 <Form.Item label="Характеристики" name="characteristics">
                     <Input.TextArea />
+                </Form.Item>
+
+                {/* Поле для цены товара */}
+                <Form.Item
+                    label={
+                        <div
+                            style={{ display: "flex", flexDirection: "column" }}
+                        >
+                            Цена{" "}
+                            <span style={{ color: "red", fontSize: 10 }}>
+                                (назначает менеджер)
+                            </span>
+                        </div>
+                    }
+                    name="price"
+                >
+                    <InputNumber min={0} disabled />
+                </Form.Item>
+
+                {/* Поле для количества товара */}
+                <Form.Item label="Количество (куб. м)" name="quantity">
+                    <InputNumber min={0} />
                 </Form.Item>
 
                 {/* Поле для загрузки изображения */}
@@ -185,7 +197,12 @@ const EditProductPage = () => {
                 {/* Предпросмотр текущего и нового изображения */}
                 <Form.Item label="Изображения">
                     <CardBackgroundImages width="90%">
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                            }}
+                        >
                             {/* Текущее изображение */}
                             {product.img_path && (
                                 <div>

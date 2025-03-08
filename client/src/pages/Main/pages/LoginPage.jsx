@@ -5,7 +5,7 @@ import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import api from "../../../utils/api";
 import { logIn } from "../../../utils/auth";
 import RegLogLayout from "../layout/RegLogLayout";
-import FormInput from "../components/FormInput/FormInput";
+import FormInput from "../../../ui/FormInput/FormInput"
 
 // import logo_2 from "../../../logo_2.png";
 
@@ -26,7 +26,7 @@ const LoginPage = () => {
         );
         try {
             setSending(true);
-            const response = await api().post(endpoint, values);
+            const response = await api().get(endpoint, values);
             const token = response.data.token;
             const role = response.data.role;
             logIn(token, role);
