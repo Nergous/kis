@@ -108,8 +108,15 @@ func CreateOrder(c *gin.Context) {
 }
 
 func UpdateOrderPrices(c *gin.Context) {
+	id := c.Param("id")
+	orderID, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Неверный формат ID: " + err.Error(),
+		})
+		return
+	}
 	var input struct {
-		OrderID  uint `json:"order_id" binding:"required"`
 		Products []struct {
 			ProductID         uint    `json:"product_id" binding:"required,gte=1"`
 			Price             float64 `json:"price" binding:"required,gte=0"`
@@ -125,7 +132,6 @@ func UpdateOrderPrices(c *gin.Context) {
 		return
 	}
 
-	orderID := input.OrderID
 	// Преобразуем входные данные в структуру для сервиса
 	productsToUpdate := make([]models.OrderContentUpdate, len(input.Products))
 	for i, product := range input.Products {
@@ -137,7 +143,7 @@ func UpdateOrderPrices(c *gin.Context) {
 	}
 
 	// Вызываем сервис для обновления цен
-	err := services.UpdateOrderPrices(uint(orderID), productsToUpdate, input.TotalOrderPrice)
+	err = services.UpdateOrderPrices(uint(orderID), productsToUpdate, input.TotalOrderPrice)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Не удалось обновить цены: " + err.Error(),
@@ -151,9 +157,16 @@ func UpdateOrderPrices(c *gin.Context) {
 }
 
 func UpdateOrderStatus(c *gin.Context) {
+	orderIDStr := c.Param("id")
+	orderID, err := strconv.ParseUint(orderIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Неверный формат ID: " + err.Error(),
+		})
+		return
+	}
 	var input struct {
-		OrderID uint   `json:"order_id" binding:"required"`
-		Status  string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received"`
+		Status string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -164,7 +177,7 @@ func UpdateOrderStatus(c *gin.Context) {
 	}
 
 	// Вызываем сервис для обновления статуса
-	err := services.UpdateOrderStatus(input.OrderID, input.Status)
+	err = services.UpdateOrderStatus(uint(orderID), input.Status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Не удалось обновить статус: " + err.Error(),

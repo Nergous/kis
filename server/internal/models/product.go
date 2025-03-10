@@ -8,7 +8,7 @@ import (
 type Product struct {
 	BaseModel
 	Name            string  `gorm:"type:varchar(255);not null" json:"name" validate:"required,min=1" form:"name"`
-	Price           float64 `gorm:"type:decimal(10,2)" json:"price" validate:"required,gte=1" form:"price"`
+	Price           float64 `gorm:"type:decimal(10,2)" json:"price" form:"price"`
 	Quantity        int     `gorm:"type:int;not null" json:"quantity" validate:"required,gte=1" form:"quantity"`
 	Variety         string  `gorm:"type:varchar(255);not null" json:"variety" validate:"required,min=1" form:"variety"`
 	Characteristics string  `gorm:"type:text;not null" json:"characteristics" validate:"required,min=1" form:"characteristics"`
