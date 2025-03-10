@@ -116,6 +116,7 @@ func UpdateOrderPrices(c *gin.Context) {
 		})
 		return
 	}
+
 	var input struct {
 		Products []struct {
 			ProductID         uint    `json:"product_id" binding:"required,gte=1"`
@@ -165,6 +166,7 @@ func UpdateOrderStatus(c *gin.Context) {
 		})
 		return
 	}
+
 	var input struct {
 		Status string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received"`
 	}

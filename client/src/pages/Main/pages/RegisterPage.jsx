@@ -32,7 +32,7 @@ const RegisterPage = () => {
         setSending(true);
 
         try {
-            const response = await api().post("/register", values);
+            const response = await api().post("/api/register", values);
             const token = response.data.token;
             const role = response.data.role;
             logIn(token, role);

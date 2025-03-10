@@ -26,7 +26,7 @@ const LoginPage = () => {
         );
         try {
             setSending(true);
-            const response = await api().post(endpoint, values);
+            const response = await api().get(endpoint, values);
             const token = response.data.token;
             const role = response.data.role;
             logIn(token, role);
