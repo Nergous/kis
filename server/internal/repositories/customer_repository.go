@@ -7,7 +7,7 @@ import (
 
 func GetAllCustomers() ([]models.Customer, error) {
 	var customers []models.Customer
-	result := config.DB.Find(&customers)
+	result := config.DB.Preload("PaymentChar").Find(&customers)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -16,7 +16,7 @@ func GetAllCustomers() ([]models.Customer, error) {
 
 func GetCustomerByID(id uint) (*models.Customer, error) {
 	var customer models.Customer
-	result := config.DB.First(&customer, id)
+	result := config.DB.Preload("PaymentChar").First(&customer, id)
 	if result.Error != nil {
 		return &models.Customer{}, result.Error
 	}

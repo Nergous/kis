@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 func GetAllCustomers(c *gin.Context) {
 	customers, err := services.GetAllCustomers()
 	if err != nil {
@@ -34,11 +33,11 @@ func GetCustomerByID(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Не удалось получить клиента",
-	})}
+		})
+	}
 
 	c.JSON(http.StatusOK, customer)
 }
-
 
 func CreateCustomer(c *gin.Context) {
 	var customerIn models.Customer
@@ -52,7 +51,7 @@ func CreateCustomer(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось создать клиента",
+			"error": "Не удалось создать клиента" + err.Error(),
 		})
 		return
 	}

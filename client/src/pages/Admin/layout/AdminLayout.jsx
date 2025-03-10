@@ -6,6 +6,7 @@ import rightBlob from "../../../assets/right.png"; // Убедитесь в пр
 import AppHeader from "../components/AppHeader";
 import AppSidebar from "../components/AppSidebar";
 import Notification from "../../../ui/Notification/Notification";
+import c from "./AdminLayout.module.css";
 
 const { Content } = Layout;
 
@@ -66,6 +67,7 @@ const AdminLayout = ({ children }) => {
             <Layout>
                 <AppSidebar />
                 <Content
+                    className={c.AdminContent}
                     style={{
                         padding: 20,
                         position: "relative",

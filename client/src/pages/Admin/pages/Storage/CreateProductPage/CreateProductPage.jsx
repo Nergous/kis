@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, InputNumber, Upload, Image, Card } from "antd";
-import { UploadOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+// import { useNavigate } from "react-router-dom";
+import { Button, Form, Input, InputNumber, Upload, Image } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import api from "../../../../../utils/api";
 import {
     showSuccessNotification,
@@ -14,7 +14,7 @@ const CreateProductPage = () => {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState([]); // Состояние для хранения загруженных файлов
     const [previewImage, setPreviewImage] = useState(null); // Состояние для превью изображения
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     // Обработка загрузки файлов
     const handleUpload = ({ fileList }) => {
@@ -50,9 +50,9 @@ const CreateProductPage = () => {
             return Upload.LIST_IGNORE; // Игнорируем файл, если он не подходит
         }
 
-        const isLt2M = file.size / 1024 / 1024 < 2; // Проверка на размер файла (меньше 2MB)
+        const isLt2M = file.size / 1024 / 1024 < 6;
         if (!isLt2M) {
-            showErrorNotification("Изображение должно быть меньше 2MB!");
+            showErrorNotification("Изображение должно быть меньше 6MB!");
             return Upload.LIST_IGNORE;
         }
 
@@ -72,7 +72,7 @@ const CreateProductPage = () => {
         const formData = new FormData();
         formData.append("product_image", fileList[0].originFileObj); // Добавляем изображение
         formData.append("name", values.name);
-        formData.append("price", values.price);
+        // formData.append("price", values.price);
         formData.append("quantity", values.quantity);
         formData.append("variety", values.variety);
         formData.append("characteristics", values.characteristics);
@@ -106,7 +106,7 @@ const CreateProductPage = () => {
             >
                 {/* Поле для названия товара */}
                 <Form.Item
-                    label="Название"
+                    label="Наименование"
                     name="name"
                     rules={[
                         {
@@ -116,46 +116,6 @@ const CreateProductPage = () => {
                     ]}
                 >
                     <Input placeholder="Введите название продукта" />
-                </Form.Item>
-
-                {/* Поле для цены товара */}
-                <Form.Item
-                    label="Цена"
-                    name="price"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Пожалуйста, введите цену продукта!",
-                        },
-                        {
-                            type: "number",
-                            message: "Цена должна быть числом!",
-                        },
-                    ]}
-                >
-                    <InputNumber
-                        min={0}
-                        style={{ width: "100%" }}
-                        placeholder="Введите цену"
-                    />
-                </Form.Item>
-
-                {/* Поле для количества товара */}
-                <Form.Item
-                    label="Количество"
-                    name="quantity"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Пожалуйста, введите количество продукта!",
-                        },
-                    ]}
-                >
-                    <InputNumber
-                        min={0}
-                        style={{ width: "100%" }}
-                        placeholder="Введите количество"
-                    />
                 </Form.Item>
 
                 {/* Поле для вида/сорта товара */}
@@ -189,6 +149,48 @@ const CreateProductPage = () => {
                         placeholder="Введите характеристики продукта"
                     />
                 </Form.Item>
+
+                {/* Поле для цены товара */}
+                <Form.Item
+                    label={<div style={{display: "flex", flexDirection: "column"}}>Цена <span style={{color: "red", fontSize: 10}}>(назначает менеджер)</span></div>}
+                    name="price"
+                    rules={[    
+                        {
+                            required: false,
+                            message: "Пожалуйста, введите цену продукта!",
+                        },
+                        {
+                            type: "number",
+                            message: "Цена должна быть числом!",
+                        },
+                    ]}
+                >
+                    <InputNumber
+                        min={0}
+                        style={{ width: "100%" }}
+                        disabled
+                        placeholder="Введите цену"
+                    />
+                </Form.Item>
+
+                {/* Поле для количества товара */}
+                <Form.Item
+                    label="Количество (куб. м)"
+                    name="quantity"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Пожалуйста, введите количество продукта!",
+                        },
+                    ]}
+                >
+                    <InputNumber
+                        min={0}
+                        style={{ width: "100%" }}
+                        placeholder="Введите количество"
+                    />
+                </Form.Item>
+
 
                 {/* Поле для загрузки изображения */}
                 <Form.Item
