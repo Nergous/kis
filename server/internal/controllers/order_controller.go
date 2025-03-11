@@ -168,7 +168,7 @@ func UpdateOrderStatus(c *gin.Context) {
 	}
 
 	var input struct {
-		Status  string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received"`
+		Status string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
