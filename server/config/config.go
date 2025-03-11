@@ -78,8 +78,38 @@ func overrideWithEnv() {
 }
 
 func InitDB() error {
+	dsnWithoutDB := fmt.Sprintf("%s:%s@tcp(%s:%d)/?charset=utf8mb4&parseTime=True&loc=Local",
+		AppConfig.Database.Username,
+		AppConfig.Database.Password,
+		AppConfig.Database.Host,
+		AppConfig.Database.Port,
+	)
+
+	// Подключение к серверу MySQL
+	db, err := gorm.Open(mysql.Open(dsnWithoutDB), &gorm.Config{})
+	if err != nil {
+		return fmt.Errorf("не удалось подключиться к серверу MySQL: %w", err)
+	}
+
+	// Проверка существования базы данных
+	var exists int
+	err = db.Raw("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", AppConfig.Database.DBName).Scan(&exists).Error
+	if err != nil {
+		return fmt.Errorf("не удалось проверить существование базы данных: %w", err)
+	}
+
+	// Создание базы данных, если она не существует
+	if exists == 0 {
+		err = db.Exec(fmt.Sprintf("CREATE DATABASE %s", AppConfig.Database.DBName)).Error
+		if err != nil {
+			return fmt.Errorf("не удалось создать базу данных: %w", err)
+		}
+		log.Printf("База данных %s успешно создана.", AppConfig.Database.DBName)
+	}
+
+	// Подключение к конкретной базе данных
 	dsn := GetDSN()
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("не удалось подключиться к базе данных: %w", err)
 	}

@@ -4,6 +4,7 @@ import { IconButton, Badge } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CartDrawer from "../components/CartDrawer/CartDrawer";
 import ProductCard from "../components/ProductCard/ProductCard";
+import ProductModal from "../components/ProductModal/ProductModal";
 import api from "../../../utils/api";
 import "antd/dist/reset.css";
 import "../../../fonts.css";
@@ -13,6 +14,8 @@ const MainPage = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [products, setProducts] = useState([]);
     const [isLoading, setLoading] = useState(true);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -26,7 +29,7 @@ const MainPage = () => {
                 }));
                 setCartItems(cartItemsArray);
                 window.addEventListener("openCart", () => setIsCartOpen(true));
-                setLoading(false)
+                setLoading(false);
             } catch (error) {
                 console.error("Error fetching products:", error);
             }
@@ -36,8 +39,8 @@ const MainPage = () => {
     }, []);
 
     const clearCart = () => {
-        setCartItems([]); // Очищаем корзину
-        localStorage.removeItem("cart"); // Очищаем localStorage
+        setCartItems([]);
+        localStorage.removeItem("cart");
         window.dispatchEvent(new Event("cartUpdated"));
     };
 
@@ -51,7 +54,6 @@ const MainPage = () => {
     };
 
     const addToCart = (product) => {
-        console.log(cartItems);
         const existing = cartItems.find((item) => item.ID === product.ID);
         let newCartItems;
         if (existing) {
@@ -61,7 +63,6 @@ const MainPage = () => {
         }
         setCartItems(newCartItems);
         saveCartToLocalStorage(newCartItems);
-        setIsCartOpen(true);
     };
 
     const removeFromCart = (productId) => {
@@ -77,6 +78,16 @@ const MainPage = () => {
         saveCartToLocalStorage(newCartItems);
     };
 
+    const handleProductClick = (product) => {
+        setSelectedProduct(product);
+        setIsModalVisible(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalVisible(false);
+        setSelectedProduct(null);
+    };
+
     const cartTotalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
@@ -90,7 +101,8 @@ const MainPage = () => {
                     background: "#4caf50",
                     color: "white",
                 }}
-                onClick={() => setIsCartOpen(true)}>
+                onClick={() => setIsCartOpen(true)}
+            >
                 <Badge
                     badgeContent={cartTotalItems}
                     color="error"
@@ -98,14 +110,14 @@ const MainPage = () => {
                         "& .MuiBadge-badge": {
                             fontFamily: "'DMSans-Medium', sans-serif",
                         },
-                    }}>
+                    }}
+                >
                     <ShoppingCartIcon />
                 </Badge>
             </IconButton>
 
             <Row gutter={[5, 100]} justify="center" style={{ paddingTop: 40 }}>
                 {isLoading ? (
-                    // render <Skeleton> 20 times
                     [...Array(12)].map((_, index) => (
                         <Col xs={24} sm={12} md={8} lg={6} key={index} style={{ display: "flex", justifyContent: "center" }}>
                             <Skeleton 
@@ -117,17 +129,22 @@ const MainPage = () => {
                                     maxWidth: "300px",
                                     gap: "12px",
                                     borderRadius: "20px",
-                                    }} 
+                                }} 
                             />
                         </Col>
                     ))
-                    
                 ) : (
-                    products.map((product, index) => (
-                        <Col xs={24} sm={12} md={8} lg={6} key={index} style={{ display: "flex", justifyContent: "center" }}>
-                            <ProductCard product={product} addToCart={addToCart} />
-                        </Col>
-                    ))
+                    products
+                        .filter(product => product.price > 0) // Фильтрация товаров с ценой больше 0
+                        .map((product, index) => (
+                            <Col xs={24} sm={12} md={8} lg={6} key={index} style={{ display: "flex", justifyContent: "center" }}>
+                                <ProductCard 
+                                    product={product} 
+                                    addToCart={addToCart} 
+                                    onProductClick={handleProductClick}
+                                />
+                            </Col>
+                        ))
                 )}
             </Row>
 
@@ -138,6 +155,13 @@ const MainPage = () => {
                 updateQuantity={updateQuantity}
                 removeFromCart={removeFromCart}
                 clearCart={clearCart}
+            />
+
+            <ProductModal
+                product={selectedProduct}
+                visible={isModalVisible}
+                onClose={handleCloseModal}
+                addToCart={addToCart}
             />
         </div>
     );

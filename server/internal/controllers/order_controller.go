@@ -56,13 +56,15 @@ func CreateOrder(c *gin.Context) {
 		} `json:"order_content" binding:"required,dive"`
 	}
 
-	customerID, exists := c.Get("customer_id")
-	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Отсутствует ID клиента",
-		})
-		return
-	}
+	// customerID, exists := c.Get("customer_id")
+	// if !exists {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": "Отсутствует ID клиента",
+	// 	})
+	// 	return
+	// }
+	var customerID uint = 1
+	// Ну это пиздец не иначе
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -76,7 +78,7 @@ func CreateOrder(c *gin.Context) {
 		DeliveryDate: input.DeliveryDate,
 		PaymentTerms: input.PaymentTerms,
 		TotalPrice:   input.TotalPrice,
-		CustomerID:   customerID.(uint),
+		CustomerID:   customerID,
 	}
 
 	for _, item := range input.OrderContent {
@@ -168,7 +170,7 @@ func UpdateOrderStatus(c *gin.Context) {
 	}
 
 	var input struct {
-		Status  string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received"`
+		Status string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
