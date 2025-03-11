@@ -4,7 +4,7 @@ import { IconButton, Badge } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CartDrawer from "../components/CartDrawer/CartDrawer";
 import ProductCard from "../components/ProductCard/ProductCard";
-import ProductModal from "../components/ProductModal/ProductModal"; // Импортируем модальное окно
+import ProductModal from "../components/ProductModal/ProductModal";
 import api from "../../../utils/api";
 import "antd/dist/reset.css";
 import "../../../fonts.css";
@@ -134,15 +134,17 @@ const MainPage = () => {
                         </Col>
                     ))
                 ) : (
-                    products.map((product, index) => (
-                        <Col xs={24} sm={12} md={8} lg={6} key={index} style={{ display: "flex", justifyContent: "center" }}>
-                            <ProductCard 
-                                product={product} 
-                                addToCart={addToCart} 
-                                onProductClick={handleProductClick} // Передаем функцию
-                            />
-                        </Col>
-                    ))
+                    products
+                        .filter(product => product.price > 0) // Фильтрация товаров с ценой больше 0
+                        .map((product, index) => (
+                            <Col xs={24} sm={12} md={8} lg={6} key={index} style={{ display: "flex", justifyContent: "center" }}>
+                                <ProductCard 
+                                    product={product} 
+                                    addToCart={addToCart} 
+                                    onProductClick={handleProductClick}
+                                />
+                            </Col>
+                        ))
                 )}
             </Row>
 
