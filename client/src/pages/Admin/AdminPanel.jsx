@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
-import ProtectedRoute from "../../provider/ProtectedRoute";
+import ProtectedProvider from "../../provider/ProtectedProvider";
 import AdminLayout from "./layout/AdminLayout";
 import MainAdminPage from "./pages/MainAdminPage";
 import AdminStoragePage from "./pages/Storage/AdminStoragePage";
@@ -9,6 +9,7 @@ import EditProductPage from "./pages/Storage/EditProductPage/EditProductPage";
 import CreateProductPage from "./pages/Storage/CreateProductPage/CreateProductPage";
 import AdminEmployeesPage from "./pages/Employees/AdminEmployeesPage";
 import AdminOrdersPage from "./pages/Orders/AdminOrdersPage";
+import RoleProtectedRoute from "../../provider/RoleProtectedRoute";
 
 const AdminPanel = () => {
     return (
@@ -17,29 +18,62 @@ const AdminPanel = () => {
                 <Route
                     path="/*"
                     element={
-                        <ProtectedRoute>
-                        <AdminLayout>
-                            <Routes>
-                                <Route path="/" element={<MainAdminPage />} />
+                        <ProtectedProvider>
+                            <AdminLayout>
+                                <Routes>
+                                    <Route
+                                        path="/"
+                                        element={<MainAdminPage />}
+                                    />
 
-                                <Route path="/storage" element={<AdminStoragePage />} />
-                                <Route path="/storage/:id" element={<EditProductPage />} />
-                                <Route path="/storage/create" element={<CreateProductPage />} />
+                                    {/*
+                                    
+                                        Вот тут пример того как должено выглядеть 
+                                        разделение ролей
 
-                                <Route path="/packing" element={<AdminPackingPage />} />
+                                        У админа доступ ко всем страницам,
+                                        тут для него ничего не надо прописывать
 
-                                <Route path="/employees" element={<AdminEmployeesPage />} />
+                                     */}
+                                    <Route
+                                        path="/storage"
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                                <AdminStoragePage />
+                                            </RoleProtectedRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path="/storage/:id"
+                                        element={<EditProductPage />}
+                                    />
+                                    <Route
+                                        path="/storage/create"
+                                        element={<CreateProductPage />}
+                                    />
 
-                                <Route path="/orders" element={<AdminOrdersPage />} />
+                                    <Route
+                                        path="/packing"
+                                        element={<AdminPackingPage />}
+                                    />
 
+                                    <Route
+                                        path="/employees"
+                                        element={<AdminEmployeesPage />}
+                                    />
 
-                                <Route
-                                    path="/*"
-                                    element={<Navigate to="/admin" />}
-                                />
-                            </Routes>
-                        </AdminLayout>
-                        </ProtectedRoute>
+                                    <Route
+                                        path="/orders"
+                                        element={<AdminOrdersPage />}
+                                    />
+
+                                    <Route
+                                        path="/*"
+                                        element={<Navigate to="/admin" />}
+                                    />
+                                </Routes>
+                            </AdminLayout>
+                        </ProtectedProvider>
                     }
                 />
             </Routes>

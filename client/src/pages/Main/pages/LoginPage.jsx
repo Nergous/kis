@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Form, Button, Card } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import api from "../../../utils/api";
-import { logIn } from "../../../utils/auth";
 import RegLogLayout from "../layout/RegLogLayout";
 import FormInput from "../../../ui/FormInput/FormInput"
+import { useAuth } from "../../../context/AuthContext";
 
 // import logo_2 from "../../../logo_2.png";
 
@@ -14,6 +14,7 @@ const LoginPage = () => {
     const [sending, setSending] = useState(false);
     const [form] = Form.useForm(); // Хук для управления формой
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     useEffect(() => {
         document.title = "Вход";
@@ -29,9 +30,12 @@ const LoginPage = () => {
             const response = await api().post(endpoint, values);
             const token = response.data.token;
             const role = response.data.role;
-            console.log(token, role);
-            logIn(token, role);
-            // navigate("/admin");
+            login(token, role);
+            if(role === "customer") {
+                navigate("/client");
+            } else{
+                navigate("/admin");
+            }
         } catch (error) {
             console.error("Ошибка при отправке данных:", error);
         } finally {

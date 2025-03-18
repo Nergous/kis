@@ -5,6 +5,7 @@ import MainLayout from "./layout/MainLayout";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ClientPage from "./pages/ClientPage";
+import { AuthProvider } from "../../context/AuthContext";
 
 const MainPanel = () => {
     return (
@@ -16,7 +17,7 @@ const MainPanel = () => {
                         <MainLayout>
                             <Routes>
                                 <Route path="/" element={<MainPage />} />
-                                <Route path="/client" element={<ClientPage />} />
+                                <Route path="/client" element={<AuthProvider><ClientPage /></AuthProvider>} />
                                 <Route
                                     path="/*"
                                     element={<Navigate to="/" />}

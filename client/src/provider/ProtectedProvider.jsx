@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import api from "../utils/api";
+import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { logOut } from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 // import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner";
 
-{/*
+/*
    Крч, тут можно реализовать логику проверки навигации.
    Чо значит, при помощи useNavigate мы получаем путь, текущий.
    Пихаем путь в зависимость useEffect, как это уже сделано ниже.
@@ -19,27 +18,33 @@ import { logOut } from "../utils/auth";
 
    Доступные кнопки в сайдбаре делаются в самом сайдбаре, типо когда ты залогинен чо тебе доступно будет появляться.
    Но это делается не в этом файле.
-*/}
+*/
 
 // Защищенный роутер
-const ProtectedRoute = ({ children }) => {
+const ProtectedProvider = ({ children }) => {
     const navigate = useNavigate();
-    const location = useLocation();
     const [isloading, setLoading] = useState(true);
     const [isAuth, setIsAuth] = useState(false);
+    const { role, logout } = useAuth();
 
     useEffect(() => {
         setLoading(true);
-        // console.log(location.pathname);
         const token = Cookies.get("auth_token");
+
         if (!token) {
             navigate("/login");
             return;
         }
 
+        if (!role) {
+            setLoading(true);
+            setIsAuth(false);
+        } else {
+            setLoading(false);
+            setIsAuth(true);
+        }
         setLoading(false);
-        setIsAuth(true);
-    }, [location]);
+    }, [navigate, role, logout]);
 
 
     if (isloading) {
@@ -50,7 +55,7 @@ const ProtectedRoute = ({ children }) => {
         );
     }
 
-    return isAuth ? children : navigate("/login"); // Рендерим children только если пользователь авторизован
+    return isAuth ? children : null; // Рендерим children только если пользователь авторизован
 };
 
-export default ProtectedRoute;
+export default ProtectedProvider;

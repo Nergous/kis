@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import RegLogLayout from "../layout/RegLogLayout";
 import { useNavigate } from "react-router-dom";
-import { Form, Button, Card } from "antd";
+import { Form, Button, Card, Tabs } from "antd";
 import {
     UserOutlined,
     LockOutlined,
@@ -13,13 +13,14 @@ import {
     BarcodeOutlined,
 } from "@ant-design/icons";
 import api from "../../../utils/api";
-import FormInput from "../../../ui/FormInput/FormInput"
-import { logIn } from "../../../utils/auth";
-
+import FormInput from "../../../ui/FormInput/FormInput";
+import { useAuth } from "../../../context/AuthContext";
 
 const RegisterPage = () => {
     const [form] = Form.useForm();
     const [sending, setSending] = useState(false);
+    const [userType, setUserType] = useState("individual"); // физ лицо по умолчанию
+    const { login } = useAuth();
 
     const navigate = useNavigate();
 
@@ -28,23 +29,32 @@ const RegisterPage = () => {
     }, []);
 
     const onFinish = async (values) => {
-        console.log("Received values:", values);
+        // console.log("Received values:", { ...values, userType });
         setSending(true);
 
         try {
-            const response = await api().post("/api/register", values);
+            const response = await api().post("/api/register", { ...values, userType });
             const token = response.data.token;
             const role = response.data.role;
-            logIn(token, role);
-            navigate("/admin");
-            // console.log("Registration successful:", response.data);
-            // Перенаправление на страницу входа или другую страницу
+            login(token, role);
+            navigate("/client");
         } catch (error) {
             console.error("Registration failed:", error);
         } finally {
             setSending(false);
         }
     };
+
+    const tabItems = [
+        {
+            key: "individual",
+            label: "Физическое лицо",
+        },
+        {
+            key: "legal",
+            label: "Юридическое лицо",
+        },
+    ];
 
     return (
         <RegLogLayout>
@@ -67,138 +77,185 @@ const RegisterPage = () => {
                 >
                     Регистрация заказчика
                 </h1>
-                {/* Контейнер с прокруткой */}
+
+                {/* Обновлённые Tabs */}
+                <Tabs
+                    items={tabItems}
+                    activeKey={userType}
+                    onChange={(key) => {
+                        setUserType(key);
+                        form.resetFields();
+                    }}
+                    type="card"
+                    centered
+                />
+
                 <div
                     style={{
-                        maxHeight: "300px", // Ограничиваем высоту
-                        overflowY: "auto", // Добавляем вертикальную прокрутку
-                        paddingRight: 10, // Отступ для скроллбара
+                        maxHeight: "300px",
+                        overflowY: "auto",
+                        paddingRight: 10,
                     }}
                 >
-                    <Form form={form} onFinish={onFinish}>
-                        {/* Имя */}
-                        <FormInput
-                            name="name"
-                            rules={[{ required: true, message: "Введите ваше имя!" }]}
-                            type="input"
-                            prefix={<UserAddOutlined />}
-                            placeholder="Имя"
-                        />
+                    <Form form={form} onFinish={onFinish} layout="vertical">
+                        {/* Физ лицо */}
+                        {userType === "individual" && (
+                            <>
+                                <FormInput
+                                    name="name"
+                                    rules={[{ required: true, message: "Введите ваше имя!" }]}
+                                    type="input"
+                                    prefix={<UserAddOutlined />}
+                                    placeholder="Имя"
+                                />
 
+                                <FormInput
+                                    name="email"
+                                    rules={[
+                                        { required: true, message: "Введите ваш email!" },
+                                        { type: "email", message: "Введите корректный email!" },
+                                    ]}
+                                    type="input"
+                                    prefix={<MailOutlined />}
+                                    placeholder="Email"
+                                />
 
-                        {/* Email */}
-                        <FormInput
-                            name="email"
-                            rules={[
-                                { required: true, message: "Введите ваш email!" },
-                                {
-                                    type: "email",
-                                    message: "Введите корректный email!",
-                                },
-                            ]}
-                            type="input"
-                            prefix={<MailOutlined />}
-                            placeholder="Email"
-                        />
+                                <FormInput
+                                    name="password"
+                                    rules={[{ required: true, message: "Введите ваш пароль!" }]}
+                                    type="password"
+                                    prefix={<LockOutlined />}
+                                    placeholder="Пароль"
+                                />
 
-                        {/* Пароль */}
-                        <FormInput
-                            name="password"
-                            rules={[
-                                { required: true, message: "Введите ваш пароль!" },
-                            ]}
-                            type="password"
-                            prefix={<LockOutlined />}
-                            placeholder="Пароль"
-                        />
+                                <FormInput
+                                    name="bik"
+                                    rules={[
+                                        { required: true, message: "Введите ваш БИК!" },
+                                        { min: 9, message: "Длина БИК должна быть 9 символов" },
+                                        { max: 9, message: "Длина БИК должна быть 9 символов" },
+                                    ]}
+                                    type="input"
+                                    prefix={<BarcodeOutlined />}
+                                    placeholder="БИК"
+                                />
 
-                        {/* ИНН */}
-                        <FormInput
-                            name="inn"
-                            rules={[
-                                { required: true, message: "Введите ваш ИНН!" },
-                                { min: 12, message: "Длина ИНН должна быть 12 символов" },
-                                { max: 12, message: "Длина ИНН должна быть 12 символов" },
-                            ]}
-                            type="input"
-                            prefix={<FileDoneOutlined />}
-                            placeholder="ИНН"
-                        />
+                                <FormInput
+                                    name="payment_number"
+                                    rules={[
+                                        { required: true, message: "Введите расчетный счет!" },
+                                        { min: 20, message: "Длина расчетного счета должна быть 20 символов" },
+                                        { max: 20, message: "Длина расчетного счета должна быть 20 символов" },
+                                    ]}
+                                    type="input"
+                                    prefix={<CreditCardOutlined />}
+                                    placeholder="Расчетный счет"
+                                />
 
-                        {/* Главный бухгалтер */}
-                        <FormInput
-                            name="main_booker"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Введите ФИО главного бухгалтера!",
-                                },
-                            ]}
-                            type="input"
-                            prefix={<UserOutlined />}
-                            placeholder="Главный бухгалтер"
-                        />
+                                <FormInput
+                                    name="bank"
+                                    rules={[{ required: true, message: "Введите название банка!" }]}
+                                    type="input"
+                                    prefix={<BankOutlined />}
+                                    placeholder="Банк"
+                                />
+                            </>
+                        )}
 
-                        {/* Директор */}
-                        <FormInput
-                            name="director"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Введите ФИО директора!",
-                                },
-                            ]}
-                            type="input"
-                            prefix={<UserOutlined />}
-                            placeholder="Директор"
-                        />
+                        {/* Юр лицо */}
+                        {userType === "legal" && (
+                            <>
+                                <FormInput
+                                    name="name"
+                                    rules={[{ required: true, message: "Введите ваше имя!" }]}
+                                    type="input"
+                                    prefix={<UserAddOutlined />}
+                                    placeholder="Имя"
+                                />
 
-                        {/* БИК */}
-                        <FormInput
-                            name="bik"
-                            rules={[
-                                { required: true, message: "Введите ваш БИК!" },
-                                { min: 9, message: "Длина БИК должна быть 9 символов" },
-                                { max: 9, message: "Длина БИК должна быть 9 символов" },
-                            ]}
-                            type="input"
-                            prefix={<BarcodeOutlined />}
-                            placeholder="БИК"
-                        />
+                                <FormInput
+                                    name="email"
+                                    rules={[
+                                        { required: true, message: "Введите ваш email!" },
+                                        { type: "email", message: "Введите корректный email!" },
+                                    ]}
+                                    type="input"
+                                    prefix={<MailOutlined />}
+                                    placeholder="Email"
+                                />
 
-                        {/* Расчетный счет */}
-                        <FormInput
-                            name="payment_number"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Введите расчетный счет!",
-                                },
-                                { min: 20, message: "Длина расчетного счета должна быть 20 символов" },
-                                { max: 20, message: "Длина расчетного счета должна быть 20 символов" },
-                            ]}
-                            type="input"
-                            prefix={<CreditCardOutlined />}
-                            placeholder="Расчетный счет"
-                        />
+                                <FormInput
+                                    name="password"
+                                    rules={[{ required: true, message: "Введите ваш пароль!" }]}
+                                    type="password"
+                                    prefix={<LockOutlined />}
+                                    placeholder="Пароль"
+                                />
 
-                        {/* Банк */}
-                        <FormInput
-                            name="bank"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Введите название банка!",
-                                },
-                            ]}
-                            type="input"
-                            prefix={<BankOutlined />}
-                            placeholder="Банк"
-                        />
+                                <FormInput
+                                    name="inn"
+                                    rules={[
+                                        { required: true, message: "Введите ваш ИНН!" },
+                                        { min: 12, message: "Длина ИНН должна быть 12 символов" },
+                                        { max: 12, message: "Длина ИНН должна быть 12 символов" },
+                                    ]}
+                                    type="input"
+                                    prefix={<FileDoneOutlined />}
+                                    placeholder="ИНН"
+                                />
+
+                                <FormInput
+                                    name="main_booker"
+                                    rules={[{ required: true, message: "Введите ФИО главного бухгалтера!" }]}
+                                    type="input"
+                                    prefix={<UserOutlined />}
+                                    placeholder="Главный бухгалтер"
+                                />
+
+                                <FormInput
+                                    name="director"
+                                    rules={[{ required: true, message: "Введите ФИО директора!" }]}
+                                    type="input"
+                                    prefix={<UserOutlined />}
+                                    placeholder="Директор"
+                                />
+
+                                <FormInput
+                                    name="bik"
+                                    rules={[
+                                        { required: true, message: "Введите ваш БИК!" },
+                                        { min: 9, message: "Длина БИК должна быть 9 символов" },
+                                        { max: 9, message: "Длина БИК должна быть 9 символов" },
+                                    ]}
+                                    type="input"
+                                    prefix={<BarcodeOutlined />}
+                                    placeholder="БИК"
+                                />
+
+                                <FormInput
+                                    name="payment_number"
+                                    rules={[
+                                        { required: true, message: "Введите расчетный счет!" },
+                                        { min: 20, message: "Длина расчетного счета должна быть 20 символов" },
+                                        { max: 20, message: "Длина расчетного счета должна быть 20 символов" },
+                                    ]}
+                                    type="input"
+                                    prefix={<CreditCardOutlined />}
+                                    placeholder="Расчетный счет"
+                                />
+
+                                <FormInput
+                                    name="bank"
+                                    rules={[{ required: true, message: "Введите название банка!" }]}
+                                    type="input"
+                                    prefix={<BankOutlined />}
+                                    placeholder="Банк"
+                                />
+                            </>
+                        )}
                     </Form>
                 </div>
 
-                {/* Кнопка регистрации */}
                 <Form.Item>
                     <Button
                         type="primary"
@@ -225,4 +282,5 @@ const RegisterPage = () => {
         </RegLogLayout>
     );
 };
+
 export default RegisterPage;
