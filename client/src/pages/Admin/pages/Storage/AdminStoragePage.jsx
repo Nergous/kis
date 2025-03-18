@@ -41,6 +41,10 @@ const AdminStoragePage = () => {
     const [role] = useState(localStorage.getItem("role")); // Получаем роль из localStorage
     const navigate = useNavigate();
 
+    useEffect(() => {
+        document.title = "Склад";
+    }, []);
+
     const getStorageActions = (record) => [
         {
             key: "1",

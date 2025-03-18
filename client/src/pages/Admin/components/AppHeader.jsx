@@ -1,15 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Layout } from "antd";
+import { Button, Layout } from "antd";
 import { IconButton } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import "antd/dist/reset.css";
 import logo_2 from "../../../logo_2.png";
+import { useAuth } from "../../../context/AuthContext";
 
 const { Header } = Layout;
 
 const AppHeader = () => {
     const navigate = useNavigate();
+    const { logout } = useAuth();
     return (
         <Header
             style={{
@@ -42,6 +44,9 @@ const AppHeader = () => {
                     <AccountCircleIcon />
                 </IconButton>
             </div>
+            <Button onClick={logout}>
+                Выйти из аккаунта
+            </Button>
         </Header>
     );
 };
