@@ -92,14 +92,14 @@ func InitDB() error {
 	}
 
 	// Проверка существования базы данных
-	var exists bool
-	err = db.Raw("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", AppConfig.Database.DBName).Scan(&exists).Error
+	var exists int
+	err = db.Raw("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", AppConfig.Database.DBName).Scan(&exists).Error
 	if err != nil {
 		return fmt.Errorf("не удалось проверить существование базы данных: %w", err)
 	}
 
 	// Создание базы данных, если она не существует
-	if !exists {
+	if exists == 0 {
 		err = db.Exec(fmt.Sprintf("CREATE DATABASE %s", AppConfig.Database.DBName)).Error
 		if err != nil {
 			return fmt.Errorf("не удалось создать базу данных: %w", err)

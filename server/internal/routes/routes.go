@@ -30,10 +30,11 @@ func SetupRoutes() *gin.Engine {
 		api.GET("/orders/:id", controllers.GetOrderByID)
 		api.PATCH("/orders/:id/change-price", controllers.UpdateOrderPrices)
 		api.PATCH("/orders/:id/status", controllers.UpdateOrderStatus)
-		p := api.Group("", middleware.AuthMiddleware([]string{"customer"}))
-		{
-			p.POST("/orders", controllers.CreateOrder)
-		}
+		api.POST("/orders", controllers.CreateOrder)
+		// p := api.Group("", middleware.AuthMiddleware([]string{"customer"}))
+		// {
+		// }
+		// Вернуть как было
 
 		api.GET("/customers", controllers.GetAllCustomers)
 		api.GET("/customers/:id", controllers.GetCustomerByID)

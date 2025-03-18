@@ -21,6 +21,18 @@ func CreateWorker(worker *models.Worker) (*models.Worker, error) {
 		return nil, fmt.Errorf("ошибка валидации: %w", err)
 	}
 
+	if worker.Role == "admin" {
+		workers, err := repositories.GetAllWorkers()
+		if err != nil {
+			return nil, fmt.Errorf("ошибка при получении всех работников: %w", err)
+		}
+		for _, w := range workers {
+			if w.Role == "admin" {
+				return nil, fmt.Errorf("уже есть администратор")
+			}
+		}
+	}
+
 	prevPassw := worker.Password
 
 	prevPassw, err := pkg.HashPassword(prevPassw)

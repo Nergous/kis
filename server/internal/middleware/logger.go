@@ -19,6 +19,13 @@ func InitLogger(level string) {
 	appEncoderConfig := zap.NewProductionEncoderConfig()
 	appEncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	// check if app.log and error.log exist and create them if they don't
+	// create folder logs if not exists
+	if _, err := os.Stat("logs"); os.IsNotExist(err) {
+		err = os.Mkdir("logs", 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
 	if _, err := os.Stat("logs/app.log"); os.IsNotExist(err) {
 		file, err := os.Create("logs/app.log")
 		if err != nil {
