@@ -58,9 +58,10 @@ func RegisterCustomer(c *gin.Context) {
 		Name          string `json:"name" binding:"required,min=1"`
 		Email         string `json:"email" binding:"required,min=1"`
 		Password      string `json:"password" binding:"required,min=1"`
-		INN           string `json:"inn" binding:"required,min=1"`
-		MainBooker    string `json:"main_booker" binding:"required,min=1"`
-		Director      string `json:"director" binding:"required,min=1"`
+		INN           string `json:"inn"`
+		MainBooker    string `json:"main_booker"`
+		Director      string `json:"director"`
+		CustomerType  string `json:"customer_type" binding:"required,oneof=phys juri"`
 		BIK           string `json:"bik" binding:"required,min=1"`
 		PaymentNumber string `json:"payment_number" binding:"required,min=1"`
 		Bank          string `json:"bank" binding:"required,min=1"`
@@ -70,13 +71,22 @@ func RegisterCustomer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("ошибка при парсинге JSON: %w", err).Error()})
 		return
 	}
+
+	var customer_type string
+
+	if input.CustomerType == "juri" {
+		customer_type = "juri"
+	} else if input.CustomerType == "phys" {
+		customer_type = "phys"
+	}
 	var customer models.Customer = models.Customer{
-		Name:       input.Name,
-		Email:      input.Email,
-		Password:   input.Password,
-		INN:        input.INN,
-		MainBooker: input.MainBooker,
-		Director:   input.Director,
+		Name:         input.Name,
+		Email:        input.Email,
+		Password:     input.Password,
+		INN:          input.INN,
+		MainBooker:   input.MainBooker,
+		Director:     input.Director,
+		CustomerType: customer_type,
 		PaymentChar: models.PaymentChar{
 			BIK:           input.BIK,
 			PaymentNumber: input.PaymentNumber,
