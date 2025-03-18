@@ -1,5 +1,6 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
+import ProtectedRoute from "../../provider/ProtectedRoute";
 import AdminLayout from "./layout/AdminLayout";
 import MainAdminPage from "./pages/MainAdminPage";
 import AdminStoragePage from "./pages/Storage/AdminStoragePage";
@@ -16,6 +17,7 @@ const AdminPanel = () => {
                 <Route
                     path="/*"
                     element={
+                        <ProtectedRoute>
                         <AdminLayout>
                             <Routes>
                                 <Route path="/" element={<MainAdminPage />} />
@@ -37,6 +39,7 @@ const AdminPanel = () => {
                                 />
                             </Routes>
                         </AdminLayout>
+                        </ProtectedRoute>
                     }
                 />
             </Routes>

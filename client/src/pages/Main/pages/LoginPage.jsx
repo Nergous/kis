@@ -26,11 +26,12 @@ const LoginPage = () => {
         );
         try {
             setSending(true);
-            const response = await api().get(endpoint, values);
+            const response = await api().post(endpoint, values);
             const token = response.data.token;
             const role = response.data.role;
+            console.log(token, role);
             logIn(token, role);
-            navigate("/admin");
+            // navigate("/admin");
         } catch (error) {
             console.error("Ошибка при отправке данных:", error);
         } finally {
