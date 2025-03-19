@@ -119,11 +119,15 @@ func CreateOrder(c *gin.Context) {
 		return
 	}
 
+	var pay_time *time.Time
+
+
 	orderIn := models.Order{
 		Address:      input.Address,
 		DeliveryDate: input.DeliveryDate,
 		PaymentTerms: input.PaymentTerms,
 		TotalPrice:   input.TotalPrice,
+		PaymentTime:  pay_time,
 		CustomerID:   customerID,
 	}
 

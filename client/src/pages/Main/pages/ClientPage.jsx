@@ -11,23 +11,18 @@ import { showErrorNotification } from "../../../ui/Notification/Notification";
 //----------- /api/customer-lk/orders
 
 const UserProfileCard = ({ userData }) => {
-    // Check if userData exists before proceeding
+
     if (!userData) return null;
-    
-    // Determine if the customer is a physical person or a business entity
+
     const isPhysicalPerson = userData.customer_type === "phys";
-    
-    // For physical person, construct the full name from individual parts
     const fullName = isPhysicalPerson 
         ? `${userData.surname || ""} ${userData.first_name || ""} ${userData.patronymic || ""}`.trim()
         : userData.main_booker || ""; // For business, use main_booker as the primary name
     
-    // Get the first letter for the avatar
     const firstLetter = isPhysicalPerson 
         ? (userData.surname && userData.surname[0]) || "П" 
         : (userData.main_booker && userData.main_booker[0]) || "К";
     
-    // Get display text for the customer type
     const customerTypeText = isPhysicalPerson ? "Физическое лицо" : "Юридическое лицо";
     
     return (
