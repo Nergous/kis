@@ -1,333 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Tabs } from "antd";
-import { Phone, Email, Assignment, Archive } from "@mui/icons-material";
+import { Assignment, Archive } from "@mui/icons-material";
 import "antd/dist/reset.css";
 import "../../../fonts.css";
 import api from "../../../utils/api";
-
 import { showErrorNotification } from "../../../ui/Notification/Notification";
 
-//----------- /api/customer-lk
-//----------- /api/customer-lk/orders
-
-const UserProfileCard = ({ userData }) => {
-
-    if (!userData) return null;
-
-    const isPhysicalPerson = userData.customer_type === "phys";
-    const fullName = isPhysicalPerson 
-        ? `${userData.surname || ""} ${userData.first_name || ""} ${userData.patronymic || ""}`.trim()
-        : userData.main_booker || ""; // For business, use main_booker as the primary name
-    
-    const firstLetter = isPhysicalPerson 
-        ? (userData.surname && userData.surname[0]) || "П" 
-        : (userData.main_booker && userData.main_booker[0]) || "К";
-    
-    const customerTypeText = isPhysicalPerson ? "Физическое лицо" : "Юридическое лицо";
-    
-    return (
-        <div
-            style={{
-                background: "white",
-                borderRadius: "20px",
-                padding: "25px",
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                marginBottom: 30,
-            }}>
-            <h1
-                style={{
-                    fontFamily: "'DMSans-Medium', sans-serif",
-                    color: "#085615",
-                    marginBottom: 25,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center"
-                }}>
-                <span>Личный кабинет</span>
-                <div 
-                    style={{ 
-                        display: "inline-block", 
-                        background: "#e8f5e9", 
-                        borderRadius: 15, 
-                        padding: "4px 12px", 
-                        fontSize: 14, 
-                        color: "#085615",
-                    }}>
-                    {customerTypeText}
-                </div>
-            </h1>
-
-            <div style={{ display: "flex", gap: 25 }}>
-                {/* Left column with avatar */}
-                <div>
-                    <div
-                        style={{
-                            width: 90,
-                            height: 90,
-                            borderRadius: "50%",
-                            background: "#e8f5e9",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 32,
-                            color: "#085615",
-                            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)"
-                        }}>
-                        {firstLetter}
-                    </div>
-                </div>
-
-                {/* Main content area */}
-                <div style={{ flex: 1 }}>
-                    {/* Physical person information */}
-                    {isPhysicalPerson && (
-                        <div>
-                            <h2
-                                style={{
-                                    fontFamily: "'DMSans-Medium', sans-serif",
-                                    color: "#085615",
-                                    margin: 0,
-                                    marginBottom: 16,
-                                    fontSize: 22
-                                }}>
-                                {fullName}
-                            </h2>
-                            
-                            <div style={{ 
-                                display: "flex", 
-                                flexWrap: "wrap",
-                                gap: "16px"
-                            }}>
-                                {userData.email && (
-                                    <div style={{ 
-                                        display: "flex", 
-                                        alignItems: "center", 
-                                        gap: 10,
-                                        background: "#f9f9f9",
-                                        padding: "8px 16px",
-                                        borderRadius: "8px",
-                                        minWidth: "200px"
-                                    }}>
-                                        <Email fontSize="small" style={{ color: "#085615" }} />
-                                        <span style={{ fontFamily: "'DMSans-Regular', sans-serif" }}>{userData.email}</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Business information */}
-                    {!isPhysicalPerson && (
-                        <div>
-                            <div style={{ 
-                                display: "flex", 
-                                justifyContent: "space-between",
-                                marginBottom: 16
-                            }}>
-                                <h2
-                                    style={{
-                                        fontFamily: "'DMSans-Medium', sans-serif",
-                                        color: "#085615",
-                                        margin: 0,
-                                        fontSize: 22
-                                    }}>
-                                    {fullName}
-                                </h2>
-                                
-                                {userData.inn && (
-                                    <div style={{ 
-                                        background: "#f9f9f9",
-                                        padding: "8px 16px",
-                                        borderRadius: "8px",
-                                        fontFamily: "'DMSans-Medium', sans-serif",
-                                    }}>
-                                        <span style={{ color: "#666" }}>ИНН: </span>
-                                        <span>{userData.inn}</span>
-                                    </div>
-                                )}
-                            </div>
-                            
-                            <div style={{ 
-                                display: "grid", 
-                                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-                                gap: "16px",
-                                marginBottom: 20
-                            }}>
-                                {userData.email && (
-                                    <div style={{ 
-                                        display: "flex", 
-                                        alignItems: "center", 
-                                        gap: 10,
-                                        background: "#f9f9f9",
-                                        padding: "8px 16px",
-                                        borderRadius: "8px"
-                                    }}>
-                                        <Email fontSize="small" style={{ color: "#085615" }} />
-                                        <span style={{ fontFamily: "'DMSans-Regular', sans-serif" }}>{userData.email}</span>
-                                    </div>
-                                )}
-                                
-                                {userData.director && (
-                                    <div style={{ 
-                                        display: "flex", 
-                                        alignItems: "center", 
-                                        gap: 10,
-                                        background: "#f9f9f9",
-                                        padding: "8px 16px",
-                                        borderRadius: "8px"
-                                    }}>
-                                        <span style={{ fontFamily: "'DMSans-Regular', sans-serif", color: "#666" }}>Директор:</span>
-                                        <span style={{ fontFamily: "'DMSans-Regular', sans-serif" }}>{userData.director}</span>
-                                    </div>
-                                )}
-                            </div>
-                            
-                            {userData.payment_char && (
-                                <div style={{ 
-                                    marginTop: 16, 
-                                    borderTop: "1px solid #eee", 
-                                    paddingTop: 16 
-                                }}>
-                                    <div style={{ 
-                                        fontFamily: "'DMSans-Medium', sans-serif", 
-                                        marginBottom: 12,
-                                        color: "#085615",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "8px"
-                                    }}>
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <rect x="3" y="6" width="18" height="12" rx="2" stroke="#085615" strokeWidth="2"/>
-                                            <path d="M3 10H21" stroke="#085615" strokeWidth="2"/>
-                                            <path d="M7 15H13" stroke="#085615" strokeWidth="2" strokeLinecap="round"/>
-                                        </svg>
-                                        Платежная информация
-                                    </div>
-                                    
-                                    <div style={{ 
-                                        display: "grid", 
-                                        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-                                        gap: "12px" 
-                                    }}>
-                                        <div style={{ 
-                                            padding: "8px 12px",
-                                            background: "#f9f9f9",
-                                            borderRadius: "8px"
-                                        }}>
-                                            <div style={{ fontFamily: "'DMSans-Regular', sans-serif", color: "#666", fontSize: "12px" }}>Банк:</div>
-                                            <div style={{ fontFamily: "'DMSans-Medium', sans-serif" }}>{userData.payment_char.bank}</div>
-                                        </div>
-                                        
-                                        <div style={{ 
-                                            padding: "8px 12px",
-                                            background: "#f9f9f9",
-                                            borderRadius: "8px"
-                                        }}>
-                                            <div style={{ fontFamily: "'DMSans-Regular', sans-serif", color: "#666", fontSize: "12px" }}>БИК:</div>
-                                            <div style={{ fontFamily: "'DMSans-Medium', sans-serif" }}>{userData.payment_char.bik}</div>
-                                        </div>
-                                        
-                                        <div style={{ 
-                                            padding: "8px 12px",
-                                            background: "#f9f9f9",
-                                            borderRadius: "8px",
-                                            gridColumn: "1 / -1"
-                                        }}>
-                                            <div style={{ fontFamily: "'DMSans-Regular', sans-serif", color: "#666", fontSize: "12px" }}>Расчетный счет:</div>
-                                            <div style={{ fontFamily: "'DMSans-Medium', sans-serif" }}>{userData.payment_char.payment_number}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const OrderCard = ({ order }) => (
-    <div
-        style={{
-            background: "white",
-            borderRadius: "12px",
-            padding: "15px",
-            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
-            marginBottom: 15,
-        }}>
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 12,
-            }}>
-            <div>
-                <span
-                    style={{
-                        fontFamily: "'DMSans-Medium', sans-serif",
-                        color: "#085615",
-                        marginRight: 15,
-                    }}>
-                    Заказ №{order.id}
-                </span>
-                <span
-                    style={{
-                        background: "#e8f5e9",
-                        borderRadius: 15,
-                        padding: "4px 12px",
-                        fontSize: 12,
-                        color: "#085615",
-                    }}>
-                    {order.status}
-                </span>
-            </div>
-            <span
-                style={{
-                    fontFamily: "'DMSans-Medium', sans-serif",
-                    color: "#085615",
-                }}>
-                {order.total}
-            </span>
-        </div>
-
-        <div
-            style={{
-                borderTop: "1px solid #eee",
-                paddingTop: 12,
-                marginBottom: 12,
-            }}>
-            {order.products.map((product, index) => (
-                <div
-                    key={index}
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: 8,
-                        fontFamily: "'DMSans-Regular', sans-serif",
-                    }}>
-                    <span>{product.name}</span>
-                    <span>
-                        {product.quantity} × {product.price}
-                    </span>
-                </div>
-            ))}
-        </div>
-
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                color: "#666",
-                fontSize: 12,
-            }}>
-            <span>Дата заказа: {order.date}</span>
-            <span>Способ получения: Самовывоз</span>
-        </div>
-    </div>
-);
+// Import the separated components
+import UserProfileCard from "../components/UserProfileCard/UserProfileCard";
+import OrderCard from "../components/OrderCard/OrderCard";
 
 const ClientPage = () => {
     const [userData, setUserData] = useState(null);
@@ -354,10 +35,18 @@ const ClientPage = () => {
                 
                 // Process the orders data
                 const orders = ordersResponse.data;
-                setOrdersData({
-                    current: orders.filter((o) => o.status !== "received"),
-                    archived: orders.filter((o) => o.status === "received"),
-                });
+                if (Array.isArray(orders)) {
+                    setOrdersData({
+                        current: orders.filter((o) => o.status !== "received"),
+                        archived: orders.filter((o) => o.status === "received"),
+                    });
+                } else {
+                    setOrdersData({
+                        current: [],
+                        archived: []
+                    });
+                    console.warn("Orders data is not an array:", orders);
+                }
             } catch (err) {
                 console.error("Error fetching data:", err);
                 setError(err.message || "Произошла ошибка при загрузке данных");
@@ -371,11 +60,72 @@ const ClientPage = () => {
     }, []);
 
     if (loading) {
-        return <div style={{ padding: 20, textAlign: "center" }}>Загрузка данных...</div>;
+        return (
+            <div style={{ 
+                padding: 40, 
+                textAlign: "center",
+                background: "white",
+                borderRadius: 16,
+                boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+                margin: "40px auto",
+                maxWidth: 400
+            }}>
+                <div style={{ marginBottom: 20, color: "#085615" }}>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#085615"/>
+                        <path d="M12 15C10.34 15 9 13.66 9 12C9 10.34 10.34 9 12 9C13.66 9 15 10.34 15 12C15 13.66 13.66 15 12 15Z" fill="#085615"/>
+                    </svg>
+                </div>
+                <div style={{ 
+                    fontFamily: "'DMSans-Medium', sans-serif", 
+                    color: "#333",
+                    fontSize: 18,
+                    marginBottom: 8
+                }}>
+                    Загрузка данных
+                </div>
+                <div style={{ 
+                    fontFamily: "'DMSans-Regular', sans-serif", 
+                    color: "#666",
+                }}>
+                    Пожалуйста, подождите...
+                </div>
+            </div>
+        );
     }
 
     if (error) {
-        return <div style={{ padding: 20, color: "red", textAlign: "center" }}>Ошибка: {error}</div>;
+        return (
+            <div style={{ 
+                padding: 40, 
+                textAlign: "center",
+                background: "white",
+                borderRadius: 16,
+                boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+                margin: "40px auto",
+                maxWidth: 500,
+                color: "#c62828"
+            }}>
+                <div style={{ marginBottom: 20 }}>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="#c62828"/>
+                    </svg>
+                </div>
+                <div style={{ 
+                    fontFamily: "'DMSans-Medium', sans-serif", 
+                    fontSize: 18,
+                    marginBottom: 8
+                }}>
+                    Ошибка при загрузке данных
+                </div>
+                <div style={{ 
+                    fontFamily: "'DMSans-Regular', sans-serif", 
+                    color: "#666",
+                }}>
+                    {error}
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -394,8 +144,17 @@ const ClientPage = () => {
                             </span>
                         ),
                         children: ordersData.current.length > 0 ? 
-                            ordersData.current.map((order) => <OrderCard key={order.id} order={order} />) :
-                            <div style={{ padding: 20, textAlign: "center" }}>Нет текущих заказов</div>,
+                            ordersData.current.map((order) => <OrderCard key={order.ID} order={order} />) :
+                            <div style={{ 
+                                padding: 30, 
+                                textAlign: "center", 
+                                background: "#f9f9f9", 
+                                borderRadius: 16,
+                                color: "#666",
+                                fontFamily: "'DMSans-Regular', sans-serif",
+                            }}>
+                                У вас пока нет текущих заказов
+                            </div>,
                     },
                     {
                         key: "2",
@@ -406,8 +165,17 @@ const ClientPage = () => {
                             </span>
                         ),
                         children: ordersData.archived.length > 0 ?
-                            ordersData.archived.map((order) => <OrderCard key={order.id} order={order} />) :
-                            <div style={{ padding: 20, textAlign: "center" }}>Архив заказов пуст</div>,
+                            ordersData.archived.map((order) => <OrderCard key={order.ID} order={order} />) :
+                            <div style={{ 
+                                padding: 30, 
+                                textAlign: "center", 
+                                background: "#f9f9f9", 
+                                borderRadius: 16,
+                                color: "#666",
+                                fontFamily: "'DMSans-Regular', sans-serif",
+                            }}>
+                                У вас пока нет завершенных заказов
+                            </div>,
                     },
                 ]}
             />
