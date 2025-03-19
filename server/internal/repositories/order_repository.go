@@ -16,6 +16,15 @@ func GetAllOrders() ([]models.Order, error) {
 	return orders, nil
 }
 
+func GetAllOrdersInAssembly() ([]models.Order, error) {
+	var orders []models.Order
+	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").Where("status IN ?", []string{"in_assembly", "awaiting_shipment"}).Find(&orders)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return orders, nil
+}
+
 func GetOrderByID(id uint) (*models.Order, error) {
 	var order models.Order
 	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").First(&order, id)
@@ -23,6 +32,16 @@ func GetOrderByID(id uint) (*models.Order, error) {
 		return &models.Order{}, result.Error
 	}
 	return &order, nil
+}
+
+func GetOrdersByCustomerID(customerID uint) ([]models.Order, error) {
+	// Логика поиска заказов в базе данных
+	var orders []models.Order
+	result := config.DB.Where("customer_id = ?", customerID).Find(&orders)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return orders, nil
 }
 
 func CreateOrder(order *models.Order) (*models.Order, error) {

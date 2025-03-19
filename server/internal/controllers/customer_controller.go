@@ -39,6 +39,23 @@ func GetCustomerByID(c *gin.Context) {
 	c.JSON(http.StatusOK, customer)
 }
 
+func GetCustomerForLK(c *gin.Context) {
+	customer_id, exists := c.Get("customer_id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Не удалось получить клиента",
+		})
+	}
+	customer, err := services.GetCustomerByID(uint(customer_id.(uint)))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Не удалось получить клиента",
+		})
+	}
+	c.JSON(http.StatusOK, customer)
+
+}
+
 func CreateCustomer(c *gin.Context) {
 	var customerIn models.Customer
 	if err := c.ShouldBindJSON(&customerIn); err != nil {

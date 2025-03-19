@@ -13,7 +13,7 @@ func GetAllWorkers(c *gin.Context) {
 	workers, err := services.GetAllWorkers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось получить все продукты",
+			"error": "Не удалось получить всех работников",
 		})
 		return
 	}

@@ -19,7 +19,7 @@ import { useAuth } from "../../../context/AuthContext";
 const RegisterPage = () => {
     const [form] = Form.useForm();
     const [sending, setSending] = useState(false);
-    const [userType, setUserType] = useState("individual"); // физ лицо по умолчанию
+    const [customerType, setCustomerType] = useState("phys"); // физ лицо по умолчанию
     const { login } = useAuth();
 
     const navigate = useNavigate();
@@ -29,17 +29,21 @@ const RegisterPage = () => {
     }, []);
 
     const onFinish = async (values) => {
-        // console.log("Received values:", { ...values, userType });
         setSending(true);
+        const payload = {
+            ...values,
+            customer_type: customerType // Переименование ключа
+        };
 
         try {
-            const response = await api().post("/api/register", { ...values, userType });
+            console.log(payload)
+            const response = await api().post("/api/register", payload);
             const token = response.data.token;
             const role = response.data.role;
             login(token, role);
             navigate("/client");
         } catch (error) {
-            console.error("Registration failed:", error);
+            console.log("Registration failed:", error.response.data.error);
         } finally {
             setSending(false);
         }
@@ -47,11 +51,11 @@ const RegisterPage = () => {
 
     const tabItems = [
         {
-            key: "individual",
+            key: "phys",
             label: "Физическое лицо",
         },
         {
-            key: "legal",
+            key: "juri",
             label: "Юридическое лицо",
         },
     ];
@@ -81,9 +85,9 @@ const RegisterPage = () => {
                 {/* Обновлённые Tabs */}
                 <Tabs
                     items={tabItems}
-                    activeKey={userType}
+                    activeKey={customerType}
                     onChange={(key) => {
-                        setUserType(key);
+                        setCustomerType(key);
                         form.resetFields();
                     }}
                     type="card"
@@ -99,14 +103,29 @@ const RegisterPage = () => {
                 >
                     <Form form={form} onFinish={onFinish} layout="vertical">
                         {/* Физ лицо */}
-                        {userType === "individual" && (
+                        {customerType === "phys" && (
                             <>
                                 <FormInput
-                                    name="name"
+                                    name="surname"
+                                    rules={[{ required: true, message: "Введите вашу фамилию!" }]}
+                                    type="input"
+                                    prefix={<UserOutlined />}
+                                    placeholder="Фамилия"
+                                />
+
+                                <FormInput
+                                    name="first_name"
                                     rules={[{ required: true, message: "Введите ваше имя!" }]}
                                     type="input"
-                                    prefix={<UserAddOutlined />}
+                                    prefix={<UserOutlined />}
                                     placeholder="Имя"
+                                />
+
+                                <FormInput
+                                    name="patronymic"
+                                    type="input"
+                                    prefix={<UserOutlined />}
+                                    placeholder="Отчество"
                                 />
 
                                 <FormInput
@@ -127,47 +146,15 @@ const RegisterPage = () => {
                                     prefix={<LockOutlined />}
                                     placeholder="Пароль"
                                 />
-
-                                <FormInput
-                                    name="bik"
-                                    rules={[
-                                        { required: true, message: "Введите ваш БИК!" },
-                                        { min: 9, message: "Длина БИК должна быть 9 символов" },
-                                        { max: 9, message: "Длина БИК должна быть 9 символов" },
-                                    ]}
-                                    type="input"
-                                    prefix={<BarcodeOutlined />}
-                                    placeholder="БИК"
-                                />
-
-                                <FormInput
-                                    name="payment_number"
-                                    rules={[
-                                        { required: true, message: "Введите расчетный счет!" },
-                                        { min: 20, message: "Длина расчетного счета должна быть 20 символов" },
-                                        { max: 20, message: "Длина расчетного счета должна быть 20 символов" },
-                                    ]}
-                                    type="input"
-                                    prefix={<CreditCardOutlined />}
-                                    placeholder="Расчетный счет"
-                                />
-
-                                <FormInput
-                                    name="bank"
-                                    rules={[{ required: true, message: "Введите название банка!" }]}
-                                    type="input"
-                                    prefix={<BankOutlined />}
-                                    placeholder="Банк"
-                                />
                             </>
                         )}
 
                         {/* Юр лицо */}
-                        {userType === "legal" && (
+                        {customerType === "juri" && (
                             <>
                                 <FormInput
-                                    name="name"
-                                    rules={[{ required: true, message: "Введите ваше имя!" }]}
+                                    name="Наименование организации"
+                                    rules={[{ required: true, message: "Введите ваше наименование организации!" }]}
                                     type="input"
                                     prefix={<UserAddOutlined />}
                                     placeholder="Имя"

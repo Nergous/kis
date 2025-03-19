@@ -4,7 +4,7 @@ import ProtectedProvider from "../../provider/ProtectedProvider";
 import AdminLayout from "./layout/AdminLayout";
 import MainAdminPage from "./pages/MainAdminPage";
 import AdminStoragePage from "./pages/Storage/AdminStoragePage";
-import AdminPackingPage from "./pages/AdminPackingPage";
+import AdminPackingPage from "./pages/Packing/AdminPackingPage";
 import EditProductPage from "./pages/Storage/EditProductPage/EditProductPage";
 import CreateProductPage from "./pages/Storage/CreateProductPage/CreateProductPage";
 import AdminEmployeesPage from "./pages/Employees/AdminEmployeesPage";

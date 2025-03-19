@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ClientPage from "./pages/ClientPage";
 import { AuthProvider } from "../../context/AuthContext";
+import RoleProtectedRoute from "../../provider/RoleProtectedRoute";
 
 const MainPanel = () => {
     return (
@@ -17,11 +18,15 @@ const MainPanel = () => {
                         <MainLayout>
                             <Routes>
                                 <Route path="/" element={<MainPage />} />
-                                <Route path="/client" element={<AuthProvider><ClientPage /></AuthProvider>} />
                                 <Route
-                                    path="/*"
-                                    element={<Navigate to="/" />}
+                                    path="/client"
+                                    element={
+                                        <AuthProvider>
+                                            <ClientPage />
+                                        </AuthProvider>
+                                    }
                                 />
+                                <Route path="/*" element={<Navigate to="/" />} />
                             </Routes>
                         </MainLayout>
                     }

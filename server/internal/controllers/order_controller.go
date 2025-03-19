@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"project_backend/config"
 	"project_backend/internal/models"
 	"project_backend/internal/services"
 	"strconv"
@@ -22,6 +24,18 @@ func GetAllOrders(c *gin.Context) {
 	c.JSON(http.StatusOK, orders)
 }
 
+func GetAllOrdersInAssembly(c *gin.Context) {
+	orders, err := services.GetAllOrdersInAssembly()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Не удалось получить все заказы",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, orders)
+}
+
 func GetOrderByID(c *gin.Context) {
 	id := c.Param("id")
 	orderID, err := strconv.ParseUint(id, 10, 64)
@@ -39,6 +53,38 @@ func GetOrderByID(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, order)
+}
+
+func GetOrderByCustomer(c *gin.Context) {
+	// Извлекаем customer_id из контекста
+	customerID, exists := c.Get("customer_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Не удалось идентифицировать покупателя",
+		})
+		return
+	}
+
+	// Преобразуем customerID в uint
+	customerIDUint, ok := customerID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Ошибка сервера: неверный формат customer_id",
+		})
+		return
+	}
+
+	// Получаем заказы по ID покупателя
+	orders, err := services.GetOrdersByCustomerID(customerIDUint)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Заказы не найдены",
+		})
+		return
+	}
+
+	// Возвращаем заказы
+	c.JSON(http.StatusOK, orders)
 }
 
 func CreateOrder(c *gin.Context) {
@@ -180,7 +226,43 @@ func UpdateOrderStatus(c *gin.Context) {
 		return
 	}
 
-	// Вызываем сервис для обновления статуса
+	// Получаем заказ с его содержимым (товарами)
+	var order models.Order
+	result := config.DB.Preload("OrderContent.Product").First(&order, orderID)
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Заказ не найден: " + result.Error.Error(),
+		})
+		return
+	}
+
+	// Если новый статус - awaiting_shipment, вычитаем товары со склада
+	if input.Status == "awaiting_shipment" {
+		// Проверяем, достаточно ли товаров на складе
+		for _, content := range order.OrderContent {
+			product := content.Product
+			if product.Quantity < content.Quantity {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": fmt.Sprintf("Недостаточно товара на складе: %s (доступно: %d, требуется: %d)", product.Name, product.Quantity, content.Quantity),
+				})
+				return
+			}
+		}
+
+		// Вычитаем товары со склада
+		for _, content := range order.OrderContent {
+			product := content.Product
+			product.Quantity -= content.Quantity
+			if err := config.DB.Save(&product).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": "Не удалось обновить количество товара на складе: " + err.Error(),
+				})
+				return
+			}
+		}
+	}
+
+	// Обновляем статус заказа
 	err = services.UpdateOrderStatus(uint(orderID), input.Status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

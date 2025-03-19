@@ -25,11 +25,16 @@ const AddQuantityModal = ({ visible, onCancel, onSuccess, productId, productName
         }
     };
 
+    const handleClose = () => {
+        onCancel();
+        form.resetFields();
+    }
+
     return (
         <Modal
             title={`Добавить количество для товара: ${productName}`}
             open={visible}
-            onCancel={onCancel}
+            onCancel={handleClose}
             footer={null} // Убираем стандартные кнопки Modal
         >
             <h4>Текущее количество товара: {productQuantity}</h4>

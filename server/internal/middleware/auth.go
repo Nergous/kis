@@ -58,6 +58,18 @@ func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
 		ID := uint(claims["id"].(float64))
 		role := claims["role"].(string)
 
+		if role == "admin" {
+			worker, err := repositories.GetWorkerByID(ID)
+			if err != nil {
+				c.JSON(401, gin.H{"error": "Работник не найден"})
+				c.Abort()
+				return
+			}
+			c.Set("worker_id", worker.ID)
+			c.Next()
+			return
+		}
+
 		if !slices.Contains(availableRoles, role) {
 			c.JSON(403, gin.H{"error": "Недостаточно прав"})
 			c.Abort()
