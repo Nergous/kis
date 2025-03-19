@@ -109,8 +109,14 @@ func CreateOrder(c *gin.Context) {
 	// 	})
 	// 	return
 	// }
-	var customerID uint = 1
-	// Ну это пиздец не иначе
+	customerID, exists := c.Get("customer_id")
+
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Отсутствует ID клиента",
+		})
+		return
+	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -128,7 +134,7 @@ func CreateOrder(c *gin.Context) {
 		PaymentTerms: input.PaymentTerms,
 		TotalPrice:   input.TotalPrice,
 		PaymentTime:  pay_time,
-		CustomerID:   customerID,
+		CustomerID:   customerID.(uint),
 	}
 
 	for _, item := range input.OrderContent {
