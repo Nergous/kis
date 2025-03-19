@@ -13,7 +13,7 @@ func SetupRoutes() *gin.Engine {
 	api := r.Group("/api", middleware.LogMiddleware(), middleware.HeaderAccessAllow())
 	{
 		api.GET("/products", controllers.GetAllProducts)
-		api.GET("/login-customer", controllers.LoginCustomer)
+		api.POST("/login-customer", controllers.LoginCustomer)
 
 		api.POST("/register", controllers.RegisterCustomer)
 		api.POST("/login-worker", controllers.LoginWorker)
