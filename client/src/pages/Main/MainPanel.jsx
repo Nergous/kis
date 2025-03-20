@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ClientPage from "./pages/ClientPage";
 import { AuthProvider } from "../../context/AuthContext";
 import RoleProtectedRoute from "../../provider/RoleProtectedRoute";
+import NotFound from "../NotFound/NotFound";
 
 const MainPanel = () => {
     return (
@@ -26,13 +27,13 @@ const MainPanel = () => {
                                         </AuthProvider>
                                     }
                                 />
-                                <Route path="/*" element={<Navigate to="/" />} />
+                                <Route path="/*" element={<Navigate to={"/404"} />} />
                             </Routes>
+                            
                         </MainLayout>
                     }
                 />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                
             </Routes>
         </>
     );
