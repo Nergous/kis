@@ -31,6 +31,11 @@ const formatOrderId = (id) => {
   return id.toString().slice(-6).padStart(6, "0");
 };
 
+const imgSlashChange = (img_path) => {
+        img_path = img_path.replace(/\\/g, "/").split("public")[1];
+        return img_path;
+  };
+
 // Компонент модального окна для отображения содержимого заказа
 const OrderModal = ({ isOpen, onClose, orderContent }) => {
   const [animation, setAnimation] = useState({
@@ -176,7 +181,7 @@ const OrderModal = ({ isOpen, onClose, orderContent }) => {
                 >
                   {item.product && item.product.img_path ? (
                     <img
-                      src={item.product.img_path.replace("..\\client\\public", "")}
+                      src={imgSlashChange(item.product.img_path)}
                       alt={item.product.name}
                       style={{
                         width: "100%",
