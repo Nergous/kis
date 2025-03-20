@@ -8,16 +8,9 @@ import (
 )
 
 func GetOrdersCountByStatus(c *gin.Context) {
-	var request struct {
-		Status string `json:"status" binding:"required,min=1"`
-	}
+	status := c.Query("status")
 
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат запроса"})
-		return
-	}
-
-	count := services.GetOrdersCountByStatus(request.Status)
+	count := services.GetOrdersCountByStatus(status)
 	c.JSON(http.StatusOK, gin.H{"count": count})
 }
 

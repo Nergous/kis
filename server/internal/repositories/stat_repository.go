@@ -20,5 +20,6 @@ func GetWorkersCount() int64 {
 func GetCustomersCount() int64 {
 	var count int64
 	config.DB.Model(&models.Customer{}).Count(&count)
+
 	return count
 }

@@ -72,7 +72,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #e60000;
+    color: grey;
+    opacity: 50%;
     font-size: 24px;
   }
   
@@ -89,25 +90,30 @@
   .TopLeft {
     top: 0px;
     left: -5px;
+    rotate: 135deg;
   }
   
   .TopRight {
     top: 0px;
     right: -5px;
+    rotate: 225deg;
   }
   
   .BottomLeft {
     bottom: 0px;
     left: 0px;
+    rotate: 45deg;
   }
   
   .BottomRight {
     bottom: 0px;
     right: 10px;
+    rotate: 315deg;
   }
   
   .CornerButtonActive svg {
     color: #007bff; /* Синий цвет после нажатия */
+    opacity: 100%;
   }
   
   /* Кнопка восстановления */

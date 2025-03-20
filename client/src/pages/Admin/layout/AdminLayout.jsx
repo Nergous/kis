@@ -31,7 +31,7 @@ const AdminLayout = ({ children }) => {
 
   const handleButtonClick = (index) => {
     const newClickedButtons = [...clickedButtons];
-    newClickedButtons[index] = true;
+    newClickedButtons[index] = !newClickedButtons[index];
     setClickedButtons(newClickedButtons);
 
     const totalClicked = newClickedButtons.filter(Boolean).length;

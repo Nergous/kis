@@ -27,7 +27,7 @@ func SetupRoutes() *gin.Engine {
 			admin.DELETE("/workers/:id", controllers.DeleteWorker)
 		}
 
-		director := api.Group("", middleware.AuthMiddleware([]string{"director"}))
+		director := api.Group("", middleware.AuthMiddleware([]string{"director", "manager", "storage"}))
 		{
 			director.GET("/order-by-status", controllers.GetOrdersCountByStatus)
 			director.GET("/workers-count", controllers.GetWorkersCount)

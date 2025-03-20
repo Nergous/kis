@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import ProtectedProvider from "../../provider/ProtectedProvider";
 import AdminLayout from "./layout/AdminLayout";
-import MainAdminPage from "./pages/MainAdminPage";
+import MainAdminPage from "./pages/MainAdminPage/MainAdminPage";
 import AdminStoragePage from "./pages/Storage/AdminStoragePage";
 import AdminPackingPage from "./pages/Packing/AdminPackingPage";
 import EditProductPage from "./pages/Storage/EditProductPage/EditProductPage";
