@@ -345,7 +345,9 @@ const UserProfileCard = ({ userData }) => {
                         }}>
                             <div>
                                 <div style={{ fontFamily: "'DMSans-Regular', sans-serif", color: "#666", fontSize: "12px" }}>Дата согласия:</div>
-                                <div style={{ fontFamily: "'DMSans-Medium', sans-serif" }}>01.03.2025</div>
+                                <div style={{ fontFamily: "'DMSans-Medium', sans-serif" }}>
+                                    {new Date().toLocaleDateString('ru-RU')}
+                                </div>
                             </div>
                             
                             <div style={{ textAlign: "right" }}>
