@@ -1,45 +1,30 @@
 import React, { useState, useEffect } from "react";
-import {
-    Table,
-    Button,
-    Space,
-    Spin,
-    Image,
-    ConfigProvider,
-    Dropdown,
-} from "antd";
+import { Table, Button, Space, Spin, Image, ConfigProvider, Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
-import {
-    PlusOutlined,
-    DownOutlined,
-    SyncOutlined,
-    DeleteOutlined,
-    PlusCircleOutlined,
-    EditOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, DownOutlined, SyncOutlined, DeleteOutlined, PlusCircleOutlined, EditOutlined } from "@ant-design/icons";
 import api from "../../../../utils/api";
 import AddQuantityModal from "./AddQuantityModal/AddQuantityModal";
 import DeleteProductModal from "./DeleteProductModal/DeleteProductModal";
 import EditPriceModal from "./EditPriceModal/EditPriceModal";
-import {
-    showErrorNotification,
-    showSuccessNotification,
-} from "../../../../ui/Notification/Notification";
+import { showErrorNotification, showSuccessNotification } from "../../../../ui/Notification/Notification";
+import CachedImage from "../../components/CachedImage/CachedImage";
 
 const AdminStoragePage = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isAddQuantityModalVisible, setIsAddQuantityModalVisible] =
-        useState(false);
+    const [isAddQuantityModalVisible, setIsAddQuantityModalVisible] = useState(false);
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-    const [isEditPriceModalVisible, setIsEditPriceModalVisible] =
-        useState(false); // Состояние для модального окна изменения цены
+    const [isEditPriceModalVisible, setIsEditPriceModalVisible] = useState(false); // Состояние для модального окна изменения цены
     const [selectedProductId, setSelectedProductId] = useState(null);
     const [selectedName, setSelectedName] = useState(null);
     const [selectedQuantity, setSelectedQuantity] = useState(null);
     const [selectedPrice, setSelectedPrice] = useState(null); // Состояние для хранения текущей цены
     const [role] = useState(localStorage.getItem("role")); // Получаем роль из localStorage
     const navigate = useNavigate();
+
+    useEffect(() => {
+        document.title = "Склад";
+    }, []);
 
     const getStorageActions = (record) => [
         {
@@ -54,8 +39,7 @@ const AdminStoragePage = () => {
                     variant="dashed"
                     type="link"
                     color="orange"
-                    onClick={() => handleChange(record.ID)}
-                >
+                    onClick={() => handleChange(record.ID)}>
                     <SyncOutlined spin />
                     Изменить продукт
                 </Button>
@@ -73,14 +57,7 @@ const AdminStoragePage = () => {
                     color="primary"
                     variant="dashed"
                     type="link"
-                    onClick={() =>
-                        handleAddQuantity(
-                            record.ID,
-                            record.name,
-                            record.quantity
-                        )
-                    }
-                >
+                    onClick={() => handleAddQuantity(record.ID, record.name, record.quantity)}>
                     <PlusCircleOutlined />
                     Добавить количество
                 </Button>
@@ -97,8 +74,7 @@ const AdminStoragePage = () => {
                     }}
                     type="dashed"
                     danger
-                    onClick={() => handleDeleteClick(record.ID, record.name)}
-                >
+                    onClick={() => handleDeleteClick(record.ID, record.name)}>
                     <DeleteOutlined />
                     Удалить
                 </Button>
@@ -119,10 +95,7 @@ const AdminStoragePage = () => {
                     variant="dashed"
                     type="link"
                     color="orange"
-                    onClick={() =>
-                        handleEditPrice(record.ID, record.name, record.price)
-                    }
-                >
+                    onClick={() => handleEditPrice(record.ID, record.name, record.price)}>
                     <EditOutlined />
                     Изменить цену
                 </Button>
@@ -232,10 +205,7 @@ const AdminStoragePage = () => {
             actions = getManagerActions(record);
         } else if (role === "admin") {
             // Для admin объединяем действия storage и manager
-            actions = [
-                ...getStorageActions(record),
-                ...getManagerActions(record),
-            ];
+            actions = [...getStorageActions(record), ...getManagerActions(record)];
         }
 
         return actions;
@@ -251,9 +221,14 @@ const AdminStoragePage = () => {
             title: "Изображение",
             dataIndex: "img_path",
             key: "img_path",
+            width: "12%",
             render: (img_path) => {
                 img_path = img_path.replace(/\\/g, "/").split("public")[1];
-                return <Image src={img_path} alt="product" width={110} height={110} />;
+                return (
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                        <CachedImage src={img_path} alt="product" width={110} height={110} />
+                    </div>
+                );
             },
         },
         {
@@ -291,8 +266,7 @@ const AdminStoragePage = () => {
                         menu={{
                             items: getMenuItems(record),
                         }}
-                        trigger={["click"]}
-                    >
+                        trigger={["click"]}>
                         <Button>
                             Действия <DownOutlined />
                         </Button>
@@ -310,13 +284,8 @@ const AdminStoragePage = () => {
                         display: "flex",
                         justifyContent: "flex-end",
                         marginBottom: 16,
-                    }}
-                >
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => navigate("/admin/storage/create")}
-                    >
+                    }}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate("/admin/storage/create")}>
                         Добавить новый продукт
                     </Button>
                 </div>
@@ -331,9 +300,7 @@ const AdminStoragePage = () => {
                     }}
                 />
             ) : data.length === 0 ? (
-                <div style={{ textAlign: "center", marginTop: 50 }}>
-                    Нет данных в базе данных
-                </div>
+                <div style={{ textAlign: "center", marginTop: 50 }}>Нет данных в базе данных</div>
             ) : (
                 <ConfigProvider
                     theme={{
@@ -342,15 +309,8 @@ const AdminStoragePage = () => {
                                 cellFontSize: 18,
                             },
                         },
-                    }}
-                >
-                    <Table
-                        columns={columns}
-                        dataSource={data}
-                        rowKey="id"
-                        pagination={{ pageSize: 10 }}
-                        loading={loading}
-                    />
+                    }}>
+                    <Table columns={columns} dataSource={data} rowKey="ID" pagination={{ pageSize: 10 }} loading={loading} />
                 </ConfigProvider>
             )}
 

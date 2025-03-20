@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Select, Table, InputNumber, Button, message } from "antd";
 import { STATUSES } from "../../../../../constants/statuses";
+import { showSuccessNotification, showErrorNotification } from "../../../../../ui/Notification/Notification";
 
 const { Option } = Select;
 
@@ -11,10 +12,19 @@ const EditPricesAndStatusModal = ({
     currentStatus,
     orderContent,
     onOk,
+    allowedStatuses = [], // Добавляем параметр allowedStatuses
 }) => {
     const [form] = Form.useForm();
     const [prices, setPrices] = useState([]);
     const [newStatus, setNewStatus] = useState(currentStatus);
+
+    // Фильтруем статусы, исключая текущий
+    let filteredStatuses = STATUSES.filter((status) => status.value !== currentStatus);
+
+    // Если передан allowedStatuses и он не пустой, фильтруем статусы
+    if (allowedStatuses && allowedStatuses.length > 0) {
+        filteredStatuses = filteredStatuses.filter((status) => allowedStatuses.includes(status.value));
+    }
 
     // Инициализация prices при открытии модального окна
     useEffect(() => {
@@ -46,6 +56,11 @@ const EditPricesAndStatusModal = ({
         });
     };
 
+    const handleClose = () => {
+        onCancel();
+        form.resetFields();
+    };
+
     const handleSubmit = async () => {
         try {
             const updatedPrices = prices.map((item) => ({
@@ -56,10 +71,10 @@ const EditPricesAndStatusModal = ({
 
             const total_order_price = updatedPrices.reduce((acc, item) => acc + item.total_product_price, 0);
             onOk(orderId, newStatus, updatedPrices, total_order_price); // Вызываем функцию onOk с новым статусом и ценами
-            message.success("Цены и статус успешно изменены");
+            showSuccessNotification("Цены и статус успешно изменены");
             onCancel(); // Закрываем модальное окно
         } catch (error) {
-            console.error("Ошибка при изменении цен и статуса:", error);
+            showErrorNotification("Ошибка при изменении цен и статуса:", error.response.data.error);
         }
     };
 
@@ -117,7 +132,6 @@ const EditPricesAndStatusModal = ({
                         min={1}
                         max={record.product.price}
                         onChange={(value) => handlePriceChange(index, value)}
-                        
                     />
                 </Form.Item>
             ),
@@ -133,9 +147,9 @@ const EditPricesAndStatusModal = ({
         <Modal
             title="Изменить цены и статус заказа"
             open={visible}
-            onCancel={onCancel}
+            onCancel={handleClose}
             footer={[
-                <Button key="cancel" onClick={onCancel}>
+                <Button key="cancel" onClick={handleClose}>
                     Отмена
                 </Button>,
                 <Button key="submit" type="primary" onClick={handleSubmit}>
@@ -162,7 +176,7 @@ const EditPricesAndStatusModal = ({
                         placeholder="Выберите новый статус"
                         onChange={(value) => setNewStatus(value)}
                     >
-                        {STATUSES.filter((s) => s.value !== currentStatus).map((status) => (
+                        {filteredStatuses.map((status) => (
                             <Option key={status.value} value={status.value}>
                                 {status.label}
                             </Option>

@@ -398,6 +398,7 @@ const AdminOrdersPage = () => {
                 orderId={selectedOrderId}
                 currentStatus={selectedOrderStatus}
                 onOk={changeOrderStatus}
+                allowedStatuses={["in_processing", "awaiting_payment", "in_assembly"]}
             />
 
             {/* Модальное окно для изменения цен */}
@@ -417,6 +418,7 @@ const AdminOrdersPage = () => {
                 currentStatus={selectedOrderStatus}
                 orderContent={selectedOrderContent}
                 onOk={changePricesAndStatus}
+                allowedStatuses={["in_processing", "awaiting_payment", "in_assembly"]}
             />
         </div>
     );

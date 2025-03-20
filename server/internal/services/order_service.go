@@ -10,8 +10,16 @@ func GetAllOrders() ([]models.Order, error) {
 	return repositories.GetAllOrders()
 }
 
+func GetAllOrdersInAssembly() ([]models.Order, error) {
+	return repositories.GetAllOrdersInAssembly()
+}
+
 func GetOrderByID(id uint) (*models.Order, error) {
 	return repositories.GetOrderByID(id)
+}
+
+func GetOrdersByCustomerID(customerID uint) ([]models.Order, error) {
+	return repositories.GetOrdersByCustomerID(customerID)
 }
 
 func CreateOrder(order *models.Order) (*models.Order, error) {

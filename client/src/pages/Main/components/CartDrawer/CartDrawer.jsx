@@ -13,6 +13,7 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
 
     const handleOrderSubmit = async (orderData) => {
         try {
+            console.log(orderData)
             await api().post("/api/orders", orderData);
         } catch (error) {
             console.error("Error submitting order:", error);

@@ -24,7 +24,7 @@ func LoginWorker(c *gin.Context) {
 
 	token, workerRole, err := services.LoginWorker(input.Login, input.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Ошибка авторизации: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Ошибка авторизации: " + err.Error()})
 		return
 	}
 
@@ -45,7 +45,7 @@ func LoginCustomer(c *gin.Context) {
 
 	token, err := services.LoginCustomer(input.Email, input.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Ошибка авторизации: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Ошибка авторизации: " + err.Error()})
 		return
 	}
 
@@ -55,38 +55,65 @@ func LoginCustomer(c *gin.Context) {
 
 func RegisterCustomer(c *gin.Context) {
 	var input struct {
-		Name          string `json:"name" binding:"required,min=1"`
+		Surname       string `json:"surname"`
+		FirstName     string `json:"first_name"`
+		Patronymic    string `json:"patronymic"`
+		Name          string `json:"name"`
 		Email         string `json:"email" binding:"required,min=1"`
 		Password      string `json:"password" binding:"required,min=1"`
-		INN           string `json:"inn" binding:"required,min=1"`
-		MainBooker    string `json:"main_booker" binding:"required,min=1"`
-		Director      string `json:"director" binding:"required,min=1"`
-		BIK           string `json:"bik" binding:"required,min=1"`
-		PaymentNumber string `json:"payment_number" binding:"required,min=1"`
-		Bank          string `json:"bank" binding:"required,min=1"`
+		INN           string `json:"inn"`
+		MainBooker    string `json:"main_booker"`
+		Director      string `json:"director"`
+		CustomerType  string `json:"customer_type" binding:"required,oneof=phys juri"`
+		BIK           string `json:"bik"`
+		PaymentNumber string `json:"payment_number"`
+		Bank          string `json:"bank"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("ошибка при парсинге JSON: %w", err).Error()})
 		return
 	}
-	var customer models.Customer = models.Customer{
-		Name:       input.Name,
-		Email:      input.Email,
-		Password:   input.Password,
-		INN:        input.INN,
-		MainBooker: input.MainBooker,
-		Director:   input.Director,
-		PaymentChar: models.PaymentChar{
+
+	var customer_type string
+
+	if input.CustomerType == "juri" {
+		customer_type = "juri"
+	} else if input.CustomerType == "phys" {
+		customer_type = "phys"
+	}
+
+	var inn *string
+	if input.INN != "" {
+		inn = &input.INN
+	}
+
+	var paymentChar *models.PaymentChar
+	if input.BIK != "" && input.PaymentNumber != "" && input.Bank != "" {
+		paymentChar = &models.PaymentChar{
 			BIK:           input.BIK,
 			PaymentNumber: input.PaymentNumber,
 			Bank:          input.Bank,
-		},
+		}
+	}
+
+	var customer models.Customer = models.Customer{
+		Surname:      input.Surname,
+		FirstName:    input.FirstName,
+		Patronymic:   input.Patronymic,
+		Name:         input.Name,
+		Email:        input.Email,
+		Password:     input.Password,
+		INN:          inn,
+		MainBooker:   input.MainBooker,
+		Director:     input.Director,
+		CustomerType: customer_type,
+		PaymentChar:  paymentChar,
 	}
 
 	token, err := services.RegisterCustomer(&customer)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("не удалось зарегистрировать покупателя: %w", err).Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("не удалось зарегистрировать покупателя: %w", err).Error()})
 		return
 	}
 

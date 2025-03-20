@@ -14,7 +14,7 @@ type Order struct {
 	DeliveryDate time.Time `gorm:"type:datetime" json:"delivery_date" form:"delivery_date"`
 	PaymentTerms string    `gorm:"type:ENUM('prepayment', 'postpayment', 'full_payment');default:full_payment;not null" json:"payment_terms" validate:"required" form:"payment_terms"`
 	Status       string    `gorm:"type:ENUM('in_processing', 'awaiting_payment', 'in_assembly', 'awaiting_shipment', 'in_transit', 'received');default:in_processing;not null" json:"status" form:"status"`
-	PaymentTime  time.Time `gorm:"type:datetime" json:"payment_time" form:"payment_time"`
+	PaymentTime  *time.Time `gorm:"type:datetime" json:"payment_time" form:"payment_time"`
 	CustomerID   uint      `gorm:"not null" json:"customer_id" validate:"required,gte=1" form:"customer_id"`
 	TotalPrice   float64   `gorm:"type:decimal(10,2)" json:"total_price" form:"total_price"`
 

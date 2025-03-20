@@ -13,7 +13,7 @@ func GetAllWorkers(c *gin.Context) {
 	workers, err := services.GetAllWorkers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось получить все продукты",
+			"error": "Не удалось получить всех работников",
 		})
 		return
 	}
@@ -45,7 +45,7 @@ func CreateWorker(c *gin.Context) {
 		Login    string `json:"login" binding:"required,min=1"`
 		Password string `json:"password" binding:"required,min=1"`
 		Name     string `json:"name" binding:"required,min=1"`
-		Role     string `json:"role" binding:"required,oneof=admin storage intern manager"`
+		Role     string `json:"role" binding:"required,oneof=admin storage intern manager director"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {

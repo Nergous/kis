@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Table, InputNumber, Form, Button, message } from "antd";
+import { showSuccessNotification, showErrorNotification } from "../../../../../ui/Notification/Notification";
 
 const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => {
     const [form] = Form.useForm();
@@ -35,6 +36,11 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => 
         });
     };
 
+    const handleClose = () => {
+        onCancel();
+        form.resetFields();
+    } 
+
     const handleSubmit = async () => {
         try {
             const updatedPrices = prices.map((item) => ({
@@ -46,10 +52,10 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => 
             // console.log("Обновленные цены:", updatedPrices);
             // console.log("ID заказа:", orderId);
             onOk(orderId, updatedPrices, total_order_price); // Вызываем функцию onOk с новыми ценами
-            message.success("Цены успешно изменены");
+            showSuccessNotification("Цены успешно изменены");
             onCancel(); // Закрываем модальное окно
         } catch (error) {
-            console.error("Ошибка при изменении цен:", error);
+            showErrorNotification("Ошибка при изменении цен:", error.response.data.error);
         }
     };
 
@@ -122,7 +128,7 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => 
         <Modal
             title="Изменить цены заказа"
             open={visible}
-            onCancel={onCancel}
+            onCancel={handleClose}
             footer={[
                 <Button key="cancel" onClick={onCancel}>
                     Отмена

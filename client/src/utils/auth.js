@@ -17,5 +17,4 @@ export const logIn = (token, role) => {
 export const logOut = () => {
     Cookies.remove("auth_token");
     localStorage.removeItem("role");
-    window.location.href = "/login";
 }

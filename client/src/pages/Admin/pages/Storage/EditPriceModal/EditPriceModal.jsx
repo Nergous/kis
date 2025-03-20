@@ -25,11 +25,16 @@ const EditPriceModal = ({
         }
     };
 
+    const handleClose = () => {
+        onCancel();
+        form.resetFields();
+    };
+
     return (
         <Modal
             title={`Изменить цену для ${productName}`}
             open={visible}
-            onCancel={onCancel}
+            onCancel={handleClose}
             footer={[
                 <Button key="back" onClick={onCancel}>
                     Отмена

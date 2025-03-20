@@ -1,14 +1,20 @@
 import React from "react";
 import { Modal, Form, Select, Button, message } from "antd";
 import { STATUSES } from "../../../../../constants/statuses";
+import { showSuccessNotification, showErrorNotification } from "../../../../../ui/Notification/Notification";
 
 const { Option } = Select;
 
-const ChangeStatusModal = ({ visible, onCancel, orderId, currentStatus, onOk }) => {
+const ChangeStatusModal = ({ visible, onCancel, orderId, currentStatus, onOk, allowedStatuses = [] }) => {
     const [form] = Form.useForm();
 
     // Фильтруем статусы, исключая текущий
-    const filteredStatuses = STATUSES.filter((status) => status.value !== currentStatus);
+    let filteredStatuses = STATUSES.filter((status) => status.value !== currentStatus);
+
+    // Если передан allowedStatuses и он не пустой, фильтруем статусы
+    if (allowedStatuses && allowedStatuses.length > 0) {
+        filteredStatuses = filteredStatuses.filter((status) => allowedStatuses.includes(status.value));
+    }
 
     const handleSubmit = async () => {
         try {
@@ -16,18 +22,23 @@ const ChangeStatusModal = ({ visible, onCancel, orderId, currentStatus, onOk }) 
             // console.log("Новый статус:", values.newStatus);
             // console.log("ID заказа:", orderId);
             onOk(orderId, values.newStatus); // Вызываем функцию onOk с новым статусом
-            message.success("Статус успешно изменен");
+            showSuccessNotification("Статус успешно изменен");
             onCancel(); // Закрываем модальное окно
         } catch (error) {
-            console.error("Ошибка при изменении статуса:", error);
+            showErrorNotification("Ошибка при изменении статуса:", error.response.data.error);
         }
+    };
+
+    const handleClose = () => {
+        onCancel();
+        form.resetFields();
     };
 
     return (
         <Modal
             title="Изменить статус заказа"
             open={visible}
-            onCancel={onCancel}
+            onCancel={handleClose}
             footer={[
                 <Button key="cancel" onClick={onCancel}>
                     Отмена
