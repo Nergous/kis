@@ -18,12 +18,16 @@ const AdminPanel = () => {
                 <Route
                     path="/*"
                     element={
-                        <ProtectedProvider>
+                        <ProtectedProvider excludedRoles={['customer']}>
                             <AdminLayout>
                                 <Routes>
                                     <Route
                                         path="/"
-                                        element={<MainAdminPage />}
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                                <MainAdminPage />
+                                            </RoleProtectedRoute>
+                                        }
                                     />
 
                                     {/*
@@ -45,32 +49,49 @@ const AdminPanel = () => {
                                     />
                                     <Route
                                         path="/storage/:id"
-                                        element={<EditProductPage />}
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                                <EditProductPage />
+                                            </RoleProtectedRoute>
+                                        }
                                     />
                                     <Route
                                         path="/storage/create"
-                                        element={<CreateProductPage />}
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                                <CreateProductPage />
+                                            </RoleProtectedRoute>
+                                        }
                                     />
 
                                     <Route
                                         path="/packing"
-                                        element={<AdminPackingPage />}
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                                <AdminPackingPage />
+                                            </RoleProtectedRoute>
+                                        }
                                     />
 
                                     <Route
                                         path="/employees"
-                                        element={<AdminEmployeesPage />}
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                                <AdminEmployeesPage />
+                                            </RoleProtectedRoute>
+                                        }
                                     />
 
                                     <Route
                                         path="/orders"
-                                        element={<AdminOrdersPage />}
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                                <AdminOrdersPage />
+                                            </RoleProtectedRoute>
+                                        }
                                     />
 
-                                    <Route
-                                        path="/*"
-                                        element={<Navigate to="/admin" />}
-                                    />
+                                    <Route path="/*" element={<Navigate to="/admin" />} />
                                 </Routes>
                             </AdminLayout>
                         </ProtectedProvider>

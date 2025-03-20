@@ -37,7 +37,7 @@ func GetOrderByID(id uint) (*models.Order, error) {
 func GetOrdersByCustomerID(customerID uint) ([]models.Order, error) {
 	// Логика поиска заказов в базе данных
 	var orders []models.Order
-	result := config.DB.Where("customer_id = ?", customerID).Find(&orders)
+	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").Where("customer_id = ?", customerID).Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}

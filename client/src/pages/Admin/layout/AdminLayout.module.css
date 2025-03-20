@@ -1,5 +1,133 @@
 @media screen and (max-width: 991px) {
     .AdminContent {
-        margin-left: 0 !important;
+      margin-left: 0 !important;
     }
-}
+  }
+  
+  .LayoutWrapper {
+    max-height: 100vh;
+    position: relative;
+    background: white;
+  }
+  
+  .AdminContent {
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+    overflow: auto;
+    margin-left: 250px;
+  }
+  
+  /* Анимация падения страницы */
+  .PageDownWrapper {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed; /* Фиксированное позиционирование */
+    top: 0;
+    left: 0;
+    z-index: 10000; /* Убедимся, что это выше всех элементов */
+  }
+  
+  .FallingPage {
+    animation: fall 4s forwards; /* Сделал медленнее */
+    width: 100%;
+    height: 100%;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .PageDownText {
+    font-size: 2rem;
+    color: #fff;
+    z-index: 10001; /* Текст выше кнопки */
+  }
+  
+  @keyframes fall {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(100vh);
+    }
+  }
+  
+  /* Кнопки по углам */
+  .CornerButton {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    z-index: 9999;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e60000;
+    font-size: 24px;
+  }
+  
+  .CornerButton:hover {
+    transform: scale(1.1);
+  }
+  
+  .CornerButton:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Позиционирование углов */
+  .TopLeft {
+    top: 0px;
+    left: -5px;
+  }
+  
+  .TopRight {
+    top: 0px;
+    right: -5px;
+  }
+  
+  .BottomLeft {
+    bottom: 0px;
+    left: 0px;
+  }
+  
+  .BottomRight {
+    bottom: 0px;
+    right: 10px;
+  }
+  
+  .CornerButtonActive svg {
+    color: #007bff; /* Синий цвет после нажатия */
+  }
+  
+  /* Кнопка восстановления */
+  .RestoreButton {
+    position: fixed;
+    top: -50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 10002; /* Убедимся, что кнопка выше текста и других элементов */
+  }
+  
+  /* При наведении */
+  .RestoreButton:hover {
+    background-color: #0056b3;
+  }

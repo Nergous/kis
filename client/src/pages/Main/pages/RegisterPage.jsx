@@ -15,6 +15,7 @@ import {
 import api from "../../../utils/api";
 import FormInput from "../../../ui/FormInput/FormInput";
 import { useAuth } from "../../../context/AuthContext";
+import { showErrorNotification } from "../../../ui/Notification/Notification";
 
 const RegisterPage = () => {
     const [form] = Form.useForm();
@@ -27,6 +28,7 @@ const RegisterPage = () => {
     useEffect(() => {
         document.title = "Регистрация";
     }, []);
+    
 
     const onFinish = async (values) => {
         setSending(true);
@@ -43,7 +45,7 @@ const RegisterPage = () => {
             login(token, role);
             navigate("/client");
         } catch (error) {
-            console.log("Registration failed:", error.response.data.error);
+            showErrorNotification(error.response.data.error);
         } finally {
             setSending(false);
         }
@@ -153,7 +155,7 @@ const RegisterPage = () => {
                         {customerType === "juri" && (
                             <>
                                 <FormInput
-                                    name="Наименование организации"
+                                    name="name"
                                     rules={[{ required: true, message: "Введите ваше наименование организации!" }]}
                                     type="input"
                                     prefix={<UserAddOutlined />}
