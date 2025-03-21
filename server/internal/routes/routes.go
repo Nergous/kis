@@ -72,7 +72,7 @@ func SetupRoutes(services *services.ServicesContainer) *gin.Engine {
 
 			manager_storage := protected.Group("", middleware.AuthMiddleware(
 				authRepo,
-				[]string{"manager", "storage"}))
+				[]string{"manager", "storage", "customer"}))
 			{
 				manager_storage.GET("/orders", services.OrderService.GetAll)
 				manager_storage.PATCH("/orders/:id/status", services.OrderService.UpdateStatus)
