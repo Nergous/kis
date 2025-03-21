@@ -8,6 +8,7 @@ import { PAYMENT_TERMS } from "../../../../constants/payments_terms";
 import ChangeStatusModal from "./ChangeStatusModal/ChangeStatusModal"; // Импортируем модальное окно для изменения статуса
 import EditPricesModal from "./EditPricesModal/EditPricesModal"; // Импортируем модальное окно для изменения цен
 import EditPricesAndStatusModal from "./EditPricesAndStatusModal/EditPricesAndStatusModal"; // Импортируем модальное окно для изменения цен и статуса
+import CachedImage from "../../../../components/CachedImage/CachedImage";
 import { showErrorNotification, showSuccessNotification } from "../../../../ui/Notification/Notification";
 
 const AdminOrdersPage = () => {
@@ -314,6 +315,20 @@ const AdminOrdersPage = () => {
     // Колонки для деталей заказа (expandable rows)
     const expandedRowRender = (record) => {
         const columns = [
+            {
+                title: "Изображение",
+                dataIndex: ["product", "img_path"],
+                key: "img_path",
+                width: "10%",
+                render: (img_path) => {
+                    img_path = img_path.replace(/\\/g, "/").split("public")[1];
+                    return (
+                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                            <CachedImage src={img_path} width={60} height={60} />
+                        </div>
+                    );
+                },
+            },
             {
                 title: "Название товара",
                 dataIndex: ["product", "name"],
