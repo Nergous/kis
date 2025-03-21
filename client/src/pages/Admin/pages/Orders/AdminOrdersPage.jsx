@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-    Table,
-    Tag,
-    Spin,
-    ConfigProvider,
-    Dropdown,
-    Button,
-    Space,
-} from "antd";
+import { Table, Tag, Spin, ConfigProvider, Dropdown, Button, Space, Modal, Descriptions } from "antd";
 import { DownOutlined, SyncOutlined, EditOutlined } from "@ant-design/icons";
 import api from "../../../../utils/api"; // Убедитесь, что путь к api правильный
 import { STATUSES } from "../../../../constants/statuses";
@@ -16,29 +8,26 @@ import { PAYMENT_TERMS } from "../../../../constants/payments_terms";
 import ChangeStatusModal from "./ChangeStatusModal/ChangeStatusModal"; // Импортируем модальное окно для изменения статуса
 import EditPricesModal from "./EditPricesModal/EditPricesModal"; // Импортируем модальное окно для изменения цен
 import EditPricesAndStatusModal from "./EditPricesAndStatusModal/EditPricesAndStatusModal"; // Импортируем модальное окно для изменения цен и статуса
-import {
-    showErrorNotification,
-    showSuccessNotification,
-} from "../../../../ui/Notification/Notification";
+import { showErrorNotification, showSuccessNotification } from "../../../../ui/Notification/Notification";
 
 const AdminOrdersPage = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Состояния для управления модальными окнами
-    const [isChangeStatusModalVisible, setIsChangeStatusModalVisible] =
-        useState(false);
-    const [isEditPricesModalVisible, setIsEditPricesModalVisible] =
-        useState(false);
-    const [
-        isEditPricesAndStatusModalVisible,
-        setIsEditPricesAndStatusModalVisible,
-    ] = useState(false);
+    const [isChangeStatusModalVisible, setIsChangeStatusModalVisible] = useState(false);
+    const [isEditPricesModalVisible, setIsEditPricesModalVisible] = useState(false);
+    const [isEditPricesAndStatusModalVisible, setIsEditPricesAndStatusModalVisible] = useState(false);
 
     // Данные для модальных окон
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [selectedOrderStatus, setSelectedOrderStatus] = useState(null);
     const [selectedOrderContent, setSelectedOrderContent] = useState([]);
+
+    // Данные о покупателе
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [selectedPhone, setSelectedPhone] = useState(null);
 
     // Загрузка данных с endpoint'а
     useEffect(() => {
@@ -70,10 +59,7 @@ const AdminOrdersPage = () => {
 
     const changePrices = async (id, prices, total_order_price) => {
         try {
-            const response = await api().patch(
-                `/api/orders/${id}/change-price`,
-                { products: prices, total_order_price: total_order_price }
-            );
+            const response = await api().patch(`/api/orders/${id}/change-price`, { products: prices, total_order_price: total_order_price });
             fetchData();
             showSuccessNotification(response.data.message);
         } catch (error) {
@@ -81,12 +67,7 @@ const AdminOrdersPage = () => {
         }
     };
 
-    const changePricesAndStatus = async (
-        id,
-        status,
-        prices,
-        total_order_price
-    ) => {
+    const changePricesAndStatus = async (id, status, prices, total_order_price) => {
         try {
             await Promise.all([
                 api().patch(`/api/orders/${id}/change-price`, {
@@ -136,6 +117,12 @@ const AdminOrdersPage = () => {
         setIsEditPricesAndStatusModalVisible(true);
     };
 
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedCustomer(null);
+        setSelectedPhone(null);
+    };
+
     // Элементы меню для Dropdown
     const getMenuItems = (record) => [
         {
@@ -150,14 +137,7 @@ const AdminOrdersPage = () => {
                     variant="dashed"
                     type="link"
                     color="orange"
-                    onClick={() =>
-                        handleChangeStatus(
-                            record.ID,
-                            record.status,
-                            record.order_content
-                        )
-                    }
-                >
+                    onClick={() => handleChangeStatus(record.ID, record.status, record.order_content)}>
                     <SyncOutlined spin />
                     Изменить статус
                 </Button>
@@ -175,10 +155,7 @@ const AdminOrdersPage = () => {
                     color="primary"
                     variant="dashed"
                     type="link"
-                    onClick={() =>
-                        handleEditPrices(record.ID, record.order_content)
-                    }
-                >
+                    onClick={() => handleEditPrices(record.ID, record.order_content)}>
                     <EditOutlined />
                     Изменить цены
                 </Button>
@@ -196,14 +173,7 @@ const AdminOrdersPage = () => {
                     color="geekblue"
                     variant="dashed"
                     type="link"
-                    onClick={() =>
-                        handleEditPricesAndStatus(
-                            record.ID,
-                            record.status,
-                            record.order_content
-                        )
-                    }
-                >
+                    onClick={() => handleEditPricesAndStatus(record.ID, record.status, record.order_content)}>
                     <EditOutlined />
                     Изменить цены и статус
                 </Button>
@@ -219,9 +189,40 @@ const AdminOrdersPage = () => {
             key: "id",
         },
         {
+            title: "Покупатель",
+            dataIndex: "customer",
+            key: "name",
+            render: (customer, record) => {
+                if (customer.customer_type === "phys") {
+                    return (
+                        <CustomizedTextCustomer
+                            customer={customer}
+                            onClick={() => {
+                                setSelectedCustomer(customer);
+                                setSelectedPhone(record.recipient_phone);
+                                setIsModalOpen(true);
+                            }}
+                        />
+                    );
+                } else {
+                    return (
+                        <CustomizedTextCustomer
+                            customer={customer}
+                            onClick={() => {
+                                setSelectedCustomer(customer);
+                                setSelectedPhone(record.recipient_phone);
+                                setIsModalOpen(true);
+                            }}
+                        />
+                    );
+                }
+            },
+        },
+        {
             title: "ID заказа",
             dataIndex: "order_id_unique",
             key: "order_id_unique",
+            width: "12%",
         },
         {
             title: "Адрес доставки",
@@ -293,14 +294,14 @@ const AdminOrdersPage = () => {
         {
             title: "Действия",
             key: "actions",
+            width: "8%",
             render: (_, record) => (
                 <Space size="middle">
                     <Dropdown
                         menu={{
                             items: getMenuItems(record),
                         }}
-                        trigger={["click"]}
-                    >
+                        trigger={["click"]}>
                         <Button>
                             Действия <DownOutlined />
                         </Button>
@@ -343,15 +344,7 @@ const AdminOrdersPage = () => {
             },
         ];
 
-        return (
-            <Table
-                columns={columns}
-                dataSource={record.order_content}
-                rowKey="ID"
-                bordered
-                pagination={false}
-            />
-        );
+        return <Table columns={columns} dataSource={record.order_content} rowKey="ID" bordered pagination={false} />;
     };
 
     return (
@@ -374,8 +367,7 @@ const AdminOrdersPage = () => {
                                 cellFontSize: 16,
                             },
                         },
-                    }}
-                >
+                    }}>
                     <Table
                         columns={columns}
                         dataSource={data}
@@ -383,13 +375,14 @@ const AdminOrdersPage = () => {
                         bordered
                         expandable={{
                             expandedRowRender, // Добавляем расширяемые строки
-                            rowExpandable: (record) =>
-                                record.order_content.length > 0, // Расширяем только если есть товары
+                            rowExpandable: (record) => record.order_content.length > 0, // Расширяем только если есть товары
                         }}
                         pagination={{ pageSize: 10 }}
                     />
                 </ConfigProvider>
             )}
+
+            <CustomerInfoModel selectedCustomer={selectedCustomer} phone={selectedPhone} isVisible={isModalOpen} onCancel={handleCloseModal} />
 
             {/* Модальное окно для изменения статуса */}
             <ChangeStatusModal
@@ -420,6 +413,69 @@ const AdminOrdersPage = () => {
                 onOk={changePricesAndStatus}
                 allowedStatuses={["in_processing", "awaiting_payment", "in_assembly"]}
             />
+        </div>
+    );
+};
+
+const CustomerInfoModel = ({ selectedCustomer, phone, isVisible, onCancel }) => {
+    return (
+        <Modal
+            title="Информация о покупателе"
+            open={isVisible}
+            onCancel={onCancel}
+            footer={null} // Убираем кнопки внизу модального окна
+        >
+            {selectedCustomer && (
+                <Descriptions bordered column={1} size="middle">
+                    <Descriptions.Item label="Тип покупателя">
+                        {selectedCustomer.customer_type === "phys" ? "Физическое лицо" : "Юридическое лицо"}
+                    </Descriptions.Item>
+
+                    {selectedCustomer.customer_type === "phys" ? (
+                        <>
+                            <Descriptions.Item label="Фамилия">{selectedCustomer.surname}</Descriptions.Item>
+                            <Descriptions.Item label="Имя">{selectedCustomer.first_name}</Descriptions.Item>
+                            <Descriptions.Item label="Отчество">{selectedCustomer.patronymic}</Descriptions.Item>
+                        </>
+                    ) : (
+                        <>
+                            <Descriptions.Item label="Название компании">{selectedCustomer.name}</Descriptions.Item>
+                            <Descriptions.Item label="ИНН">{selectedCustomer.inn || "Не указано"}</Descriptions.Item>
+                            <Descriptions.Item label="Директор компании">{selectedCustomer.director || "Не указано"}</Descriptions.Item>
+                        </>
+                    )}
+
+                    <Descriptions.Item label="Email">{selectedCustomer.email || "Не указана"}</Descriptions.Item>
+                    <Descriptions.Item label="Телефон">{phone || "Не указан"}</Descriptions.Item>
+                </Descriptions>
+            )}
+        </Modal>
+    );
+};
+
+const CustomizedTextCustomer = ({ customer, onClick }) => {
+    const displayName = customer.customer_type === "phys" ? `${customer.first_name} ${customer.patronymic}` : customer.name;
+    return (
+        <div
+            style={{
+                cursor: "pointer",
+                width: "max-content",
+                borderBottom: "1px solid #1890ff",
+                color: "inherit", // Наследуем цвет текста
+                transition: "color 0.3s ease, scale 0.2s ease, border-color 0.3s ease", // Плавные переходы
+            }}
+            onMouseEnter={(e) => {
+                e.target.style.color = "#1890ff"; // Изменение цвета текста при наведении
+                e.target.style.borderBottomColor = "#40a9ff"; // Изменение цвета нижней границы
+                e.target.style.scale = "1.05";
+            }}
+            onMouseLeave={(e) => {
+                e.target.style.color = "inherit"; // Возвращаем цвет текста
+                e.target.style.borderBottomColor = "#1890ff"; // Возвращаем цвет нижней границы
+                e.target.style.scale = "1";
+            }}
+            onClick={onClick}>
+            {displayName}
         </div>
     );
 };

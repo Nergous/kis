@@ -3,7 +3,7 @@ import { Table, Tag, Spin, ConfigProvider, Button, Empty, Image } from "antd";
 import api from "../../../../utils/api"; // Убедитесь, что путь к api правильный
 import { STATUSES } from "../../../../constants/statuses";
 import ChangeStatusWithConfirm from "./ChangeStatusWithConfirm/ChangeStatusWithConfirm";
-import CachedImage from "../../components/CachedImage/CachedImage";
+import CachedImage from "../../../../components/CachedImage/CachedImage";
 
 
 import { showErrorNotification } from "../../../../ui/Notification/Notification";

@@ -51,6 +51,7 @@ const AdminLayout = ({ children }) => {
     localStorage.removeItem("page down");
     setPageDown(false);
     setShowRestoreButton(false);
+    setClickedButtons([false, false, false, false]);
     console.log("Page restored, restore button hidden");
   };
 

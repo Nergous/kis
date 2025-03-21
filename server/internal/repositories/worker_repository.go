@@ -1,47 +1,56 @@
 package repositories
 
 import (
-	"project_backend/config"
 	"project_backend/internal/models"
+
+	"gorm.io/gorm"
 )
 
-func GetAllWorkers() ([]models.Worker, error) {
+type WorkerRepository struct {
+	db *gorm.DB
+}
+
+func NewWorkerRepository(db *gorm.DB) *WorkerRepository {
+	return &WorkerRepository{db: db}
+}
+
+func (r *WorkerRepository) GetAll() ([]models.Worker, error) {
 	var workers []models.Worker
-	result := config.DB.Find(&workers)
+	result := r.db.Find(&workers)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return workers, nil
 }
 
-func GetWorkerByID(id uint) (*models.Worker, error) {
+func (r *WorkerRepository) GetByID(id uint) (*models.Worker, error) {
 	var worker models.Worker
-	result := config.DB.First(&worker, id)
+	result := r.db.First(&worker, id)
 	if result.Error != nil {
 		return &models.Worker{}, result.Error
 	}
 	return &worker, nil
 }
 
-func CreateWorker(worker *models.Worker) (*models.Worker, error) {
-	result := config.DB.Create(worker)
+func (r *WorkerRepository) Create(worker *models.Worker) (*models.Worker, error) {
+	result := r.db.Create(worker)
 	return worker, result.Error
 }
 
-func UpdateWorker(worker *models.Worker) (*models.Worker, error) {
-	result := config.DB.Save(*worker)
+func (r *WorkerRepository) Update(worker *models.Worker) (*models.Worker, error) {
+	result := r.db.Save(*worker)
 	return worker, result.Error
 }
 
-func DeleteWorker(id uint) error {
+func (r *WorkerRepository) Delete(id uint) error {
 	worker := models.Worker{}
-	result := config.DB.Where("id=?", id).Delete(&worker)
+	result := r.db.Where("id=?", id).Delete(&worker)
 	return result.Error
 }
 
-func GetWorkerByLogin(login string) (*models.Worker, error) {
+func (r *WorkerRepository) GetByLogin(login string) (*models.Worker, error) {
 	var worker models.Worker
-	result := config.DB.Where("login = ?", login).First(&worker)
+	result := r.db.Where("login = ?", login).First(&worker)
 	if result.Error != nil {
 		return nil, result.Error
 	}

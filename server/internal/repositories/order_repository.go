@@ -2,50 +2,59 @@ package repositories
 
 import (
 	"fmt"
-	"project_backend/config"
 	"project_backend/internal/models"
 	"time"
+
+	"gorm.io/gorm"
 )
 
-func GetAllOrders() ([]models.Order, error) {
+type OrderRepository struct {
+	db *gorm.DB
+}
+
+func NewOrderRepository(db *gorm.DB) *OrderRepository {
+	return &OrderRepository{db: db}
+}
+
+func (r *OrderRepository) GetAll() ([]models.Order, error) {
 	var orders []models.Order
-	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").Find(&orders)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Preload("Customer").Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return orders, nil
 }
 
-func GetAllOrdersInAssembly() ([]models.Order, error) {
+func (r *OrderRepository) GetAllInAssembly() ([]models.Order, error) {
 	var orders []models.Order
-	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").Where("status IN ?", []string{"in_assembly", "awaiting_shipment"}).Find(&orders)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Where("status IN ?", []string{"in_assembly", "awaiting_shipment"}).Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return orders, nil
 }
 
-func GetOrderByID(id uint) (*models.Order, error) {
+func (r *OrderRepository) GetByID(id uint) (*models.Order, error) {
 	var order models.Order
-	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").First(&order, id)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").First(&order, id)
 	if result.Error != nil {
 		return &models.Order{}, result.Error
 	}
 	return &order, nil
 }
 
-func GetOrdersByCustomerID(customerID uint) ([]models.Order, error) {
+func (r *OrderRepository) GetByCustomerID(customerID uint) ([]models.Order, error) {
 	// Логика поиска заказов в базе данных
 	var orders []models.Order
-	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").Where("customer_id = ?", customerID).Find(&orders)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Where("customer_id = ?", customerID).Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return orders, nil
 }
 
-func CreateOrder(order *models.Order) (*models.Order, error) {
-	tx := config.DB.Begin()
+func (r *OrderRepository) Create(order *models.Order) (*models.Order, error) {
+	tx := r.db.Begin()
 	order.OrderID = uint(time.Now().UnixNano())
 	defer func() {
 		if r := recover(); r != nil {
@@ -68,8 +77,8 @@ func CreateOrder(order *models.Order) (*models.Order, error) {
 	return order, nil
 }
 
-func UpdateOrderPrices(orderID uint, products []models.OrderContentUpdate, totalOrderPrice float64) error {
-	tx := config.DB.Begin()
+func (r *OrderRepository) UpdatePrices(orderID uint, products []models.OrderContentUpdate, totalOrderPrice float64) error {
+	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
@@ -103,8 +112,8 @@ func UpdateOrderPrices(orderID uint, products []models.OrderContentUpdate, total
 	return nil
 }
 
-func UpdateOrder(order *models.Order) error {
-	result := config.DB.Save(order)
+func (r *OrderRepository) Update(order *models.Order) error {
+	result := r.db.Save(order)
 	if result.Error != nil {
 		return result.Error
 	}

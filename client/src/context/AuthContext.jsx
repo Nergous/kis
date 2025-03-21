@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         Cookies.remove('auth_token');
         localStorage.removeItem('role');
+        window.location.href = '/';
         setRole(null);
     };
 

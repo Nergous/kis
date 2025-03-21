@@ -7,7 +7,7 @@ import AddQuantityModal from "./AddQuantityModal/AddQuantityModal";
 import DeleteProductModal from "./DeleteProductModal/DeleteProductModal";
 import EditPriceModal from "./EditPriceModal/EditPriceModal";
 import { showErrorNotification, showSuccessNotification } from "../../../../ui/Notification/Notification";
-import CachedImage from "../../components/CachedImage/CachedImage";
+import CachedImage from "../../../../components/CachedImage/CachedImage";
 
 const AdminStoragePage = () => {
     const [data, setData] = useState([]);

@@ -6,8 +6,10 @@ import (
 
 	"project_backend/config"
 	"project_backend/internal/middleware"
-	"project_backend/internal/models"
+	"project_backend/internal/repositories"
 	"project_backend/internal/routes"
+	"project_backend/internal/services"
+	"project_backend/migration"
 
 	"github.com/joho/godotenv"
 )
@@ -28,34 +30,17 @@ func main() {
 		log.Fatalf("Ошибка инициализации базы данных: %v", err)
 	}
 
-	err = models.CreateProductsTable(config.DB)
+	err = migration.Migrate()
 	if err != nil {
-		log.Fatalf("Ошибка создания таблицы продуктов: %v", err)
-	}
-	err = models.CreateCustomersTable(config.DB)
-	if err != nil {
-		log.Fatalf("Ошибка создания таблицы клиентов: %v", err)
-	}
-	err = models.CreateWorkersTable(config.DB)
-	if err != nil {
-		log.Fatalf("Ошибка создания таблицы работников: %v", err)
-	}
-	err = models.CreatePaymentCharTable(config.DB)
-	if err != nil {
-		log.Fatalf("Ошибка создания таблицы платежных характеристик: %v", err)
-	}
-	err = models.CreateOrdersTable(config.DB)
-	if err != nil {
-		log.Fatalf("Ошибка создания таблицы заказа: %v", err)
-	}
-	err = models.CreateOrderContentTable(config.DB)
-	if err != nil {
-		log.Fatalf("Ошибка создания таблицы состава заказа: %v", err)
+		log.Fatalf("Ошибка миграции базы данных: %v", err)
 	}
 
-	r := routes.SetupRoutes()
+	repos := repositories.InitRepos(config.DB)
+	services := services.InitServices(repos)
+
+	r := routes.SetupRoutes(services)
+
 	r.Use(middleware.LogMiddleware())
-
 	r.Use(middleware.CorsMiddleware())
 
 	port := fmt.Sprintf(":%d", config.AppConfig.App.Port)

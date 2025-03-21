@@ -6,7 +6,7 @@ import (
 
 	"project_backend/config"
 	"project_backend/internal/models"
-	"project_backend/internal/services"
+	"project_backend/internal/repositories"
 
 	"github.com/joho/godotenv"
 )
@@ -54,8 +54,10 @@ func main() {
 		Role:     "admin",
 	}
 
-	// Вызываем сервисную функцию для создания работника
-	_, err = services.CreateWorker(&admin)
+	repos := repositories.InitRepos(config.DB)
+
+	_, err = repos.WorkerRepository.Create(&admin)
+
 	if err != nil {
 		log.Fatalf("Не удалось создать администратора: %v", err)
 	}
