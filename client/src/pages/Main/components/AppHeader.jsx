@@ -71,7 +71,7 @@ const AppHeader = () => {
                     e.currentTarget.style.transition = "transform 0.3s ease-in-out";
                 }}
             />
-            <Input placeholder="Поиск..." prefix={<SearchIcon />} style={{ width: "80%", borderRadius: 20, padding: "5px 10px" }} />
+            <Input placeholder="Поиск..." prefix={<SearchIcon />} style={{ width: "40%", borderRadius: 20, padding: "5px 10px" }} />
             <div>
                 <IconButton
                     style={{ color: "white" }}

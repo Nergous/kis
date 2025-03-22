@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Select, Table, InputNumber, Button, message } from "antd";
+import { Modal, Form, Select, Table, InputNumber, Button, Alert, Input } from "antd";
 import { STATUSES } from "../../../../../constants/statuses";
 import { showSuccessNotification, showErrorNotification } from "../../../../../ui/Notification/Notification";
 
 const { Option } = Select;
+const { TextArea } = Input;
 
 const EditPricesAndStatusModal = ({
     visible,
@@ -12,11 +13,17 @@ const EditPricesAndStatusModal = ({
     currentStatus,
     orderContent,
     onOk,
-    allowedStatuses = [], // Добавляем параметр allowedStatuses
+    allowedStatuses = [],
 }) => {
     const [form] = Form.useForm();
     const [prices, setPrices] = useState([]);
     const [newStatus, setNewStatus] = useState(currentStatus);
+    const [isEditingDisabled, setIsEditingDisabled] = useState(false); // Запрет редактирования
+    const [info, setInfo] = useState(""); // Сообщение об ошибке или предупреждении
+    const [isQuantityValid, setIsQuantityValid] = useState(true); // Проверка количества товара
+
+    // Статусы, при которых изменение запрещено
+    const disabledStatuses = ["in_assembly", "awaiting_shipment"];
 
     // Фильтруем статусы, исключая текущий
     let filteredStatuses = STATUSES.filter((status) => status.value !== currentStatus);
@@ -26,7 +33,19 @@ const EditPricesAndStatusModal = ({
         filteredStatuses = filteredStatuses.filter((status) => allowedStatuses.includes(status.value));
     }
 
-    // Инициализация prices при открытии модального окна
+    // Проверка количества товара на складе
+    const validateQuantity = () => {
+        let isValid = true;
+        orderContent.forEach((item) => {
+            if (item.product.quantity < item.quantity) {
+                isValid = false;
+            }
+        });
+        setIsQuantityValid(isValid);
+        return isValid;
+    };
+
+    // Инициализация при открытии модального окна
     useEffect(() => {
         if (visible && orderContent) {
             const initialPrices = orderContent.map((item) => ({
@@ -42,8 +61,24 @@ const EditPricesAndStatusModal = ({
                     return acc;
                 }, {})
             );
+
+            // Проверяем количество товара
+            const isQuantityEnough = validateQuantity();
+            if (!isQuantityEnough) {
+                setInfo("Недостаточно товара на складе. Введите сообщение для клиента.");
+                setNewStatus("contacting"); // Устанавливаем статус "contacting"
+                form.setFieldsValue({ newStatus: "contacting" }); // Устанавливаем значение в форме
+            }
+
+            // Проверяем, запрещено ли редактирование
+            if (disabledStatuses.includes(currentStatus)) {
+                setIsEditingDisabled(true);
+                setInfo(`Статус заказа '${STATUSES.find((s) => s.value === currentStatus)?.label || currentStatus}'. Изменение запрещено.`);
+            } else {
+                setIsEditingDisabled(false);
+            }
         }
-    }, [visible, orderContent, form]);
+    }, [visible, orderContent, form, currentStatus]);
 
     const handlePriceChange = (index, newPrice) => {
         const updatedPrices = [...prices];
@@ -59,10 +94,18 @@ const EditPricesAndStatusModal = ({
     const handleClose = () => {
         onCancel();
         form.resetFields();
+        setInfo("");
+        setNewStatus('');
     };
 
     const handleSubmit = async () => {
         try {
+            // Если редактирование запрещено, завершаем функцию
+            if (isEditingDisabled) {
+                return;
+            }
+
+            const values = await form.validateFields(); // Валидация формы
             const updatedPrices = prices.map((item) => ({
                 product_id: item.product_id,
                 price: item.newPrice,
@@ -70,7 +113,9 @@ const EditPricesAndStatusModal = ({
             }));
 
             const total_order_price = updatedPrices.reduce((acc, item) => acc + item.total_product_price, 0);
-            onOk(orderId, newStatus, updatedPrices, total_order_price); // Вызываем функцию onOk с новым статусом и ценами
+            const message = values.message || ""; // Сообщение (если статус "contacting")
+
+            onOk(orderId, newStatus, updatedPrices, total_order_price, message); // Вызываем функцию onOk
             showSuccessNotification("Цены и статус успешно изменены");
             onCancel(); // Закрываем модальное окно
         } catch (error) {
@@ -85,9 +130,21 @@ const EditPricesAndStatusModal = ({
             key: "name",
         },
         {
-            title: "Количество",
+            title: "Количество на складе",
+            dataIndex: ["product", "quantity"],
+            key: "quantity_product",
+        },
+        {
+            title: "Количество в заказе",
             dataIndex: "quantity",
             key: "quantity",
+            render: (quantity, record) => {
+                if (record.product.quantity >= quantity) {
+                    return <span style={{ color: "green" }}>{quantity}</span>;
+                } else {
+                    return <span style={{ color: "red" }}>{quantity}</span>;
+                }
+            },
         },
         {
             title: "Максимальная цена",
@@ -132,6 +189,7 @@ const EditPricesAndStatusModal = ({
                         min={1}
                         max={record.product.price}
                         onChange={(value) => handlePriceChange(index, value)}
+                        disabled={isEditingDisabled} // Отключаем поле, если редактирование запрещено
                     />
                 </Form.Item>
             ),
@@ -152,13 +210,20 @@ const EditPricesAndStatusModal = ({
                 <Button key="cancel" onClick={handleClose}>
                     Отмена
                 </Button>,
-                <Button key="submit" type="primary" onClick={handleSubmit}>
+                <Button
+                    key="submit"
+                    type="primary"
+                    onClick={handleSubmit}
+                    disabled={isEditingDisabled} // Отключаем кнопку, если редактирование запрещено
+                >
                     ОК
                 </Button>,
             ]}
-            width={800}
+            width={1000}
         >
             <Form form={form} layout="horizontal">
+                {info && <Alert type="error" message={info} style={{ marginBottom: 16 }} />}
+
                 <Form.Item label="ID заказа">
                     <strong>{orderId}</strong>
                 </Form.Item>
@@ -175,14 +240,26 @@ const EditPricesAndStatusModal = ({
                     <Select
                         placeholder="Выберите новый статус"
                         onChange={(value) => setNewStatus(value)}
+                        disabled={isEditingDisabled || !isQuantityValid} // Отключаем выбор, если редактирование запрещено или товара недостаточно
                     >
                         {filteredStatuses.map((status) => (
-                            <Option key={status.value} value={status.value}>
+                            <Option key={status.value} value={status.value} disabled={!isQuantityValid && status.value !== "contacting"}>
                                 {status.label}
                             </Option>
                         ))}
                     </Select>
                 </Form.Item>
+
+                {(newStatus === "contacting" || !isQuantityValid) && (
+                    <Form.Item
+                        name="message"
+                        label="Сообщение"
+                        rules={[{ required: true, message: "Пожалуйста, введите сообщение!" }]}
+                    >
+                        <TextArea rows={4} placeholder="Введите сообщение" />
+                    </Form.Item>
+                )}
+
                 <Table
                     columns={columns}
                     dataSource={prices} // Используем prices как dataSource

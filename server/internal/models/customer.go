@@ -30,7 +30,7 @@ func CreateCustomersTable(db *gorm.DB) error {
 	return db.AutoMigrate(&Customer{})
 }
 
-func (p *Customer) Validate() error {
+func (c *Customer) Validate() error {
 	validate := validator.New()
-	return validate.Struct(p)
+	return validate.Struct(c)
 }

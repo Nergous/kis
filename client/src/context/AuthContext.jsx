@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
 
     // Функция для входа пользователя
     const login = (token, role) => {
-        Cookies.set('auth_token', token, { expires: 1 / 24 });
+        Cookies.set('auth_token', token, { expires: 24 / 24 });
         localStorage.setItem('role', role);
         const userData = extractUserFromToken();
         setRole(userData);

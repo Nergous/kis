@@ -46,10 +46,11 @@ const AdminOrdersPage = () => {
         }
     };
 
-    const changeOrderStatus = async (id, status) => {
+    const changeOrderStatus = async (id, status, comment) => {
         try {
             const response = await api().patch(`/api/orders/${id}/status`, {
                 status: status,
+                comment: comment,
             });
             fetchData();
             showSuccessNotification(response.data.message);
@@ -97,15 +98,17 @@ const AdminOrdersPage = () => {
     };
 
     // Обработка изменения статуса
-    const handleChangeStatus = (orderId, status, orderContent) => {
+    const handleChangeStatus = (orderId, status, order_content) => {
+        setSelectedOrderContent(order_content);
         setSelectedOrderId(orderId);
         setSelectedOrderStatus(status);
         setIsChangeStatusModalVisible(true);
     };
 
     // Обработка изменения цен
-    const handleEditPrices = (orderId, orderContent) => {
+    const handleEditPrices = (orderId, status, orderContent) => {
         setSelectedOrderId(orderId);
+        setSelectedOrderStatus(status);
         setSelectedOrderContent(orderContent);
         setIsEditPricesModalVisible(true);
     };
@@ -156,7 +159,7 @@ const AdminOrdersPage = () => {
                     color="primary"
                     variant="dashed"
                     type="link"
-                    onClick={() => handleEditPrices(record.ID, record.order_content)}>
+                    onClick={() => handleEditPrices(record.ID, record.status, record.order_content)}>
                     <EditOutlined />
                     Изменить цены
                 </Button>
@@ -190,7 +193,7 @@ const AdminOrdersPage = () => {
             key: "id",
         },
         {
-            title: "Покупатель",
+            title: "Заказчик",
             dataIndex: "customer",
             key: "name",
             render: (customer, record) => {
@@ -335,7 +338,12 @@ const AdminOrdersPage = () => {
                 key: "name",
             },
             {
-                title: "Количество",
+                title: "Количество на складе",
+                dataIndex: ["product", "quantity"],
+                key: "quantity_product",
+            },
+            {
+                title: "Количество в заказе",
                 dataIndex: "quantity",
                 key: "quantity",
             },
@@ -344,18 +352,19 @@ const AdminOrdersPage = () => {
                 title: "Макс. цена",
                 dataIndex: ["product", "price"],
                 key: "maxPrice",
-                render: (price) => `${price}₽`,
+                render: (price) => `${price} ₽`,
             },
             {
                 title: "Текущая цена",
                 dataIndex: "price",
                 key: "price",
+                render: (price) => `${price} ₽`,
             },
             {
                 title: "Общая стоимость",
                 dataIndex: "total_product_price",
                 key: "total_product_price",
-                render: (price) => `${price}₽`,
+                render: (price) => `${price} ₽`,
             },
         ];
 
@@ -404,9 +413,10 @@ const AdminOrdersPage = () => {
                 visible={isChangeStatusModalVisible}
                 onCancel={() => setIsChangeStatusModalVisible(false)}
                 orderId={selectedOrderId}
+                orderContent={selectedOrderContent}
                 currentStatus={selectedOrderStatus}
                 onOk={changeOrderStatus}
-                allowedStatuses={["in_processing", "awaiting_payment", "in_assembly"]}
+                allowedStatuses={["in_processing", "awaiting_payment", "in_assembly", "contacting"]}
             />
 
             {/* Модальное окно для изменения цен */}
@@ -414,6 +424,7 @@ const AdminOrdersPage = () => {
                 visible={isEditPricesModalVisible}
                 onCancel={() => setIsEditPricesModalVisible(false)}
                 orderId={selectedOrderId}
+                currentStatus={selectedOrderStatus}
                 orderContent={selectedOrderContent}
                 onOk={changePrices}
             />
@@ -426,7 +437,7 @@ const AdminOrdersPage = () => {
                 currentStatus={selectedOrderStatus}
                 orderContent={selectedOrderContent}
                 onOk={changePricesAndStatus}
-                allowedStatuses={["in_processing", "awaiting_payment", "in_assembly"]}
+                allowedStatuses={["in_processing", "awaiting_payment", "in_assembly", "contacting"]}
             />
         </div>
     );

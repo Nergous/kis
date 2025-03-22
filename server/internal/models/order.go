@@ -18,10 +18,12 @@ type Order struct {
 	CustomerID     uint       `gorm:"not null" json:"customer_id" validate:"required,gte=1" form:"customer_id"`
 	TotalPrice     float64    `gorm:"type:decimal(10,2)" json:"total_price" form:"total_price"`
 	RecipientPhone string     `gorm:"type:varchar(255);not null" json:"recipient_phone" validate:"required,min=1" form:"recipient_phone"`
+	Comment        string     `gorm:"type:text;" json:"comment" form:"comment"`
 
 	Customer     Customer       `json:"customer"`
 	OrderContent []OrderContent `json:"order_content" gorm:"foreignKey:OrderID;references:ID"`
 	Payments     []Payment      `json:"-" gorm:"foreignKey:OrderID;references:ID"`
+	Contracts    []Contract     `json:"-" gorm:"foreignKey:OrderID;references:ID"`
 }
 
 func CreateOrdersTable(db *gorm.DB) error {

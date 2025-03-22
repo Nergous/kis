@@ -258,7 +258,8 @@ func (s *OrderService) UpdateStatus(c *gin.Context) {
 	}
 
 	var input struct {
-		Status string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received"`
+		Status  string `json:"status" binding:"required,oneof=in_processing awaiting_payment in_assembly awaiting_shipment in_transit received contacting"`
+		Comment string `json:"comment"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -315,6 +316,7 @@ func (s *OrderService) UpdateStatus(c *gin.Context) {
 
 	// Обновляем статус заказа
 	order.Status = input.Status
+	order.Comment = input.Comment
 	err = s.repo.Update(order)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

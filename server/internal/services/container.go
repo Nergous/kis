@@ -11,6 +11,7 @@ type ServicesContainer struct {
 	OrderService         *OrderService
 	PaymentService       *PaymentService
 	StatService          *StatService
+	ContractService      *ContractService
 }
 
 func InitServices(repos *repositories.ReposContainer) *ServicesContainer {
@@ -23,5 +24,6 @@ func InitServices(repos *repositories.ReposContainer) *ServicesContainer {
 		OrderService:         NewOrderService(repos.OrderRepository, repos.ProductRepository, repos.ProductMovingRepository),
 		PaymentService:       NewPaymentService(repos.PaymentRepository),
 		StatService:          NewStatService(repos.StatRepository),
+		ContractService:      NewContractService(repos.ContractRepository),
 	}
 }
