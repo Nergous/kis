@@ -159,7 +159,7 @@ const RegisterPage = () => {
                                     rules={[{ required: true, message: "Введите ваше наименование организации!" }]}
                                     type="input"
                                     prefix={<UserAddOutlined />}
-                                    placeholder="Имя"
+                                    placeholder="Наименование организации"
                                 />
 
                                 <FormInput

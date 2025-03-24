@@ -16,6 +16,7 @@ const AddQuantityModal = ({ visible, onCancel, onSuccess, productId, productName
                 quantity: values.quantity,
             });
             showSuccessNotification("Количество успешно добавлено");
+            form.resetFields();
             onSuccess(); // Закрываем модальное окно и обновляем данные
         } catch (error) {
             console.error("Ошибка при добавлении количества:", error);

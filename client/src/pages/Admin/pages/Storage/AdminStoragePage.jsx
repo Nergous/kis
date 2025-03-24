@@ -182,9 +182,9 @@ const AdminStoragePage = () => {
         setSelectedPrice(null);
     };
 
-    const handlePriceUpdated = async (newPrice) => {
+    const handlePriceUpdated = async (newPrice, productID) => {
         try {
-            await api().patch(`/api/products/${selectedProductId}/price`, {
+            await api().patch(`/api/products/${productID}/price`, {
                 price: newPrice,
             });
             showSuccessNotification("Цена успешно обновлена");
