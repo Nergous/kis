@@ -41,5 +41,15 @@ func Migrate() error {
 	if err != nil {
 		log.Fatalf("Ошибка создания таблицы движения продукции: %v", err)
 	}
+
+	err = models.CreateContractTable(config.DB)
+	if err != nil {
+		log.Fatalf("Ошибка создания таблицы контрактов: %v", err)
+	}
+
+	err = models.CreateContractQuantityTable(config.DB)
+	if err != nil {
+		log.Fatalf("Ошибка создания таблицы количества контрактов: %v", err)
+	}
 	return nil
 }

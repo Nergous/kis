@@ -36,8 +36,12 @@ func SetupRoutes(services *services.ServicesContainer) *gin.Engine {
 
 		director := api.Group("", middleware.AuthMiddleware(
 			authRepo,
-			[]string{"director", "manager", "storage"}))
+			[]string{"director", "manager", "storage", "accountant"}))
 		{
+			director.GET("/docs-count", services.ContractQuantityService.GetAll)
+
+			director.GET("/docs", services.ContractService.GetAll)
+
 			director.GET("/order-by-status", services.StatService.GetOrdersCountByStatus)
 			director.GET("/workers-count", services.StatService.GetWorkersCount)
 			director.GET("/customers-count", services.StatService.GetCustomersCount)

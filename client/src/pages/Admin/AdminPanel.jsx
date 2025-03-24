@@ -10,6 +10,7 @@ import CreateProductPage from "./pages/Storage/CreateProductPage/CreateProductPa
 import AdminEmployeesPage from "./pages/Employees/AdminEmployeesPage";
 import AdminOrdersPage from "./pages/Orders/AdminOrdersPage";
 import RoleProtectedRoute from "../../provider/RoleProtectedRoute";
+import DocsView from "./pages/DocsView";
 
 const AdminPanel = () => {
     return (
@@ -87,6 +88,15 @@ const AdminPanel = () => {
                                         element={
                                             <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
                                                 <AdminOrdersPage />
+                                            </RoleProtectedRoute>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/docs"
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                                <DocsView />
                                             </RoleProtectedRoute>
                                         }
                                     />

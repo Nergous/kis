@@ -18,7 +18,9 @@ func NewPaymentService(repo *repositories.PaymentRepository) *PaymentService {
 }
 
 func (s *PaymentService) GetAll(c *gin.Context) {
-	payments, err := s.repo.GetAll()
+	duration := c.Query("duration")
+
+	payments, err := s.repo.GetAll(duration)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Не удалось получить список платежей",

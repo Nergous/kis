@@ -11,7 +11,7 @@ type Worker struct {
 	Login    string `gorm:"type:varchar(255);not null" json:"login" validate:"required,min=1"`
 	Password string `gorm:"type:varchar(255);not null" json:"-" validate:"required,min=1"`
 
-	Role string `gorm:"type:ENUM('admin', 'storage', 'intern', 'manager', 'director');not null;default:intern" json:"role" validate:"required"`
+	Role string `gorm:"type:ENUM('admin', 'storage', 'intern', 'manager', 'director', 'accountant');not null;default:intern" json:"role" validate:"required"`
 }
 
 func CreateWorkersTable(db *gorm.DB) error {

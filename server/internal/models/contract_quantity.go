@@ -11,8 +11,8 @@ type ContractQuantity struct {
 	Quantity     int    `gorm:"type:int;not null" json:"quantity" validate:"required,gte=1"`
 }
 
-func CreateContractQuantityTable(db *gorm.DB) {
-	db.AutoMigrate(&ContractQuantity{})
+func CreateContractQuantityTable(db *gorm.DB) error {
+	return db.AutoMigrate(&ContractQuantity{})
 }
 
 func (c *ContractQuantity) ValidateContractQuantity() error {

@@ -8,6 +8,7 @@ import {
     AppstoreOutlined,
     UsergroupAddOutlined,
     ShoppingCartOutlined,
+    FolderOpenOutlined
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
@@ -43,6 +44,12 @@ const AppSidebar = () => {
             icon: <ShoppingCartOutlined />,
             label: "Заказы",
             to: "/admin/orders",
+        },
+        {
+            key: "5",
+            label: "Договора",
+            to: "/admin/docs",
+            icon: <FolderOpenOutlined />,
         }
     ], [] );
 

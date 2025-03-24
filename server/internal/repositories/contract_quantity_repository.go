@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"project_backend/internal/models"
 
 	"gorm.io/gorm"
@@ -30,15 +31,30 @@ func (r *ContractQuantityRepository) GetByID(id uint) (*models.ContractQuantity,
 	return &contractQuantity, nil
 }
 
-func (r *ContractQuantityRepository) Create(contractQuantity *models.ContractQuantity) (*models.ContractQuantity, error) {
-	if err := r.db.Create(contractQuantity).Error; err != nil {
+func (r *ContractQuantityRepository) Create(contractType string) (*models.ContractQuantity, error) {
+	contracts, err := r.GetByContractType(contractType)
+	if err != nil {
 		return nil, err
 	}
-	return contractQuantity, nil
+	if contracts != nil {
+		r.Update(contractType)
+	} else {
+		contractQuantity := models.ContractQuantity{ContractType: contractType, Quantity: 1}
+		if err := r.db.Create(&contractQuantity).Error; err != nil {
+			return nil, err
+		}
+		return &contractQuantity, nil
+	}
+	return nil, fmt.Errorf("произошла ошибка при создании контракта %s", contractType)
 }
 
-func (r *ContractQuantityRepository) Update(contractQuantity *models.ContractQuantity) (*models.ContractQuantity, error) {
-	if err := r.db.Save(contractQuantity).Error; err != nil {
+func (r *ContractQuantityRepository) Update(contractType string) (*models.ContractQuantity, error) {
+	contractQuantity, err := r.GetByContractType(contractType)
+	if err != nil {
+		return nil, err
+	}
+	contractQuantity.Quantity += 1
+	if err := r.db.Save(&contractQuantity).Error; err != nil {
 		return nil, err
 	}
 	return contractQuantity, nil

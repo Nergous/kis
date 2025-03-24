@@ -70,13 +70,12 @@ const DirectorStats = () => {
     };
 
     // Проверяем, загрузились ли основные данные
-    const mainStatsLoaded = inAssembly !== null && awaitingShipment !== null && 
-                          inTransit !== null && received !== null;
+    const mainStatsLoaded = inAssembly !== null && awaitingShipment !== null && inTransit !== null && received !== null;
 
     return (
         <div>
             <h1>Статистика директора</h1>
-            
+
             {!mainStatsLoaded ? (
                 <Skeleton active />
             ) : (
@@ -126,7 +125,14 @@ const DirectorStats = () => {
 
                     {/* Гистограмма - показываем только если есть данные */}
                     {productsItemsCount && productsItemsCount.length > 0 && (
-                        <div style={{ marginTop: "40px", backgroundColor: "rgba(226, 226, 226, 0.6)", padding: "20px", borderRadius: "8px", width: "80%" }}>
+                        <div
+                            style={{
+                                marginTop: "40px",
+                                backgroundColor: "rgba(226, 226, 226, 0.6)",
+                                padding: "20px",
+                                borderRadius: "8px",
+                                width: "80%",
+                            }}>
                             <h3>Количество товаров на складе</h3>
                             <ResponsiveContainer width="100%" height={400}>
                                 <BarChart
@@ -148,10 +154,7 @@ const DirectorStats = () => {
                                         axisLine={{ stroke: "#666" }}
                                     />
                                     <YAxis name="Количество" unit=" куб.м" tick={{ fill: "#333", fontSize: 14 }} axisLine={{ stroke: "#666" }} />
-                                    <Tooltip
-                                        content={<CustomTooltip />}
-                                        cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
-                                    />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(0, 0, 0, 0.05)" }} />
                                     <Legend
                                         wrapperStyle={{
                                             paddingTop: "0px",
@@ -161,12 +164,7 @@ const DirectorStats = () => {
                                         align="center"
                                         verticalAlign="top"
                                     />
-                                    <Bar
-                                        dataKey="quantity"
-                                        name="Количество товаров"
-                                        fill="rgb(24, 144, 255)"
-                                        animationDuration={1000}
-                                    />
+                                    <Bar dataKey="quantity" name="Количество товаров" fill="rgb(24, 144, 255)" animationDuration={1000} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>

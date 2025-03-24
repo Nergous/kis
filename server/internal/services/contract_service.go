@@ -10,18 +10,19 @@ import (
 )
 
 type ContractService struct {
-	repo *repositories.ContractRepository
+	repo         *repositories.ContractRepository
+	quantityRepo *repositories.ContractQuantityRepository
 }
 
-func NewContractService(repo *repositories.ContractRepository) *ContractService {
-	return &ContractService{repo: repo}
+func NewContractService(repo *repositories.ContractRepository, quantityRepo *repositories.ContractQuantityRepository) *ContractService {
+	return &ContractService{repo: repo, quantityRepo: quantityRepo}
 }
 
 func (s *ContractService) GetAll(c *gin.Context) {
 	contracts, err := s.repo.GetAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось получить список контрактов",
+			"error": "Не удалось получить список контрактов" + err.Error(),
 		})
 		return
 	}
@@ -85,36 +86,10 @@ func (s *ContractService) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, contractOut)
-}
-
-func (s *ContractService) Update(c *gin.Context) {
-	id := c.Param("id")
-	contractID, err := strconv.ParseUint(id, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Неверный формат ID",
-		})
-		return
-	}
-
-	_, err = s.repo.GetByID(uint(contractID))
+	_, err = s.quantityRepo.Create(contract.ContractType)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось получить контракт",
-		})
-		return
-	}
-
-	var contract models.Contract
-	if err := c.ShouldBindJSON(&contract); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{})
-	}
-
-	contractOut, err := s.repo.Update(&contract)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось обновить контракт",
+			"error": "Не удалось создать количество контрактов",
 		})
 		return
 	}
