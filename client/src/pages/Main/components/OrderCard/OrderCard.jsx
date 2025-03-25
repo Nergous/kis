@@ -101,7 +101,6 @@ const OrderCard = ({ order, onUpdateOrderStatus }) => {
             console.error("Ошибка при обработке платежа:", error);
         }
     };
-
     const handleOrderReceived = async () => {
         try {
             const receivedDate = new Date();
