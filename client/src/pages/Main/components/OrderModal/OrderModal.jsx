@@ -59,14 +59,6 @@ const OrderModal = ({ visible, onCancel, onSubmit, cartItems, totalAmount }) => 
     >
       <Form form={form} layout="vertical">
         <Form.Item
-          label="ФИО получателя"
-          name="recipient_name"
-          rules={[{ required: true, message: 'Введите ФИО получателя' }]}
-        >
-          <Input placeholder="Иванов Иван Иванович" />
-        </Form.Item>
-
-        <Form.Item
           label="Телефон получателя"
           name="recipient_phone"
           rules={[

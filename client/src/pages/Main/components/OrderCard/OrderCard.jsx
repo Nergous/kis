@@ -271,7 +271,7 @@ const OrderCard = ({ order }) => {
     const paymentTermsMap = {
         prepayment: "Предоплата",
         postpayment: "Постоплата",
-        full_payment: "Полностью оплачен",
+        full_payment: "Полная оплата",
     };
 
     // Получаем количество товаров в заказе

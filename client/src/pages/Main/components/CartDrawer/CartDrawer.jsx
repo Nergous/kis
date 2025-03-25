@@ -1,31 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Drawer, Box, IconButton } from "@mui/material";
 import { Add, Remove, Close } from "@mui/icons-material";
 import { Button } from "antd";
 import OrderModal from "../OrderModal/OrderModal";
 import api from "../../../../utils/api";
 
-const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFromCart, clearCart }) => {
+const CartDrawer = ({ 
+    isCartOpen, 
+    closeCart, 
+    cartItems, 
+    updateQuantity, 
+    removeFromCart, 
+    clearCart 
+}) => {
+    // Состояния для управления модальным окном иролью
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const [userRole, setUserRole] = useState(null);
 
-    const handleImagePath = (imgPath) => imgPath.replace(/\\/g, "/").split("public")[1];
+    // Расчет общей суммы товаров в корзине
+    const totalAmount = cartItems.reduce(
+        (sum, item) => sum + item.price * item.quantity, 
+        0
+    );
 
+    // Эффект для проверки роли пользователя при монтировании компонента
+    useEffect(() => {
+        const role = localStorage.getItem('role');
+        setUserRole(role);
+    }, []);
+
+    // Преобразование пути изображения
+    const handleImagePath = (imgPath) => 
+        imgPath.replace(/\\/g, "/").split("public")[1];
+
+    // ОбработкаSubmit заказа
     const handleOrderSubmit = async (orderData) => {
         try {
-            console.log(orderData)
             await api().post("/api/orders", orderData);
+            setIsModalVisible(false);
+            clearCart();
+            closeCart();
         } catch (error) {
-            console.error("Error submitting order:", error);
+            console.error("Ошибка при оформлении заказа:", error);
         }
-        setIsModalVisible(false);
-        clearCart();
-        closeCart();
     };
 
+    // Открытие модального окна заказа
     const handleOpenOrderModal = () => {
-        closeCart(); // Закрываем корзину
-        setIsModalVisible(true); // Открываем модальное окно
+        if (userRole) {
+            closeCart(); 
+            setIsModalVisible(true);
+        }
     };
 
     return (
@@ -42,20 +67,24 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                         flexDirection: "column",
                         justifyContent: "space-between",
                     },
-                }}>
+                }}
+            >
                 <div>
+                    {/* Заголовок корзины */}
                     <Box
                         sx={{
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
                             mb: 3,
-                        }}>
+                        }}
+                    >
                         <h2
                             style={{
                                 fontFamily: "'DMSans-Medium', sans-serif",
                                 color: "#085615",
-                            }}>
+                            }}
+                        >
                             Корзина
                         </h2>
                         <IconButton onClick={closeCart}>
@@ -63,12 +92,21 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                         </IconButton>
                     </Box>
 
-                    <Button variant="contained" style={{ marginBottom: 15 }} onClick={clearCart} disabled={cartItems.length === 0}>
+                    {/* Кнопка очистки корзины */}
+                    <Button 
+                        variant="contained" 
+                        style={{ marginBottom: 15 }} 
+                        onClick={clearCart} 
+                        disabled={cartItems.length === 0}
+                    >
                         Очистить корзину
                     </Button>
 
+                    {/* Список товаров в корзине */}
                     {cartItems.length === 0 ? (
-                        <p style={{ fontFamily: "'DMSans-Regular', sans-serif" }}>Корзина пуста</p>
+                        <p style={{ fontFamily: "'DMSans-Regular', sans-serif" }}>
+                            Корзина пуста
+                        </p>
                     ) : (
                         cartItems.map((item) => (
                             <Box
@@ -82,7 +120,9 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                                     boxShadow: 1,
                                     alignItems: "center",
                                     backgroundColor: "#f5f5f5",
-                                }}>
+                                }}
+                            >
+                                {/* Изображение товара */}
                                 <img
                                     src={handleImagePath(item.img_path)}
                                     alt={item.name}
@@ -93,6 +133,8 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                                         borderRadius: 6,
                                     }}
                                 />
+
+                                {/* Информация о товаре */}
                                 <Box sx={{ flexGrow: 1 }}>
                                     <div
                                         style={{
@@ -100,7 +142,8 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                                             fontSize: 14,
                                             fontFamily: "'DMSans-Medium', sans-serif",
                                             color: "#085615",
-                                        }}>
+                                        }}
+                                    >
                                         {item.name}
                                     </div>
                                     <div
@@ -108,30 +151,46 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                                             fontSize: 12,
                                             color: "#666",
                                             fontFamily: "'DMSans-Regular', sans-serif",
-                                        }}>
+                                        }}
+                                    >
                                         {item.price} ₽
                                     </div>
+
+                                    {/* Управление количеством */}
                                     <Box
                                         sx={{
                                             display: "flex",
                                             alignItems: "center",
                                             gap: 1,
                                             mt: 1,
-                                        }}>
+                                        }}
+                                    >
                                         <IconButton
                                             size="small"
                                             onClick={() => updateQuantity(item.ID, item.quantity - 1)}
                                             disabled={item.quantity === 1}
-                                            sx={{ color: "#085615" }}>
+                                            sx={{ color: "#085615" }}
+                                        >
                                             <Remove fontSize="small" />
                                         </IconButton>
-                                        <span style={{ fontFamily: "'DMSans-Medium', sans-serif" }}>{item.quantity}</span>
-                                        <IconButton size="small" onClick={() => updateQuantity(item.ID, item.quantity + 1)} sx={{ color: "#085615" }}>
+                                        <span style={{ fontFamily: "'DMSans-Medium', sans-serif" }}>
+                                            {item.quantity}
+                                        </span>
+                                        <IconButton 
+                                            size="small" 
+                                            onClick={() => updateQuantity(item.ID, item.quantity + 1)} 
+                                            sx={{ color: "#085615" }}
+                                        >
                                             <Add fontSize="small" />
                                         </IconButton>
                                     </Box>
                                 </Box>
-                                <IconButton onClick={() => removeFromCart(item.ID)} sx={{ color: "#ff4444" }}>
+
+                                {/* Удаление товара */}
+                                <IconButton 
+                                    onClick={() => removeFromCart(item.ID)} 
+                                    sx={{ color: "#ff4444" }}
+                                >
                                     <Close fontSize="small" />
                                 </IconButton>
                             </Box>
@@ -139,6 +198,7 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                     )}
                 </div>
 
+                {/* Подвал корзины с итоговой суммой и кнопкой заказа */}
                 {cartItems.length > 0 && (
                     <Box
                         sx={{
@@ -148,7 +208,9 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                             backgroundColor: "white",
                             position: "sticky",
                             bottom: 0,
-                        }}>
+                        }}
+                    >
+                        {/* Итоговая сумма */}
                         <Box
                             sx={{
                                 display: "flex",
@@ -156,30 +218,50 @@ const CartDrawer = ({ isCartOpen, closeCart, cartItems, updateQuantity, removeFr
                                 mb: 3,
                                 fontFamily: "'DMSans-Medium', sans-serif",
                                 fontSize: "1.1rem",
-                            }}>
+                            }}
+                        >
                             <span>Итого:</span>
                             <span>{totalAmount.toLocaleString("ru-RU")} ₽</span>
                         </Box>
 
+                        {/* Сообщение для незарегистрированных пользователей */}
+                        {!userRole && (
+                            <Box 
+                                sx={{ 
+                                    textAlign: 'center', 
+                                    color: '#ff4444', 
+                                    mb: 2,
+                                    fontFamily: "'DMSans-Regular', sans-serif"
+                                }}
+                            >
+                                Для оформления заказа необходимо создать личный кабинет
+                            </Box>
+                        )}
+
+                        {/* Кнопка оформления заказа */}
                         <Button
                             type="primary"
                             block
                             size="large"
+                            disabled={!userRole}
                             style={{
-                                backgroundColor: "#085615",
+                                backgroundColor: userRole ? "#085615" : "#cccccc",
                                 height: "45px",
                                 borderRadius: "10px",
                                 fontFamily: "'DMSans-Medium', sans-serif",
                                 fontSize: "1rem",
                                 color: "white",
+                                cursor: userRole ? 'pointer' : 'not-allowed'
                             }}
-                            onClick={handleOpenOrderModal}>
+                            onClick={handleOpenOrderModal}
+                        >
                             Оформить заказ
                         </Button>
                     </Box>
                 )}
             </Drawer>
 
+            {/* Модальное окно оформления заказа */}
             <OrderModal
                 visible={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
