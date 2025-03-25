@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"fmt"
+	"log"
 	"project_backend/internal/models"
 	"time"
 
@@ -27,7 +28,7 @@ func (r *OrderRepository) GetAll() ([]models.Order, error) {
 
 func (r *OrderRepository) GetAllInAssembly() ([]models.Order, error) {
 	var orders []models.Order
-	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Where("status IN ?", []string{"in_assembly", "awaiting_shipment"}).Find(&orders)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Preload("Customer").Where("status IN ?", []string{"in_assembly", "awaiting_shipment"}).Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -36,7 +37,7 @@ func (r *OrderRepository) GetAllInAssembly() ([]models.Order, error) {
 
 func (r *OrderRepository) GetByID(id uint) (*models.Order, error) {
 	var order models.Order
-	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").First(&order, id)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Preload("Customer").First(&order, id)
 	if result.Error != nil {
 		return &models.Order{}, result.Error
 	}
@@ -46,7 +47,7 @@ func (r *OrderRepository) GetByID(id uint) (*models.Order, error) {
 func (r *OrderRepository) GetByCustomerID(customerID uint) ([]models.Order, error) {
 	// Логика поиска заказов в базе данных
 	var orders []models.Order
-	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Where("customer_id = ?", customerID).Find(&orders)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Preload("Contracts").Preload("Customer").Where("customer_id = ?", customerID).Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -118,4 +119,64 @@ func (r *OrderRepository) Update(order *models.Order) error {
 		return result.Error
 	}
 	return nil
+}
+
+func (r *OrderRepository) UpdateDebtStatus(id uint, status string) error {
+	// Начинаем новую транзакцию
+	tx := r.db.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	// Выполняем обновление в транзакции
+	result := tx.Model(&models.Order{}).Where("id = ?", id).Update("debt_status", status)
+	if result.Error != nil {
+		tx.Rollback() // Откатываем при ошибке
+		return result.Error
+	}
+
+	// Коммитим транзакцию
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	log.Printf("Updated order %d debt_status to %s, rows affected: %d",
+		id, status, result.RowsAffected)
+	return nil
+}
+
+func (r *OrderRepository) GetDebtOrdersByCustomerID(customerID uint) ([]models.Order, error) {
+	var orders []models.Order
+
+	// Ищем заказы, где:
+	// - CustomerID соответствует указанному
+	// - DebtStatus равен "debt"
+	// - SentDate не nil (заказ был отправлен)
+	// - Разница между текущей датой и SentDate больше 14 дней
+	err := r.db.
+		Where("customer_id = ?", customerID).
+		Where("debt_status = ?", "debt").
+		Where("sent_date IS NOT NULL").
+		Where("DATE_ADD(sent_date, INTERVAL 14 DAY) < NOW()").
+		Preload("Payments"). // Загружаем связанные платежи для расчета суммы
+		Find(&orders).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Фильтруем заказы, где сумма платежей меньше суммы заказа
+	var result []models.Order
+	for _, order := range orders {
+		var totalPaid float64
+		for _, payment := range order.Payments {
+			totalPaid += payment.PaymentSum
+		}
+
+		if totalPaid < order.TotalPrice {
+			result = append(result, order)
+		}
+	}
+
+	return result, nil
 }

@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"slices"
 	"strings"
@@ -94,8 +93,6 @@ func AuthMiddleware(
 
 			// Добавляем пользователя в контекст
 			c.Set("customer_id", customer.ID)
-			fmt.Println(customer)
-			fmt.Println("---------------------------")
 			c.Next()
 			return
 		} else {

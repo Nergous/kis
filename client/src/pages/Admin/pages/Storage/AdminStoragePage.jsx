@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Space, Spin, Image, ConfigProvider, Dropdown } from "antd";
+import { Table, Button, Space, Spin, ConfigProvider, Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
 import { PlusOutlined, DownOutlined, SyncOutlined, DeleteOutlined, PlusCircleOutlined, EditOutlined } from "@ant-design/icons";
 import api from "../../../../utils/api";
@@ -278,6 +278,7 @@ const AdminStoragePage = () => {
 
     return (
         <div>
+            <h1>Склад</h1>
             {(role === "storage" || role === "admin") && (
                 <div
                     style={{

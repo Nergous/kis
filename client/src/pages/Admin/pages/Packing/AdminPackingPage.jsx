@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Spin, ConfigProvider, Button, Empty, Image } from "antd";
+import { Table, Tag, Spin, ConfigProvider, Button, Empty } from "antd";
 import api from "../../../../utils/api"; // Убедитесь, что путь к api правильный
 import { STATUSES } from "../../../../constants/statuses";
 import ChangeStatusWithConfirm from "./ChangeStatusWithConfirm/ChangeStatusWithConfirm";
 import CachedImage from "../../../../components/CachedImage/CachedImage";
-
+import { FilterFilled } from "@ant-design/icons";
 
 import { showErrorNotification } from "../../../../ui/Notification/Notification";
 
@@ -24,6 +24,10 @@ const AdminOrdersPage = () => {
     // Загрузка данных с endpoint'а
     useEffect(() => {
         fetchData();
+    }, []);
+
+    useEffect(() => {
+        document.title = "Сборка заказов";
     }, []);
 
     const fetchData = async () => {
@@ -54,9 +58,15 @@ const AdminOrdersPage = () => {
         setSelectedOrderId(orderId);
         setSelectedOrderStatus(status);
         setTextConfirm(text);
-        setSelectedOrder(order)
+        setSelectedOrder(order);
         setIsChangeStatusModalVisible(true);
     };
+
+    const allowedStatuses = ["in_assembly", "awaiting_shipment", "in_transit"];
+    const statusFilters = STATUSES.filter((status) => allowedStatuses.includes(status.value)).map((status) => ({
+        text: status.label,
+        value: status.value,
+    }));
 
     // Колонки для основной таблицы
     const columns = [
@@ -85,6 +95,16 @@ const AdminOrdersPage = () => {
             title: "Статус",
             dataIndex: "status",
             key: "status",
+            filters: statusFilters,
+            onFilter: (value, record) => record.status === value,
+            filterIcon: (filtered) => (
+                <FilterFilled
+                    style={{
+                        color: filtered ? "rgb(64, 150, 255)" : undefined,
+                        fontSize: "20px",
+                    }}
+                />
+            ),
             render: (status) => {
                 // Находим соответствующий статус в массиве STATUSES
                 const statusData = STATUSES.find((s) => s.value === status);
@@ -123,7 +143,14 @@ const AdminOrdersPage = () => {
                             variant="dashed"
                             type="link"
                             color="orange"
-                            onClick={() => handleChangeStatus(record.ID, record.order_id_unique, "awaiting_shipment", "Вы уверены что заказ был полностью собран?")} // Пример изменения статуса
+                            onClick={() =>
+                                handleChangeStatus(
+                                    record.ID,
+                                    record.order_id_unique,
+                                    "awaiting_shipment",
+                                    "Вы уверены что заказ был полностью собран?"
+                                )
+                            } // Пример изменения статуса
                         >
                             Заказ собран
                         </Button>

@@ -23,8 +23,6 @@ func main() {
 	configPath := "config/config.yaml"
 	config.LoadConfig(configPath)
 
-	middleware.InitLogger(config.AppConfig.Logging.Level)
-
 	err = config.InitDB()
 	if err != nil {
 		log.Fatalf("Ошибка инициализации базы данных: %v", err)
@@ -40,7 +38,7 @@ func main() {
 
 	r := routes.SetupRoutes(services)
 
-	r.Use(middleware.LogMiddleware())
+	// r.Use(middleware.LogMiddleware())
 	r.Use(middleware.CorsMiddleware())
 
 	port := fmt.Sprintf(":%d", config.AppConfig.App.Port)

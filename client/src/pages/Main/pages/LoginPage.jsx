@@ -20,7 +20,7 @@ const LoginPage = () => {
     const { login } = useAuth();
 
     useEffect(() => {
-        document.title = "Вход";
+        document.title = "Авторизация";
     }, []);
 
     const onFinish = async (values) => {

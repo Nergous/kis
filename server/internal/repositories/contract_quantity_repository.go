@@ -32,20 +32,8 @@ func (r *ContractQuantityRepository) GetByID(id uint) (*models.ContractQuantity,
 }
 
 func (r *ContractQuantityRepository) Create(contractType string) (*models.ContractQuantity, error) {
-	contracts, err := r.GetByContractType(contractType)
-	if err != nil {
-		return nil, err
-	}
-	if contracts != nil {
-		r.Update(contractType)
-	} else {
-		contractQuantity := models.ContractQuantity{ContractType: contractType, Quantity: 1}
-		if err := r.db.Create(&contractQuantity).Error; err != nil {
-			return nil, err
-		}
-		return &contractQuantity, nil
-	}
-	return nil, fmt.Errorf("произошла ошибка при создании контракта %s", contractType)
+	r.Update(contractType)
+	return nil, nil
 }
 
 func (r *ContractQuantityRepository) Update(contractType string) (*models.ContractQuantity, error) {
@@ -53,8 +41,9 @@ func (r *ContractQuantityRepository) Update(contractType string) (*models.Contra
 	if err != nil {
 		return nil, err
 	}
-	contractQuantity.Quantity += 1
+	contractQuantity.Quantity = contractQuantity.Quantity + 1
 	if err := r.db.Save(&contractQuantity).Error; err != nil {
+		fmt.Println("УДАЧНО У " + contractType)
 		return nil, err
 	}
 	return contractQuantity, nil
@@ -66,8 +55,9 @@ func (r *ContractQuantityRepository) Delete(id uint) error {
 
 func (r *ContractQuantityRepository) GetByContractType(contractType string) (*models.ContractQuantity, error) {
 	var contractQuantity models.ContractQuantity
-	if err := r.db.Where("contract_type = ?", contractType).First(&contractQuantity).Error; err != nil {
-		return nil, err
+	r.db.Where("contract_type = ?", contractType).First(&contractQuantity)
+	if contractQuantity.ID == 0 {
+		return nil, fmt.Errorf("контракт %s не найден", contractType)
 	}
 	return &contractQuantity, nil
 }

@@ -12,7 +12,7 @@ const { Option } = Select;
 const CreateEmployeeModal = ({ visible, onCancel, onSuccess }) => {
     const [form] = Form.useForm();
 
-    const filteredRoles = ROLES.filter((role) => role.value !== "admin" && role.value !== "director");
+    const filteredRoles = ROLES.filter((role) => role.value !== "admin");
 
     // Отправка формы
     const handleSubmit = async (values) => {

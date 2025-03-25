@@ -23,6 +23,7 @@ const EditPricesAndStatusModal = ({
     onCancel,
     orderId,
     currentStatus,
+    currentPaymentTerms,
     orderContent,
     onOk,
     allowedStatuses = [],
@@ -43,16 +44,27 @@ const EditPricesAndStatusModal = ({
     ];
 
     // Фильтруем статусы, исключая текущий
-    let filteredStatuses = STATUSES.filter(
-        (status) => status.value !== currentStatus
-    );
+    let filteredStatuses = STATUSES.filter((status) => {
+        // Исключаем текущий статус
+        if (status.value === currentStatus) return false;
+        
+        // Если paymentTerms - full_payment или prepayment, исключаем in_assembly
+        if ((currentPaymentTerms === "full_payment" || currentPaymentTerms === "prepayment") && 
+            status.value === "in_assembly") {
+            return false;
+        }
 
-    // Если передан allowedStatuses и он не пустой, фильтруем статусы
-    if (allowedStatuses && allowedStatuses.length > 0) {
-        filteredStatuses = filteredStatuses.filter((status) =>
-            allowedStatuses.includes(status.value)
-        );
-    }
+        if(currentPaymentTerms === "postpayment" && status.value === "awaiting_payment") {
+            return false;
+        }
+        
+        // Если передан allowedStatuses, проверяем включение
+        if (allowedStatuses.length > 0 && !allowedStatuses.includes(status.value)) {
+            return false;
+        }
+        
+        return true;
+    });
 
     // Проверка количества товара на складе
     const validateQuantity = () => {

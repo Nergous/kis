@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Descriptions, Image, Tag } from "antd";
+import { Modal, Button, Descriptions, Tag } from "antd";
 import { DollarOutlined, ShoppingCartOutlined, TagOutlined, InfoCircleOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import CachedImage from "../../../../components/CachedImage/CachedImage";
 
@@ -40,7 +40,7 @@ const ProductModal = ({ product, visible, onClose, addToCart }) => {
             width={800}
             transitionName="zoom"
             maskTransitionName="fade"
-            bodyStyle={{ padding: "24px" }}>
+            style={{ padding: "24px" }}>
             <div style={{ display: "flex", gap: "24px", marginBottom: "24px" }}>
                 <CachedImage
                     src={imgSlashChange(product.img_path)}

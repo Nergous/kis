@@ -4,6 +4,8 @@ import { Add, Remove, Close } from "@mui/icons-material";
 import { Button } from "antd";
 import OrderModal from "../OrderModal/OrderModal";
 import api from "../../../../utils/api";
+import { showErrorNotification } from "../../../../ui/Notification/Notification";
+import { showSuccessNotification } from "../../../../ui/Notification/Notification";
 
 const CartDrawer = ({ 
     isCartOpen, 
@@ -30,17 +32,22 @@ const CartDrawer = ({
     }, []);
 
     // Преобразование пути изображения
-    const handleImagePath = (imgPath) => 
-        imgPath.replace(/\\/g, "/").split("public")[1];
+    const handleImagePath = (imgPath) => {
+        if (!imgPath) return "/placeholder-image.jpg";
+        return imgPath.replace(/\\/g, "/").split("public")[1];
+    }
 
     // ОбработкаSubmit заказа
     const handleOrderSubmit = async (orderData) => {
         try {
             await api().post("/api/orders", orderData);
             setIsModalVisible(false);
+            showSuccessNotification("Заказ успешно оформлен");
             clearCart();
             closeCart();
+            localStorage.removeItem("cart");
         } catch (error) {
+            showErrorNotification("Произошла ошибка " + error.response.data.error);
             console.error("Ошибка при оформлении заказа:", error);
         }
     };

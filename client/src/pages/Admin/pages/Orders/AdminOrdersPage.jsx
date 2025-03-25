@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Spin, ConfigProvider, Dropdown, Button, Space, Modal, Descriptions } from "antd";
-import { DownOutlined, SyncOutlined, EditOutlined } from "@ant-design/icons";
-import api from "../../../../utils/api"; // Убедитесь, что путь к api правильный
+import { Table, Tag, Spin, ConfigProvider, Dropdown, Button, Space, Modal, Descriptions, Empty } from "antd";
+import { DownOutlined, SyncOutlined, EditOutlined, FilterFilled } from "@ant-design/icons";
+import api from "../../../../utils/api";
 import { STATUSES } from "../../../../constants/statuses";
 import { PAYMENT_TERMS } from "../../../../constants/payments_terms";
 
-import ChangeStatusModal from "./ChangeStatusModal/ChangeStatusModal"; // Импортируем модальное окно для изменения статуса
-import EditPricesModal from "./EditPricesModal/EditPricesModal"; // Импортируем модальное окно для изменения цен
-import EditPricesAndStatusModal from "./EditPricesAndStatusModal/EditPricesAndStatusModal"; // Импортируем модальное окно для изменения цен и статуса
+import ChangeStatusModal from "./ChangeStatusModal/ChangeStatusModal";
+import EditPricesModal from "./EditPricesModal/EditPricesModal";
+import EditPricesAndStatusModal from "./EditPricesAndStatusModal/EditPricesAndStatusModal";
 import CachedImage from "../../../../components/CachedImage/CachedImage";
 import { showErrorNotification, showSuccessNotification } from "../../../../ui/Notification/Notification";
+import { useAuth } from "../../../../context/AuthContext";
 
 const AdminOrdersPage = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { role } = useAuth();
 
     // Состояния для управления модальными окнами
     const [isChangeStatusModalVisible, setIsChangeStatusModalVisible] = useState(false);
@@ -24,11 +26,17 @@ const AdminOrdersPage = () => {
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [selectedOrderStatus, setSelectedOrderStatus] = useState(null);
     const [selectedOrderContent, setSelectedOrderContent] = useState([]);
+    const [selectedComment, setSelectedComment] = useState(null);
+    const [selectedPaymentTerms, setSelectedPaymentTerms] = useState(null);
 
     // Данные о покупателе
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [selectedPhone, setSelectedPhone] = useState(null);
+
+    useEffect(() => {
+        document.title = "Заказы";
+    }, []);
 
     // Загрузка данных с endpoint'а
     useEffect(() => {
@@ -39,6 +47,7 @@ const AdminOrdersPage = () => {
         try {
             const response = await api().get("/api/orders");
             setData(response.data);
+            console.log(response.data);
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error);
         } finally {
@@ -88,20 +97,19 @@ const AdminOrdersPage = () => {
     // Форматирование даты
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-
-        // Форматируем дату в формате "день.месяц.год"
-        const day = String(date.getDate()).padStart(2, "0"); // День (с ведущим нулем)
-        const month = String(date.getMonth() + 1).padStart(2, "0"); // Месяц (с ведущим нулем)
-        const year = date.getFullYear(); // Год
-
-        return `${day}.${month}.${year}`; // Возвращаем дату в формате "день.месяц.год"
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
     };
 
     // Обработка изменения статуса
-    const handleChangeStatus = (orderId, status, order_content) => {
+    const handleChangeStatus = (orderId, status, payment_terms, order_content, comment) => {
         setSelectedOrderContent(order_content);
+        setSelectedComment(comment);
         setSelectedOrderId(orderId);
         setSelectedOrderStatus(status);
+        setSelectedPaymentTerms(payment_terms);
         setIsChangeStatusModalVisible(true);
     };
 
@@ -114,9 +122,10 @@ const AdminOrdersPage = () => {
     };
 
     // Обработка изменения цен и статуса
-    const handleEditPricesAndStatus = (orderId, status, orderContent) => {
+    const handleEditPricesAndStatus = (orderId, status, payment_terms, orderContent) => {
         setSelectedOrderId(orderId);
         setSelectedOrderStatus(status);
+        setSelectedPaymentTerms(payment_terms);
         setSelectedOrderContent(orderContent);
         setIsEditPricesAndStatusModalVisible(true);
     };
@@ -141,7 +150,7 @@ const AdminOrdersPage = () => {
                     variant="dashed"
                     type="link"
                     color="orange"
-                    onClick={() => handleChangeStatus(record.ID, record.status, record.order_content)}>
+                    onClick={() => handleChangeStatus(record.ID, record.status, record.payment_terms, record.order_content, record.comment)}>
                     <SyncOutlined spin />
                     Изменить статус
                 </Button>
@@ -177,13 +186,19 @@ const AdminOrdersPage = () => {
                     color="geekblue"
                     variant="dashed"
                     type="link"
-                    onClick={() => handleEditPricesAndStatus(record.ID, record.status, record.order_content)}>
+                    onClick={() => handleEditPricesAndStatus(record.ID, record.status, record.payment_terms, record.order_content)}>
                     <EditOutlined />
                     Изменить цены и статус
                 </Button>
             ),
         },
     ];
+
+    // Фильтры для колонки статуса
+    const statusFilters = STATUSES.map((status) => ({
+        text: status.label,
+        value: status.value,
+    }));
 
     // Колонки для основной таблицы
     const columns = [
@@ -237,18 +252,26 @@ const AdminOrdersPage = () => {
             title: "Дата доставки",
             dataIndex: "delivery_date",
             key: "delivery_date",
-            render: (date) => formatDate(date), // Форматируем дату
+            render: (date) => formatDate(date),
         },
         {
             title: "Статус",
             dataIndex: "status",
             key: "status",
+            filters: statusFilters,
+            onFilter: (value, record) => record.status === value,
+            filterIcon: (filtered) => (
+                <FilterFilled
+                    style={{
+                        color: filtered ? "rgb(64, 150, 255)" : undefined,
+                        fontSize: "20px",
+                    }}
+                />
+            ),
             render: (status) => {
-                // Находим соответствующий статус в массиве STATUSES
                 const statusData = STATUSES.find((s) => s.value === status);
-                const statusLabel = statusData ? statusData.label : status; // Если статус найден, используем label, иначе — исходное значение
+                const statusLabel = statusData ? statusData.label : status;
 
-                // Определяем цвет в зависимости от статуса
                 let color = "default";
                 switch (status) {
                     case "in_processing":
@@ -276,7 +299,6 @@ const AdminOrdersPage = () => {
                         color = "gray";
                 }
 
-                // Отображаем статус как Tag с цветом и читаемым названием
                 return <Tag color={color}>{statusLabel}</Tag>;
             },
         },
@@ -284,7 +306,7 @@ const AdminOrdersPage = () => {
             title: "Общая стоимость заказа",
             dataIndex: "total_price",
             key: "total_price",
-            render: (price) => `${price}₽`, // Добавляем символ валюты
+            render: (price) => `${price}₽`,
         },
         {
             title: "Способ оплаты",
@@ -293,6 +315,23 @@ const AdminOrdersPage = () => {
             render: (payment) => {
                 const paymentTerm = PAYMENT_TERMS.find((p) => p.value === payment).label;
                 return <Tag color="blue">{paymentTerm}</Tag>;
+            },
+        },
+        {
+            title: "Задолженность",
+            dataIndex: "debt_status",
+            key: "debt_status",
+            render: (debt) => {
+                switch (debt) {
+                    case "paid":
+                        return <Tag color="green">Оплачен</Tag>;
+                    case "not_paid":
+                        return <Tag color="orange">Не оплачен</Tag>;
+                    case "partial":
+                        return <Tag color="blue">Частично оплачен</Tag>;
+                    case "debt":
+                        return <Tag color="red">Задолженность</Tag>;
+                }
             },
         },
         {
@@ -305,7 +344,8 @@ const AdminOrdersPage = () => {
                         menu={{
                             items: getMenuItems(record),
                         }}
-                        trigger={["click"]}>
+                        trigger={["click"]}
+                        disabled={role === "director" || role === "accountant"}>
                         <Button>
                             Действия <DownOutlined />
                         </Button>
@@ -347,7 +387,6 @@ const AdminOrdersPage = () => {
                 dataIndex: "quantity",
                 key: "quantity",
             },
-
             {
                 title: "Макс. цена",
                 dataIndex: ["product", "price"],
@@ -398,28 +437,31 @@ const AdminOrdersPage = () => {
                         rowKey="ID"
                         bordered
                         expandable={{
-                            expandedRowRender, // Добавляем расширяемые строки
-                            rowExpandable: (record) => record.order_content.length > 0, // Расширяем только если есть товары
+                            expandedRowRender,
+                            rowExpandable: (record) => record.order_content.length > 0,
                         }}
                         pagination={{ pageSize: 10 }}
+                        locale={{
+                            emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Нету заказов"></Empty>,
+                        }}
                     />
                 </ConfigProvider>
             )}
 
             <CustomerInfoModel selectedCustomer={selectedCustomer} phone={selectedPhone} isVisible={isModalOpen} onCancel={handleCloseModal} />
 
-            {/* Модальное окно для изменения статуса */}
             <ChangeStatusModal
                 visible={isChangeStatusModalVisible}
                 onCancel={() => setIsChangeStatusModalVisible(false)}
                 orderId={selectedOrderId}
                 orderContent={selectedOrderContent}
+                comment={selectedComment}
                 currentStatus={selectedOrderStatus}
+                currentPaymentTerms={selectedPaymentTerms}
                 onOk={changeOrderStatus}
                 allowedStatuses={["in_processing", "awaiting_payment", "in_assembly", "contacting"]}
             />
 
-            {/* Модальное окно для изменения цен */}
             <EditPricesModal
                 visible={isEditPricesModalVisible}
                 onCancel={() => setIsEditPricesModalVisible(false)}
@@ -429,12 +471,12 @@ const AdminOrdersPage = () => {
                 onOk={changePrices}
             />
 
-            {/* Модальное окно для изменения цен и статуса */}
             <EditPricesAndStatusModal
                 visible={isEditPricesAndStatusModalVisible}
                 onCancel={() => setIsEditPricesAndStatusModalVisible(false)}
                 orderId={selectedOrderId}
                 currentStatus={selectedOrderStatus}
+                currentPaymentTerms={selectedPaymentTerms}
                 orderContent={selectedOrderContent}
                 onOk={changePricesAndStatus}
                 allowedStatuses={["in_processing", "awaiting_payment", "in_assembly", "contacting"]}
@@ -445,12 +487,7 @@ const AdminOrdersPage = () => {
 
 const CustomerInfoModel = ({ selectedCustomer, phone, isVisible, onCancel }) => {
     return (
-        <Modal
-            title="Информация о покупателе"
-            open={isVisible}
-            onCancel={onCancel}
-            footer={null} // Убираем кнопки внизу модального окна
-        >
+        <Modal title="Информация о покупателе" open={isVisible} onCancel={onCancel} footer={null}>
             {selectedCustomer && (
                 <Descriptions bordered column={1} size="middle">
                     <Descriptions.Item label="Тип покупателя">
@@ -487,17 +524,17 @@ const CustomizedTextCustomer = ({ customer, onClick }) => {
                 cursor: "pointer",
                 width: "max-content",
                 borderBottom: "1px solid #1890ff",
-                color: "inherit", // Наследуем цвет текста
-                transition: "color 0.3s ease, scale 0.2s ease, border-color 0.3s ease", // Плавные переходы
+                color: "inherit",
+                transition: "color 0.3s ease, scale 0.2s ease, border-color 0.3s ease",
             }}
             onMouseEnter={(e) => {
-                e.target.style.color = "#1890ff"; // Изменение цвета текста при наведении
-                e.target.style.borderBottomColor = "#40a9ff"; // Изменение цвета нижней границы
+                e.target.style.color = "#1890ff";
+                e.target.style.borderBottomColor = "#40a9ff";
                 e.target.style.scale = "1.05";
             }}
             onMouseLeave={(e) => {
-                e.target.style.color = "inherit"; // Возвращаем цвет текста
-                e.target.style.borderBottomColor = "#1890ff"; // Возвращаем цвет нижней границы
+                e.target.style.color = "inherit";
+                e.target.style.borderBottomColor = "#1890ff";
                 e.target.style.scale = "1";
             }}
             onClick={onClick}>

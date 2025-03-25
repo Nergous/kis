@@ -82,6 +82,24 @@ func (s *WorkerService) Create(c *gin.Context) {
 		return
 	}
 
+	if workerIn.Role == "director" {
+		workers, err := s.Repo.GetAll()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Ошибка при получении всех работников",
+			})
+			return
+		}
+		for _, w := range workers {
+			if w.Role == "director" {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Уже есть директор",
+				})
+				return
+			}
+		}
+	}
+
 	if workerIn.Role == "admin" {
 		workers, err := s.Repo.GetAll()
 		if err != nil {

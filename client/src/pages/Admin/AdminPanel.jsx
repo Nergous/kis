@@ -11,6 +11,7 @@ import AdminEmployeesPage from "./pages/Employees/AdminEmployeesPage";
 import AdminOrdersPage from "./pages/Orders/AdminOrdersPage";
 import RoleProtectedRoute from "../../provider/RoleProtectedRoute";
 import DocsView from "./pages/DocsView";
+import Customers from "./pages/Customers/Customers";
 
 const AdminPanel = () => {
     return (
@@ -19,27 +20,17 @@ const AdminPanel = () => {
                 <Route
                     path="/*"
                     element={
-                        <ProtectedProvider excludedRoles={['customer']}>
+                        <ProtectedProvider excludedRoles={["customer"]}>
                             <AdminLayout>
                                 <Routes>
                                     <Route
                                         path="/"
                                         element={
-                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                            <RoleProtectedRoute allowedRoles={["manager", "storage", "director", "accountant"]}>
                                                 <MainAdminPage />
                                             </RoleProtectedRoute>
                                         }
                                     />
-
-                                    {/*
-                                    
-                                        Вот тут пример того как должено выглядеть 
-                                        разделение ролей
-
-                                        У админа доступ ко всем страницам,
-                                        тут для него ничего не надо прописывать
-
-                                     */}
                                     <Route
                                         path="/storage"
                                         element={
@@ -59,7 +50,7 @@ const AdminPanel = () => {
                                     <Route
                                         path="/storage/create"
                                         element={
-                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                            <RoleProtectedRoute allowedRoles={["storage"]}>
                                                 <CreateProductPage />
                                             </RoleProtectedRoute>
                                         }
@@ -68,7 +59,7 @@ const AdminPanel = () => {
                                     <Route
                                         path="/packing"
                                         element={
-                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                            <RoleProtectedRoute allowedRoles={["storage"]}>
                                                 <AdminPackingPage />
                                             </RoleProtectedRoute>
                                         }
@@ -77,7 +68,7 @@ const AdminPanel = () => {
                                     <Route
                                         path="/employees"
                                         element={
-                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                            <RoleProtectedRoute allowedRoles={["director"]}>
                                                 <AdminEmployeesPage />
                                             </RoleProtectedRoute>
                                         }
@@ -86,7 +77,7 @@ const AdminPanel = () => {
                                     <Route
                                         path="/orders"
                                         element={
-                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                            <RoleProtectedRoute allowedRoles={["manager", "director", "accountant"]}>
                                                 <AdminOrdersPage />
                                             </RoleProtectedRoute>
                                         }
@@ -95,8 +86,17 @@ const AdminPanel = () => {
                                     <Route
                                         path="/docs"
                                         element={
-                                            <RoleProtectedRoute allowedRoles={["manager", "storage"]}>
+                                            <RoleProtectedRoute allowedRoles={["director", "accountant"]}>
                                                 <DocsView />
+                                            </RoleProtectedRoute>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/customers"
+                                        element={
+                                            <RoleProtectedRoute allowedRoles={["manager", "director", "accountant"]}>
+                                                <Customers />
                                             </RoleProtectedRoute>
                                         }
                                     />

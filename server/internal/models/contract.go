@@ -7,7 +7,7 @@ import (
 
 type Contract struct {
 	BaseModel
-	ContractType string `gorm:"ENUM('order','storage');not null;default:order" json:"contract_type" validate:"required"`
+	ContractType string `gorm:"type:ENUM('order','invoice', 'receipt', 'acceptance');not null;default:order" json:"contract_type" validate:"required"`
 	FilePath     string `gorm:"type:varchar(255);not null" json:"file_path" validate:"required,min=1"`
 	OrderID      uint   `gorm:"not null" json:"order_id" validate:"required,gte=1" form:"order_id"`
 

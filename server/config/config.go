@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"project_backend/cmd/cron"
 
 	"strconv"
 
@@ -25,10 +26,6 @@ type Config struct {
 		DBName   string `yaml:"dbname"`
 		Driver   string `yaml:"driver"`
 	} `yaml:"database"`
-
-	Logging struct {
-		Level string `yaml:"level"`
-	} `yaml:"logging"`
 }
 
 var AppConfig *Config
@@ -73,9 +70,6 @@ func overrideWithEnv() {
 	if dbDriver := os.Getenv("DB_DRIVER"); dbDriver != "" {
 		AppConfig.Database.Driver = dbDriver
 	}
-	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
-		AppConfig.Logging.Level = logLevel
-	}
 }
 
 func InitDB() error {
@@ -116,6 +110,7 @@ func InitDB() error {
 	}
 
 	DB = db
+	cron.SetupDebtChecker(db)
 	log.Println("Подключение к базе данных успешно установлено.")
 	return nil
 }

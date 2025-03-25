@@ -57,9 +57,7 @@ const AccountantStats = () => {
 
     return (
         <div>
-            <hr />
             <h1>Статистика бухгалтера</h1>
-            <h1>Статистика по договорам</h1>
             <Row gutter={16}>
                 {contracts.map((contract, index) => {
                     const contractData = getContractData(contract.contract_type);

@@ -20,10 +20,13 @@ type Order struct {
 	RecipientPhone string     `gorm:"type:varchar(255);not null" json:"recipient_phone" validate:"required,min=1" form:"recipient_phone"`
 	Comment        string     `gorm:"type:text;" json:"comment" form:"comment"`
 
+	SentDate   *time.Time `gorm:"type:datetime" json:"sent_date"`
+	DebtStatus string     `gorm:"type:ENUM('paid', 'debt', 'partial', 'not_paid');default:not_paid" json:"debt_status"`
+
 	Customer     Customer       `json:"customer"`
 	OrderContent []OrderContent `json:"order_content" gorm:"foreignKey:OrderID;references:ID"`
 	Payments     []Payment      `json:"-" gorm:"foreignKey:OrderID;references:ID"`
-	Contracts    []Contract     `json:"-" gorm:"foreignKey:OrderID;references:ID"`
+	Contracts    []Contract     `json:"contracts" gorm:"foreignKey:OrderID;references:ID"`
 }
 
 func CreateOrdersTable(db *gorm.DB) error {

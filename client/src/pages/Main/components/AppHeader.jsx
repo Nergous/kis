@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Layout, Input, Badge } from "antd";
 import { IconButton } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -17,6 +17,8 @@ const AppHeader = () => {
     const navigate = useNavigate();
     const [cartTotalItems, setCartTotalItems] = useState(0);
     const { role, logout } = useAuth();
+
+    const location = useLocation();
 
     // Функция для получения общего количества товаров в корзине
     const getCartTotalItems = () => {
@@ -88,17 +90,18 @@ const AppHeader = () => {
                     }}>
                     <AccountCircleIcon />
                 </IconButton>
-
-                <IconButton style={{ color: "white !important" }} onClick={() => window.dispatchEvent(new Event("openCart"))}>
-                    <Badge
-                        count={cartTotalItems}
-                        style={{
-                            backgroundColor: "#ff4444",
-                            fontFamily: "'DMSans-Medium', sans-serif",
-                        }}>
-                        <ShoppingCartIcon style={{ color: "white" }} />
-                    </Badge>
-                </IconButton>
+                {!location.pathname.startsWith("/client") && (
+                    <IconButton style={{ color: "white !important" }} onClick={() => window.dispatchEvent(new Event("openCart"))}>
+                        <Badge
+                            count={cartTotalItems}
+                            style={{
+                                backgroundColor: "#ff4444",
+                                fontFamily: "'DMSans-Medium', sans-serif",
+                            }}>
+                            <ShoppingCartIcon style={{ color: "white" }} />
+                        </Badge>
+                    </IconButton>
+                )}
                 {role && <Button onClick={logout}>Выйти из аккаунта</Button>}
             </div>
         </Header>

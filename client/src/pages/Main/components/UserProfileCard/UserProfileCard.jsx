@@ -25,6 +25,22 @@ const UserProfileCard = ({ userData }) => {
         setShowConsent(!showConsent);
     };
     
+    // Status badge colors and texts
+    const statusBadges = {
+        "debt": {
+            text: "Должник",
+            backgroundColor: "#ffebee",
+            color: "#d32f2f"
+        },
+        "active": {
+            text: "Без задолжности",
+            backgroundColor: "#e8f5e9",
+            color: "#2E7D32"
+        }
+    };
+
+    const currentStatusBadge = statusBadges[userData.status] || statusBadges["active"];
+    
     return (
         <div
             style={{
@@ -44,16 +60,29 @@ const UserProfileCard = ({ userData }) => {
                     alignItems: "center"
                 }}>
                 <span>Личный кабинет</span>
-                <div 
-                    style={{ 
-                        display: "inline-block", 
-                        background: "#e8f5e9", 
-                        borderRadius: 15, 
-                        padding: "4px 12px", 
-                        fontSize: 14, 
-                        color: "#085615",
-                    }}>
-                    {customerTypeText}
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <div 
+                        style={{ 
+                            display: "inline-block", 
+                            background: "#e8f5e9", 
+                            borderRadius: 15, 
+                            padding: "4px 12px", 
+                            fontSize: 14, 
+                            color: "#085615",
+                        }}>
+                        {customerTypeText}
+                    </div>
+                    <div 
+                        style={{ 
+                            display: "inline-block", 
+                            background: currentStatusBadge.backgroundColor, 
+                            borderRadius: 15, 
+                            padding: "4px 12px", 
+                            fontSize: 14, 
+                            color: currentStatusBadge.color,
+                        }}>
+                        {currentStatusBadge.text}
+                    </div>
                 </div>
             </h1>
 

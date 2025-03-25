@@ -89,6 +89,10 @@ func (r *ContractRepository) Update(contract *models.Contract) (*models.Contract
 	return contract, r.db.Save(contract).Error
 }
 
-func (r *ContractRepository) Delete(id uint) error {
-	return r.db.Where("id=?", id).Delete(&models.Contract{}).Error
+func (r *ContractRepository) Delete(order_id uint, doc_type string) error {
+	return r.db.Where("order_id = ? AND contract_type = ?", order_id, doc_type).Delete(&models.Contract{}).Error
+}
+
+func (r *ContractRepository) DeleteAll(order_id uint) error {
+	return r.db.Where("order_id = ?", order_id).Delete(&models.Contract{}).Error
 }

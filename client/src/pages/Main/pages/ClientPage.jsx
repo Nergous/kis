@@ -20,6 +20,10 @@ const ClientPage = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        document.title = "Личный кабинет";
+    }, [])
+
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);

@@ -62,7 +62,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // Кастомный элемент точки для графика
 const CustomDot = (props) => {
-    const { cx, cy, stroke, payload, value } = props;
+    const { cx, cy, stroke } = props;
     return (
         <Dot
             cx={cx}

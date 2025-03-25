@@ -1,7 +1,10 @@
 package services
 
 import (
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"project_backend/internal/models"
 	"project_backend/internal/repositories"
 	"strconv"
@@ -107,7 +110,7 @@ func (s *ContractService) Delete(c *gin.Context) {
 		return
 	}
 
-	err = s.repo.Delete(uint(contractID))
+	err = s.repo.DeleteAll(uint(contractID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Не удалось удалить контракт",
@@ -116,4 +119,48 @@ func (s *ContractService) Delete(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, "Контракт успешно удален")
+}
+
+func (s *ContractService) DownloadContractFile(c *gin.Context) {
+	idParam := c.Param("id")
+	contractID, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Неверный формат ID",
+		})
+	}
+
+	contract, err := s.repo.GetByID(uint(contractID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Контракт не найден",
+		})
+		return
+	}
+
+	// Проверяем наличие пути к файлу
+	if contract.FilePath == "" {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Файл контракта не найден",
+		})
+		return
+	}
+
+	// get current directory
+	cwd, err := os.Getwd()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{})
+	}
+
+	fullPath := filepath.Join(cwd, "..", "client", "public", contract.FilePath)
+	// if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+	// 	c.JSON(http.StatusNotFound, gin.H{
+	// 		"error": "Файл контракта не существует на сервере",
+	// 	})
+	// 	return
+	// }
+	c.Header("Content-Disposition", "attachment; filename=contract_"+idParam+".docx")
+	c.Header("Cache-Control", "public, max-age=86400") // Кешировать на 1 день
+	log.Printf("Serving contract file: %s (ID: %d)", fullPath, contractID)
+	c.File(fullPath)
 }

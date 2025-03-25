@@ -20,33 +20,35 @@ func (r *PaymentRepository) GetAll(duration string) (map[string]interface{}, err
 	response := make(map[string]interface{})
 
 	switch duration {
-	case "all":
-		var payments []models.Payment
-		if result := r.db.Find(&payments); result.Error != nil {
-			return nil, result.Error
-		}
-		response["money"] = payments
-		return response, nil
-
-	case "week", "month", "3month", "6month", "year":
-		// Определяем период
+	case "all", "week", "month", "3month", "6month", "year":
+		// Для всех случаев используем группировку по дням
 		var startDate time.Time
 		now := time.Now()
 
-		switch duration {
-		case "week":
-			startDate = now.AddDate(0, 0, -7)
-		case "month":
-			startDate = now.AddDate(0, -1, 0)
-		case "3month":
-			startDate = now.AddDate(0, -3, 0)
-		case "6month":
-			startDate = now.AddDate(0, -6, 0)
-		case "year":
-			startDate = now.AddDate(-1, 0, 0)
+		if duration == "all" {
+			// Для "all" получаем самую раннюю дату из базы
+			var oldestPayment models.Payment
+			if err := r.db.Order("created_at asc").First(&oldestPayment).Error; err != nil {
+				return nil, err
+			}
+			startDate = oldestPayment.CreatedAt
+		} else {
+			// Определяем период для других случаев
+			switch duration {
+			case "week":
+				startDate = now.AddDate(0, 0, -7)
+			case "month":
+				startDate = now.AddDate(0, -1, 0)
+			case "3month":
+				startDate = now.AddDate(0, -3, 0)
+			case "6month":
+				startDate = now.AddDate(0, -6, 0)
+			case "year":
+				startDate = now.AddDate(-1, 0, 0)
+			}
 		}
 
-		// Выполняем запрос
+		// Выполняем запрос с группировкой по дням
 		var dailyResults []struct {
 			Date  string `json:"date"`
 			Total string `json:"sum"`
@@ -85,6 +87,13 @@ func (r *PaymentRepository) GetAll(duration string) (map[string]interface{}, err
 func (r *PaymentRepository) GetByID(id uint) (*models.Payment, error) {
 	payment := models.Payment{}
 	result := r.db.First(&payment, id)
+	return &payment, result.Error
+}
+
+func (r *PaymentRepository) GetByOrderID(id uint) (*[]models.Payment, error) {
+	payment := make([]models.Payment, 0)
+
+	result := r.db.Where("order_id=?", id).Find(&payment)
 	return &payment, result.Error
 }
 

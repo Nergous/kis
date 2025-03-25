@@ -15,7 +15,7 @@ func SetupRoutes(services *services.ServicesContainer) *gin.Engine {
 		Worker:   services.WorkerService.Repo,
 	}
 
-	api := r.Group("/api", middleware.LogMiddleware(), middleware.HeaderAccessAllow())
+	api := r.Group("/api", middleware.HeaderAccessAllow())
 	{
 		api.GET("/products", services.ProductService.GetAll)
 		api.POST("/login-customer", services.AuthService.LoginCustomer)
@@ -41,6 +41,8 @@ func SetupRoutes(services *services.ServicesContainer) *gin.Engine {
 			director.GET("/docs-count", services.ContractQuantityService.GetAll)
 
 			director.GET("/docs", services.ContractService.GetAll)
+
+			director.GET("/docs/:id/file", services.ContractService.DownloadContractFile)
 
 			director.GET("/order-by-status", services.StatService.GetOrdersCountByStatus)
 			director.GET("/workers-count", services.StatService.GetWorkersCount)
@@ -80,6 +82,7 @@ func SetupRoutes(services *services.ServicesContainer) *gin.Engine {
 			{
 				manager_storage.GET("/orders", services.OrderService.GetAll)
 				manager_storage.PATCH("/orders/:id/status", services.OrderService.UpdateStatus)
+				manager_storage.GET("/payments/order/:order_id", services.PaymentService.GetByOrderID)
 				manager_storage.DELETE("/products/:id", services.ProductService.Delete)
 
 				manager := manager_storage.Group("", middleware.AuthMiddleware(

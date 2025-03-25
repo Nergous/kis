@@ -2,9 +2,11 @@ package services
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"project_backend/internal/models"
 	"project_backend/internal/repositories"
+	"project_backend/internal/utils"
 	"strconv"
 	"time"
 
@@ -12,16 +14,33 @@ import (
 )
 
 type OrderService struct {
-	repo    *repositories.OrderRepository
-	product *repositories.ProductRepository
-	move    *repositories.ProductMovingRepository
+	repo             *repositories.OrderRepository
+	product          *repositories.ProductRepository
+	move             *repositories.ProductMovingRepository
+	contract         *repositories.ContractRepository
+	contractQuantity *repositories.ContractQuantityRepository
+	customerRepo     *repositories.CustomerRepository
+	paymentRepo      *repositories.PaymentRepository
 }
 
 func NewOrderService(
 	repo *repositories.OrderRepository,
 	product *repositories.ProductRepository,
-	move *repositories.ProductMovingRepository) *OrderService {
-	return &OrderService{repo: repo, product: product, move: move}
+	contract *repositories.ContractRepository,
+	contractQuantity *repositories.ContractQuantityRepository,
+	move *repositories.ProductMovingRepository,
+	customerRepo *repositories.CustomerRepository,
+	paymentRepo *repositories.PaymentRepository,
+) *OrderService {
+	return &OrderService{
+		repo:             repo,
+		product:          product,
+		move:             move,
+		contract:         contract,
+		contractQuantity: contractQuantity,
+		customerRepo:     customerRepo,
+		paymentRepo:      paymentRepo,
+	}
 }
 
 func (s *OrderService) GetAll(c *gin.Context) {
@@ -123,6 +142,21 @@ func (s *OrderService) Create(c *gin.Context) {
 		return
 	}
 
+	customer, err := s.customerRepo.GetByID(customerID.(uint))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Клиент не найден",
+		})
+		return
+	}
+
+	if customer.Status == "debt" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "Покупатель имеет неоплаченные заказы. Новые заказы невозможны до погашения долга",
+		})
+		return
+	}
+
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Неверный формат заказа" + err.Error(),
@@ -172,6 +206,56 @@ func (s *OrderService) Create(c *gin.Context) {
 		return
 	}
 
+	var products []utils.OrderContent
+	for _, item := range orderIn.OrderContent {
+		product, err := s.product.GetByID(item.ProductID)
+		if err != nil {
+			continue // или обработка ошибки
+		}
+		products = append(products, utils.OrderContent{
+			ProductID:   item.ProductID,
+			ProductName: product.Name, // предполагая, что у продукта есть поле Name
+			Quantity:    item.Quantity,
+			Price:       item.Price,
+		})
+	}
+
+	contractData := utils.ContractData{
+		Address:        orderIn.Address,
+		DeliveryDate:   orderIn.DeliveryDate.Format(time.RFC3339),
+		PaymentTerms:   orderIn.PaymentTerms,
+		TotalPrice:     orderIn.TotalPrice,
+		RecipientPhone: orderIn.RecipientPhone,
+		OrderContent:   products,
+	}
+
+	// Generate contract
+	contractPath, err := utils.GenerateContract(contractData)
+
+	if err != nil {
+		log.Printf("Failed to generate contract: %v", err)
+		// Можно продолжить, даже если контракт не сгенерировался
+	} else {
+		log.Printf("Contract generated at: %s", contractPath)
+		// Можно сохранить contractPath в базе данных для заказа
+	}
+
+	var contractModel models.Contract = models.Contract{
+		OrderID:      orderOut.ID,
+		FilePath:     contractPath,
+		ContractType: "order",
+	}
+	_, err = s.contract.Create(&contractModel)
+
+	if err != nil {
+		log.Printf("Failed to create contract: %#v", err)
+	}
+
+	_, err = s.contractQuantity.Create("order")
+
+	if err != nil {
+		log.Printf("Failed to create contract quantity: %v", err)
+	}
 	c.JSON(http.StatusCreated, orderOut.ID)
 }
 
@@ -241,6 +325,62 @@ func (s *OrderService) UpdatePrices(c *gin.Context) {
 			"error": "Не удалось обновить цены: " + err.Error(),
 		})
 	}
+	order, err = s.repo.GetByID(uint(orderID))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Заказ не найден",
+		})
+	}
+
+	var products []utils.OrderContent
+	for _, item := range order.OrderContent {
+		product, err := s.product.GetByID(item.ProductID)
+		if err != nil {
+			continue // или обработка ошибки
+		}
+		products = append(products, utils.OrderContent{
+			ProductID:   item.ProductID,
+			ProductName: product.Name, // предполагая, что у продукта есть поле Name
+			Quantity:    item.Quantity,
+			Price:       item.Price,
+		})
+	}
+
+	contractData := utils.ContractData{
+		Address:        order.Address,
+		DeliveryDate:   order.DeliveryDate.Format(time.RFC3339),
+		PaymentTerms:   order.PaymentTerms,
+		TotalPrice:     order.TotalPrice,
+		RecipientPhone: order.RecipientPhone,
+		OrderContent:   products,
+	}
+
+	// Generate contract
+	contractPath, err := utils.GenerateContract(contractData)
+
+	if err != nil {
+		log.Printf("Failed to generate contract: %v", err)
+		// Можно продолжить, даже если контракт не сгенерировался
+	} else {
+		log.Printf("Contract generated at: %s", contractPath)
+		// Можно сохранить contractPath в базе данных для заказа
+	}
+
+	var contractModel models.Contract = models.Contract{
+		OrderID:      order.ID,
+		FilePath:     contractPath,
+		ContractType: "order",
+	}
+
+	err = s.contract.Delete(order.ID, "order")
+	if err != nil {
+		log.Printf("Failed to delete old contract: %#v", err)
+	}
+	_, err = s.contract.Create(&contractModel)
+
+	if err != nil {
+		log.Printf("Failed to create contract: %#v", err)
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Цены успешно обновлены",
@@ -268,12 +408,77 @@ func (s *OrderService) UpdateStatus(c *gin.Context) {
 		})
 		return
 	}
-	order, err := s.repo.GetByID(uint(orderID))
 
+	order, err := s.repo.GetByID(uint(orderID))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "Заказ не найден",
 		})
+		return
+	}
+
+	if input.Status == "in_transit" && order.Status != "in_transit" {
+		now := time.Now()
+		order.SentDate = &now
+	}
+
+	// Генерация накладной при переходе в статус in_assembly
+	if input.Status == "in_assembly" && order.Status != "in_assembly" {
+		var products []utils.OrderContent
+		fmt.Println("------------------------------")
+		fmt.Println("ВОЙНА НАЧИНАЕТСЯ")
+		fmt.Println("------------------------------")
+		for _, item := range order.OrderContent {
+			product, err := s.product.GetByID(item.ProductID)
+			if err != nil {
+				log.Printf("Failed to get product for invoice: %v", err)
+				continue
+			}
+			products = append(products, utils.OrderContent{
+				ProductID:         item.ProductID,
+				ProductName:       product.Name,
+				Quantity:          item.Quantity,
+				Price:             item.Price,
+				TotalProductPrice: item.Price * float64(item.Quantity),
+			})
+		}
+
+		invoiceData := utils.InvoiceData{
+			OrderID:        strconv.FormatUint(uint64(order.ID), 10),
+			Address:        order.Address,
+			DeliveryDate:   order.DeliveryDate.UTC().Format("2006-01-02T15:04:05Z"),
+			RecipientPhone: order.RecipientPhone,
+			TotalPrice:     order.TotalPrice,
+			OrderContent:   products,
+		}
+		fmt.Println("------------------------------")
+		fmt.Println("ГЕНЕРИМ ДОКУМЕНТ")
+		fmt.Println("------------------------------")
+		invoicePath, err := utils.GenerateInvoice(invoiceData)
+		if err != nil {
+			log.Printf("Failed to generate invoice: %v", err)
+		} else {
+			log.Printf("Invoice generated at: %s", invoicePath)
+
+			// Сохраняем информацию о накладной в базу данных
+			invoiceModel := models.Contract{
+				OrderID:      order.ID,
+				FilePath:     invoicePath,
+				ContractType: "invoice",
+			}
+			fmt.Println("------------------------------")
+			fmt.Println("ДОБАВЛЯЕМ В БД")
+			fmt.Println("------------------------------")
+			if _, err := s.contract.Create(&invoiceModel); err != nil {
+				log.Printf("Failed to save invoice to database: %v", err)
+			}
+			fmt.Println("------------------------------")
+			fmt.Println("ОБНОВЛЯЕМ КОЛИЧЕСТВО")
+			fmt.Println("------------------------------")
+			if _, err := s.contractQuantity.Create("invoice"); err != nil {
+				log.Printf("Failed to save invoice quantity to database: %v", err)
+			}
+		}
 	}
 
 	if input.Status == "awaiting_shipment" {
@@ -292,21 +497,18 @@ func (s *OrderService) UpdateStatus(c *gin.Context) {
 		for _, content := range order.OrderContent {
 			product := content.Product
 			product.Quantity -= content.Quantity
-			_, err := s.product.Update(&product)
-			if err != nil {
+			if _, err := s.product.Update(&product); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": "Не удалось обновить количество товара на складе: " + err.Error(),
 				})
 				return
 			}
 
-			_, err = s.move.Create(&models.ProductMoving{
+			if _, err = s.move.Create(&models.ProductMoving{
 				MovingType: "out",
 				ProductID:  product.ID,
 				Count:      uint(content.Quantity),
-			})
-
-			if err != nil {
+			}); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": "Не удалось создать перемещение товара: " + err.Error(),
 				})
@@ -314,16 +516,76 @@ func (s *OrderService) UpdateStatus(c *gin.Context) {
 		}
 	}
 
+	if input.Status == "received" && order.Status != "received" {
+		var products []utils.OrderContent
+		for _, item := range order.OrderContent {
+			product, err := s.product.GetByID(item.ProductID)
+			if err != nil {
+				log.Printf("Failed to get product for acceptance act: %v", err)
+				continue
+			}
+			products = append(products, utils.OrderContent{
+				ProductID:         item.ProductID,
+				ProductName:       product.Name,
+				Quantity:          item.Quantity,
+				Price:             item.Price,
+				TotalProductPrice: item.TotalProductPrice,
+			})
+		}
+
+		actData := utils.AcceptanceActData{
+			OrderID:        strconv.FormatUint(uint64(order.ID), 10),
+			Customer:       order.Customer,
+			Address:        order.Address,
+			DeliveryDate:   order.DeliveryDate.UTC().Format("2006-01-02T15:04:05Z"),
+			RecipientPhone: order.RecipientPhone,
+			PaymentTerms:   order.PaymentTerms,
+			TotalPrice:     order.TotalPrice,
+			OrderContent:   products,
+			AcceptanceDate: time.Now().UTC().Format("2006-01-02T15:04:05Z"),
+		}
+
+		actPath, err := utils.GenerateAcceptanceAct(actData)
+		if err != nil {
+			log.Printf("Failed to generate acceptance act: %v", err)
+		} else {
+			log.Printf("Acceptance act generated at: %s", actPath)
+
+			// Сохраняем информацию об акте в базу данных
+			actModel := models.Contract{
+				OrderID:      order.ID,
+				FilePath:     actPath,
+				ContractType: "acceptance",
+			}
+			if _, err := s.contract.Create(&actModel); err != nil {
+				log.Printf("Failed to save acceptance act to database: %v", err)
+			}
+		}
+		if _, err := s.contractQuantity.Create("acceptance"); err != nil {
+			log.Printf("Failed to save invoice quantity to database: %v", err)
+		}
+	}
+
 	// Обновляем статус заказа
 	order.Status = input.Status
 	order.Comment = input.Comment
-	err = s.repo.Update(order)
-	if err != nil {
+	if err = s.repo.Update(order); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Не удалось обновить статус заказа: " + err.Error(),
 		})
+		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Статус успешно обновлен",
 	})
+}
+
+func (s *OrderService) CheckCustomerDebt(customerID uint) (bool, error) {
+	debtOrders, err := s.repo.GetDebtOrdersByCustomerID(customerID)
+	if err != nil {
+		return false, err
+	}
+
+	return len(debtOrders) > 0, nil
 }
