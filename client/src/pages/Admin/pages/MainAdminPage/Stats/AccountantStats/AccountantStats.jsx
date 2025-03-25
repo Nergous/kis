@@ -1,9 +1,11 @@
 import React, { useLayoutEffect, useState } from "react";
 import { Col, Row, Skeleton, Typography } from "antd";
-import { ShoppingOutlined, FolderOutlined, FileTextOutlined, BarcodeOutlined } from "@ant-design/icons";
+import { FileTextOutlined } from "@ant-design/icons";
 import api from "../../../../../../utils/api";
 import showErrorNotification from "../../../../../../ui/Notification/Notification";
 import CardStats from "../../../../components/CardStats/CardStats";
+import { CONTRACTS } from "../../../../../../constants/contracts";
+import IncomeFromOrders from "../graphs/IncomeFromOrders";
 
 const { Text } = Typography;
 
@@ -23,41 +25,14 @@ const AccountantStats = () => {
                 setLoading(false);
             }
         };
-
-        const docs = async () => {
-            try {
-                const response = await api().get("/api/docs");
-                console.log(response.data);
-            } catch (err) {
-                showErrorNotification("Ошибка при загрузке данных");
-            }
-        };
-
-        docs();
-
+        
         fetchData();
     }, []);
 
-    // Функция для преобразования типа контракта в читаемый формат
-    const getContractTitle = (type) => {
-        const types = {
-            'order': 'Договоры заказов',
-            'storage': 'Договоры хранения',
-            'service': 'Договоры услуг',
-            'other': 'Прочие договоры'
-        };
-        return types[type] || type;
-    };
-
-    // Функция для выбора иконки по типу контракта
-    const getContractIcon = (type) => {
-        const icons = {
-            'order': <ShoppingOutlined />,
-            'storage': <FolderOutlined />,
-            'service': <FileTextOutlined />,
-            'other': <BarcodeOutlined />
-        };
-        return icons[type] || <FileTextOutlined />;
+    // Функция для получения данных контракта по типу
+    const getContractData = (type) => {
+        return CONTRACTS.find(contract => contract.name === type) || 
+               { label: type, icon: <FileTextOutlined /> };
     };
 
     // Цвета для карточек
@@ -82,21 +57,27 @@ const AccountantStats = () => {
 
     return (
         <div>
+            <hr />
+            <h1>Статистика бухгалтера</h1>
             <h1>Статистика по договорам</h1>
             <Row gutter={16}>
-                {contracts.map((contract, index) => (
-                    <Col xs={24} sm={12} md={8} lg={6} key={contract.ID}>
-                        <CardStats
-                            title={getContractTitle(contract.contract_type)}
-                            value={contract.quantity}
-                            icon={getContractIcon(contract.contract_type)}
-                            backgroundColor={cardColors[index % cardColors.length].bg}
-                            borderColor={cardColors[index % cardColors.length].border}
-                            iconColor={cardColors[index % cardColors.length].icon}
-                        />
-                    </Col>
-                ))}
+                {contracts.map((contract, index) => {
+                    const contractData = getContractData(contract.contract_type);
+                    return (
+                        <Col xs={24} sm={12} md={8} lg={6} xl={4} key={contract.ID} style={{ marginBottom: '8px', margin: "0 auto" }}>
+                            <CardStats
+                                title={contractData.label}
+                                value={contract.quantity}
+                                icon={contractData.icon}
+                                backgroundColor={cardColors[index % cardColors.length].bg}
+                                borderColor={cardColors[index % cardColors.length].border}
+                                iconColor={cardColors[index % cardColors.length].icon}
+                            />
+                        </Col>
+                    );
+                })}
             </Row>
+            <IncomeFromOrders />
         </div>
     );
 };

@@ -21,7 +21,7 @@ const ProductModal = ({ product, visible, onClose, addToCart }) => {
     return (
         <Modal
             title={<span style={{ fontSize: "1.5em", fontWeight: 600 }}>{product.name}</span>}
-            visible={visible}
+            open={visible}
             onCancel={onClose}
             footer={[
                 <Button key="close" onClick={onClose}>

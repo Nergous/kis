@@ -37,7 +37,7 @@ const OrderModal = ({ visible, onCancel, onSubmit, cartItems, totalAmount }) => 
   return (
     <Modal
       title="Оформление заказа"
-      visible={visible}
+      open={visible}
       onOk={handleSubmit}
       onCancel={onCancel}
       footer={[

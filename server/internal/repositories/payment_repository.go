@@ -53,7 +53,7 @@ func (r *PaymentRepository) GetAll(duration string) (map[string]interface{}, err
 		}
 
 		rows, err := r.db.Model(&models.Payment{}).
-			Select("DATE_FORMAT(created_at, '%d-%m-%Y') as date, FORMAT(SUM(amount), 0) as total").
+			Select("DATE_FORMAT(created_at, '%d-%m-%Y') as date, SUM(payment_sum) as total").
 			Where("created_at >= ?", startDate).
 			Group("DATE(created_at)").
 			Order("created_at ASC").

@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Card, Button, Typography, Spin, message } from 'antd';
-import { DownloadOutlined, FileWordOutlined, CloseOutlined } from '@ant-design/icons';
+import { DownloadOutlined, CloseOutlined } from '@ant-design/icons';
+import { FileTextOutlined } from '@ant-design/icons';
 import api from '../../../utils/api';
+import { CONTRACTS } from '../../../constants/contracts';
 
 const { Title, Text } = Typography;
 
-const DOC_TYPES = {
-  order: { name: 'Договор заказа', icon: <FileWordOutlined />, color: '#1890ff' },
-  storage: { name: 'Накладная', icon: <FileWordOutlined />, color: '#faad14' },
-  receipt: { name: 'Акт получения', icon: <FileWordOutlined />, color: '#52c41a' },
-  payment: { name: 'Договор оплаты', icon: <FileWordOutlined />, color: '#13c2c2' },
-  unknown: { name: 'Документ', icon: <FileWordOutlined />, color: '#888' }
+// Функция для получения данных документа по типу
+const getDocType = (type) => {
+  const contract = CONTRACTS.find(item => item.name === type);
+  return contract || { 
+    name: type, 
+    label: type, 
+    icon: <FileTextOutlined />,
+    color: '#888' 
+  };
 };
 
-const getDocType = (type) => {
-  return DOC_TYPES[type] || DOC_TYPES.unknown;
+// Цвета для разных типов документов
+const DOC_COLORS = {
+  order: '#1890ff',
+  storage: '#faad14',
+  service: '#52c41a',
+  payment: '#13c2c2',
+  other: '#722ed1'
 };
 
 const DocsView = () => {
@@ -22,14 +32,22 @@ const DocsView = () => {
   const [loading, setLoading] = useState(true);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewDoc, setPreviewDoc] = useState(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
         const response = await api().get('/api/docs');
-        setContracts(response.data.docs || []);
+        const docsWithoutFiles = response.data.docs?.map(contract => ({
+          ...contract,
+          docs: contract.docs?.map(doc => ({
+            ...doc,
+            file_content: null
+          }))
+        })) || [];
+        setContracts(docsWithoutFiles);
       } catch (error) {
-        message.error('Ошибка загрузки договоров');
+        message.error('Ошибка загрузки списка договоров');
       } finally {
         setLoading(false);
       }
@@ -38,23 +56,46 @@ const DocsView = () => {
     fetchContracts();
   }, []);
 
-  const handlePreview = (doc) => {
-    setPreviewDoc(doc);
-    setPreviewVisible(true);
+  const handlePreview = async (doc) => {
+    try {
+      setLoading(true);
+      const response = await api().get(`/api/docs/${doc.ID}/file`);
+      setPreviewDoc({
+        ...doc,
+        file_path: response.data.file_url || doc.file_path
+      });
+      setPreviewVisible(true);
+    } catch (error) {
+      message.error('Ошибка загрузки документа для просмотра');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDownload = async (doc) => {
     try {
-      const docType = getDocType(doc.type);
+      setDownloading(true);
+      const response = await api().get(`/api/docs/${doc.ID}/file`, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
-      link.href = doc.file_path;
-      link.download = `${docType.name}_${doc.ID}.docx`;
+      const docType = getDocType(doc.type);
+      
+      link.href = url;
+      link.download = `${docType.label.replace(/\s+/g, '_')}_${doc.ID}.docx`;
       document.body.appendChild(link);
       link.click();
+      
+      window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
-      message.success(`Документ "${docType.name}" скачивается`);
+      
+      message.success(`Документ "${docType.label}" скачивается`);
     } catch (error) {
-      message.error('Ошибка при скачивании');
+      message.error('Ошибка при скачивании документа');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -83,6 +124,7 @@ const DocsView = () => {
         <Button 
           type="link" 
           onClick={() => handlePreview(record.docs[0])}
+          loading={loading}
         >
           Просмотр первого документа
         </Button>
@@ -98,12 +140,13 @@ const DocsView = () => {
         key: 'type',
         render: (type) => {
           const docType = getDocType(type);
+          const color = DOC_COLORS[type] || DOC_COLORS.other;
           return (
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ color: docType.color, marginRight: 8 }}>
+              <span style={{ color, marginRight: 8 }}>
                 {docType.icon}
               </span>
-              {docType.name}
+              {docType.label}
             </div>
           );
         },
@@ -117,6 +160,7 @@ const DocsView = () => {
             <Button 
               type="link" 
               onClick={() => handlePreview(doc)}
+              loading={loading}
             >
               Просмотр
             </Button>
@@ -124,6 +168,7 @@ const DocsView = () => {
               type="primary" 
               icon={<DownloadOutlined />} 
               onClick={() => handleDownload(doc)}
+              loading={downloading}
             >
               Скачать
             </Button>
@@ -204,12 +249,13 @@ const DocsView = () => {
               marginBottom: 16
             }}>
               <Title level={4} style={{ margin: 0 }}>
-                {getDocType(previewDoc.type).name}
+                {getDocType(previewDoc.type).label}
               </Title>
               <Button 
                 type="primary" 
                 icon={<DownloadOutlined />} 
                 onClick={() => handleDownload(previewDoc)}
+                loading={downloading}
               >
                 Скачать
               </Button>
@@ -225,13 +271,14 @@ const DocsView = () => {
               alignItems: 'center',
               flexDirection: 'column'
             }}>
-              <FileWordOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+              {getDocType(previewDoc.type).icon}
               <p style={{ marginTop: 16 }}>Предпросмотр .docx/.doc не поддерживается в браузере</p>
               <Button 
                 type="primary" 
                 icon={<DownloadOutlined />} 
                 onClick={() => handleDownload(previewDoc)}
                 style={{ marginTop: 16 }}
+                loading={downloading}
               >
                 Скачать для просмотра
               </Button>

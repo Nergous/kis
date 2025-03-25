@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Select, Table, InputNumber, Button, Alert, Input } from "antd";
+import {
+    Modal,
+    Form,
+    Select,
+    Table,
+    InputNumber,
+    Button,
+    Alert,
+    Input,
+} from "antd";
 import { STATUSES } from "../../../../../constants/statuses";
-import { showSuccessNotification, showErrorNotification } from "../../../../../ui/Notification/Notification";
+import {
+    showSuccessNotification,
+    showErrorNotification,
+} from "../../../../../ui/Notification/Notification";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -23,14 +35,23 @@ const EditPricesAndStatusModal = ({
     const [isQuantityValid, setIsQuantityValid] = useState(true); // Проверка количества товара
 
     // Статусы, при которых изменение запрещено
-    const disabledStatuses = ["in_assembly", "awaiting_shipment"];
+    const disabledStatuses = [
+        "in_assembly",
+        "awaiting_shipment",
+        "in_transit",
+        "received",
+    ];
 
     // Фильтруем статусы, исключая текущий
-    let filteredStatuses = STATUSES.filter((status) => status.value !== currentStatus);
+    let filteredStatuses = STATUSES.filter(
+        (status) => status.value !== currentStatus
+    );
 
     // Если передан allowedStatuses и он не пустой, фильтруем статусы
     if (allowedStatuses && allowedStatuses.length > 0) {
-        filteredStatuses = filteredStatuses.filter((status) => allowedStatuses.includes(status.value));
+        filteredStatuses = filteredStatuses.filter((status) =>
+            allowedStatuses.includes(status.value)
+        );
     }
 
     // Проверка количества товара на складе
@@ -62,20 +83,40 @@ const EditPricesAndStatusModal = ({
                 }, {})
             );
 
-            // Проверяем количество товара
-            const isQuantityEnough = validateQuantity();
-            if (!isQuantityEnough) {
-                setInfo("Недостаточно товара на складе. Введите сообщение для клиента.");
-                setNewStatus("contacting"); // Устанавливаем статус "contacting"
-                form.setFieldsValue({ newStatus: "contacting" }); // Устанавливаем значение в форме
-            }
-
             // Проверяем, запрещено ли редактирование
             if (disabledStatuses.includes(currentStatus)) {
                 setIsEditingDisabled(true);
-                setInfo(`Статус заказа '${STATUSES.find((s) => s.value === currentStatus)?.label || currentStatus}'. Изменение запрещено.`);
+                setInfo(
+                    `Статус заказа '${
+                        STATUSES.find((s) => s.value === currentStatus)
+                            ?.label || currentStatus
+                    }'. Изменение запрещено.`
+                );
+                return;
             } else {
                 setIsEditingDisabled(false);
+            }
+
+            // Проверяем количество товара
+            const isQuantityEnough = validateQuantity();
+            if (!isQuantityEnough) {
+                if (currentStatus === "contacting") {
+                    setInfo(
+                        "Недостаточно товара на складе. Заказ уже находится в статусе 'Связь с клиентом'. Свяжитесь позже с клиентом."
+                    );
+                    setNewStatus("contacting");
+                    form.setFieldsValue({ newStatus: "Связь с клиентом" });
+                } else {
+                    setInfo(
+                        "Недостаточно товара на складе. Введите сообщение для клиента."
+                    );
+                    setNewStatus("contacting");
+                    form.setFieldsValue({ newStatus: "contacting" });
+                }
+            } else {
+                setInfo("");
+                setNewStatus(null);
+                form.resetFields(["newStatus"]);
             }
         }
     }, [visible, orderContent, form, currentStatus]);
@@ -95,7 +136,7 @@ const EditPricesAndStatusModal = ({
         onCancel();
         form.resetFields();
         setInfo("");
-        setNewStatus('');
+        setNewStatus("");
     };
 
     const handleSubmit = async () => {
@@ -112,14 +153,20 @@ const EditPricesAndStatusModal = ({
                 total_product_price: item.newPrice * item.quantity,
             }));
 
-            const total_order_price = updatedPrices.reduce((acc, item) => acc + item.total_product_price, 0);
+            const total_order_price = updatedPrices.reduce(
+                (acc, item) => acc + item.total_product_price,
+                0
+            );
             const message = values.message || ""; // Сообщение (если статус "contacting")
 
             onOk(orderId, newStatus, updatedPrices, total_order_price, message); // Вызываем функцию onOk
             showSuccessNotification("Цены и статус успешно изменены");
             onCancel(); // Закрываем модальное окно
         } catch (error) {
-            showErrorNotification("Ошибка при изменении цен и статуса:", error.response.data.error);
+            showErrorNotification(
+                "Ошибка при изменении цен и статуса:",
+                error.response.data.error
+            );
         }
     };
 
@@ -161,7 +208,8 @@ const EditPricesAndStatusModal = ({
         {
             title: "Текущая общая цена",
             key: "total_product_price",
-            render: (record) => `${(record.price * record.quantity).toFixed(2)}₽`,
+            render: (record) =>
+                `${(record.price * record.quantity).toFixed(2)}₽`,
         },
         {
             title: "Новая цена",
@@ -175,10 +223,14 @@ const EditPricesAndStatusModal = ({
                         {
                             validator: (_, value) => {
                                 if (value <= 0) {
-                                    return Promise.reject("Цена должна быть больше 0");
+                                    return Promise.reject(
+                                        "Цена должна быть больше 0"
+                                    );
                                 }
                                 if (value > record.product.price) {
-                                    return Promise.reject("Новая цена не может быть больше текущей");
+                                    return Promise.reject(
+                                        "Новая цена не может быть больше текущей"
+                                    );
                                 }
                                 return Promise.resolve();
                             },
@@ -197,7 +249,8 @@ const EditPricesAndStatusModal = ({
         {
             title: "Новая общая цена",
             key: "newTotalPrice",
-            render: (record) => `${(record.newPrice * record.quantity).toFixed(2)}₽`,
+            render: (record) =>
+                `${(record.newPrice * record.quantity).toFixed(2)}₽`,
         },
     ];
 
@@ -222,50 +275,89 @@ const EditPricesAndStatusModal = ({
             width={1000}
         >
             <Form form={form} layout="horizontal">
-                {info && <Alert type="error" message={info} style={{ marginBottom: 16 }} />}
-
                 <Form.Item label="ID заказа">
                     <strong>{orderId}</strong>
                 </Form.Item>
                 <Form.Item label="Текущий статус">
                     <strong>
-                        {STATUSES.find((s) => s.value === currentStatus)?.label || currentStatus}
+                        {STATUSES.find((s) => s.value === currentStatus)
+                            ?.label || currentStatus}
                     </strong>
                 </Form.Item>
-                <Form.Item
-                    name="newStatus"
-                    label="Новый статус"
-                    rules={[{ required: true, message: "Пожалуйста, выберите новый статус!" }]}
-                >
-                    <Select
-                        placeholder="Выберите новый статус"
-                        onChange={(value) => setNewStatus(value)}
-                        disabled={isEditingDisabled || !isQuantityValid} // Отключаем выбор, если редактирование запрещено или товара недостаточно
-                    >
-                        {filteredStatuses.map((status) => (
-                            <Option key={status.value} value={status.value} disabled={!isQuantityValid && status.value !== "contacting"}>
-                                {status.label}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-
-                {(newStatus === "contacting" || !isQuantityValid) && (
-                    <Form.Item
-                        name="message"
-                        label="Сообщение"
-                        rules={[{ required: true, message: "Пожалуйста, введите сообщение!" }]}
-                    >
-                        <TextArea rows={4} placeholder="Введите сообщение" />
-                    </Form.Item>
+                {info && (
+                    <Alert
+                        type={
+                            currentStatus === "contacting" && !isQuantityValid
+                                ? "info"
+                                : "error"
+                        }
+                        message={info}
+                        style={{ marginBottom: 16 }}
+                    />
                 )}
+                {!disabledStatuses.includes(currentStatus) && (
+                    <>
+                        <Form.Item
+                            name="newStatus"
+                            label="Новый статус"
+                            rules={[
+                                {
+                                    required: true,
+                                    message:
+                                        "Пожалуйста, выберите новый статус!",
+                                },
+                            ]}
+                        >
+                            <Select
+                                placeholder="Выберите новый статус"
+                                onChange={(value) => setNewStatus(value)}
+                                disabled={isEditingDisabled || !isQuantityValid} // Отключаем выбор, если редактирование запрещено или товара недостаточно
+                            >
+                                {filteredStatuses.map((status) => (
+                                    <Option
+                                        key={status.value}
+                                        value={status.value}
+                                        disabled={
+                                            !isQuantityValid &&
+                                            status.value !== "contacting"
+                                        }
+                                    >
+                                        {status.label}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
 
-                <Table
-                    columns={columns}
-                    dataSource={prices} // Используем prices как dataSource
-                    rowKey="ID"
-                    pagination={false}
-                />
+                        {((!isQuantityValid &&
+                            currentStatus !== "contacting") ||
+                            (newStatus === "contacting" &&
+                                currentStatus !== "contacting")) && (
+                            <Form.Item
+                                name="message"
+                                label="Сообщение"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            "Пожалуйста, введите сообщение!",
+                                    },
+                                ]}
+                            >
+                                <TextArea
+                                    rows={4}
+                                    placeholder="Введите сообщение"
+                                />
+                            </Form.Item>
+                        )}
+
+                        <Table
+                            columns={columns}
+                            dataSource={prices} // Используем prices как dataSource
+                            rowKey="ID"
+                            pagination={false}
+                        />
+                    </>
+                )}
             </Form>
         </Modal>
     );

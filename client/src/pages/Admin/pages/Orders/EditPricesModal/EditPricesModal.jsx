@@ -9,7 +9,7 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk, curre
     const [isEditingDisabled, setIsEditingDisabled] = useState(false); // Запрет редактирования
 
     // Статусы, при которых изменение цен запрещено
-    const disabledStatuses = ["in_assembly", "awaiting_shipment"];
+    const disabledStatuses = ["in_assembly", "awaiting_shipment", "in_transit", "received"];
 
     // Инициализация prices при открытии модального окна
     useEffect(() => {

@@ -66,11 +66,11 @@ const AdminEmployeesPage = () => {
                 return <Tag color="blue">{roleData ? roleData.label : role}</Tag>;
             },
         },
-        {
-            title: "Логин",
-            dataIndex: "login",
-            key: "login",
-        },
+        // {
+        //     title: "Логин",
+        //     dataIndex: "login",
+        //     key: "login",
+        // },
     ];
 
     return (
@@ -116,6 +116,7 @@ const AdminEmployeesPage = () => {
                         columns={columns}
                         dataSource={data}
                         rowKey="ID"
+                        bordered
                         pagination={{ pageSize: 10 }}
                     />
                 </ConfigProvider>
