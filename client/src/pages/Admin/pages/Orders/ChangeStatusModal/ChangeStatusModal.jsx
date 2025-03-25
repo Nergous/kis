@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Select, Button, Table, Alert, Input } from "antd";
 import { STATUSES } from "../../../../../constants/statuses";
-import { showSuccessNotification, showErrorNotification } from "../../../../../ui/Notification/Notification";
+import {
+    showSuccessNotification,
+    showErrorNotification,
+} from "../../../../../ui/Notification/Notification";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-const ChangeStatusModal = ({ visible, onCancel, orderId, orderContent, currentStatus, onOk, allowedStatuses = [] }) => {
+const ChangeStatusModal = ({
+    visible,
+    onCancel,
+    orderId,
+    orderContent,
+    currentStatus,
+    onOk,
+    allowedStatuses = [],
+}) => {
     const [form] = Form.useForm();
     const [info, setInfo] = useState("");
     const [isQuantityValid, setIsQuantityValid] = useState(true); // Проверка количества товара
@@ -14,14 +25,18 @@ const ChangeStatusModal = ({ visible, onCancel, orderId, orderContent, currentSt
     const [selectedStatus, setSelectedStatus] = useState(null); // Выбранный статус
 
     // Статусы, при которых изменение запрещено
-    const disabledStatuses = ["in_assembly", "awaiting_shipment"];
+    const disabledStatuses = ["in_assembly", "awaiting_shipment", "in_transit", "received"];
 
     // Фильтруем статусы, исключая текущий
-    let filteredStatuses = STATUSES.filter((status) => status.value !== currentStatus);
+    let filteredStatuses = STATUSES.filter(
+        (status) => status.value !== currentStatus
+    );
 
     // Если передан allowedStatuses и он не пустой, фильтруем статусы
     if (allowedStatuses && allowedStatuses.length > 0) {
-        filteredStatuses = filteredStatuses.filter((status) => allowedStatuses.includes(status.value));
+        filteredStatuses = filteredStatuses.filter((status) =>
+            allowedStatuses.includes(status.value)
+        );
     }
 
     // Проверка количества товара на складе
@@ -40,21 +55,39 @@ const ChangeStatusModal = ({ visible, onCancel, orderId, orderContent, currentSt
     useEffect(() => {
         if (visible) {
             const isQuantityEnough = validateQuantity();
-            if (!isQuantityEnough) {
-                setInfo("Недостаточно товара на складе. Введите сообщение для клиента.");
-                setSelectedStatus("contacting"); // Устанавливаем статус "contacting" по умолчанию
-                form.setFieldsValue({ newStatus: "contacting" }); // Устанавливаем значение в форме
-            } else {
-                setInfo("");
-                setSelectedStatus(null);
-            }
 
             // Если текущий статус запрещает изменение
             if (disabledStatuses.includes(currentStatus)) {
                 setIsStatusChangeDisabled(true);
-                setInfo(`Статус заказа '${STATUSES.find((s) => s.value === currentStatus)?.label || currentStatus}'. Изменение статуса запрещено.`);
+                setInfo(
+                    `Статус заказа '${
+                        STATUSES.find((s) => s.value === currentStatus)
+                            ?.label || currentStatus
+                    }'. Изменение статуса запрещено.`
+                );
+                return;
             } else {
                 setIsStatusChangeDisabled(false);
+            }
+
+            if (!isQuantityEnough) {
+                if (currentStatus === "contacting") {
+                    setInfo(
+                        "Недостаточно товара на складе. Заказ уже находится в статусе 'Связь с клиентом'. Свяжитесь позже с клиентом."
+                    );
+                    setSelectedStatus("contacting");
+                    form.setFieldsValue({ newStatus: "Связь с клиентом" });
+                } else {
+                    setInfo(
+                        "Недостаточно товара на складе. Введите сообщение для клиента."
+                    );
+                    setSelectedStatus("contacting");
+                    form.setFieldsValue({ newStatus: "contacting" });
+                }
+            } else {
+                setInfo("");
+                setSelectedStatus(null);
+                form.resetFields(["newStatus"]);
             }
         }
     }, [visible, currentStatus]);
@@ -85,7 +118,11 @@ const ChangeStatusModal = ({ visible, onCancel, orderId, orderContent, currentSt
         }
 
         // Если выбран статус "contacting", проверяем сообщение
-        if (newStatus === "contacting" && !values.message) {
+        if (
+            newStatus === "contacting" &&
+            !values.message &&
+            currentStatus !== "contacting"
+        ) {
             setInfo("Пожалуйста, введите сообщение.");
             return;
         }
@@ -149,33 +186,93 @@ const ChangeStatusModal = ({ visible, onCancel, orderId, orderContent, currentSt
                 >
                     ОК
                 </Button>,
-            ]}>
+            ]}
+        >
             <Form form={form} layout="horizontal">
                 <Form.Item label={`ID заказа`}>
                     <strong>{orderId}</strong>
                 </Form.Item>
                 <Form.Item label={`Текущий статус`}>
-                    <strong>{STATUSES.find((s) => s.value === currentStatus)?.label || currentStatus}</strong>
+                    <strong>
+                        {STATUSES.find((s) => s.value === currentStatus)
+                            ?.label || currentStatus}
+                    </strong>
                 </Form.Item>
 
-                {info && <Alert type="error" message={info} style={{ marginBottom: 16 }} />}
+                {info && (
+                    <Alert
+                        type={
+                            currentStatus === "contacting" && !isQuantityValid
+                                ? "info"
+                                : "error"
+                        }
+                        message={info}
+                        style={{ marginBottom: 16 }}
+                    />
+                )}
+                {!disabledStatuses.includes(currentStatus) && (
+                    <>
+                        <Table
+                            dataSource={orderContent}
+                            columns={columns}
+                            pagination={false}
+                        />
 
-                <Table dataSource={orderContent} columns={columns} pagination={false} />
+                        <Form.Item
+                            name="newStatus"
+                            label="Новый статус"
+                            rules={[
+                                {
+                                    required: true,
+                                    message:
+                                        "Пожалуйста, выберите новый статус!",
+                                },
+                            ]}
+                        >
+                            <Select
+                                placeholder="Выберите новый статус"
+                                onChange={handleStatusChange}
+                                disabled={
+                                    isStatusChangeDisabled || !isQuantityValid
+                                }
+                            >
+                                {filteredStatuses.map((status) => (
+                                    <Option
+                                        key={status.value}
+                                        value={status.value}
+                                        disabled={
+                                            !isQuantityValid &&
+                                            status.value !== "contacting"
+                                        }
+                                    >
+                                        {status.label}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
 
-                <Form.Item name="newStatus" label="Новый статус" rules={[{ required: true, message: "Пожалуйста, выберите новый статус!" }]}>
-                    <Select placeholder="Выберите новый статус" onChange={handleStatusChange} disabled={isStatusChangeDisabled || !isQuantityValid}>
-                        {filteredStatuses.map((status) => (
-                            <Option key={status.value} value={status.value} disabled={!isQuantityValid && status.value !== "contacting"}>
-                                {status.label}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-
-                {(!isQuantityValid || selectedStatus === "contacting") && (
-                    <Form.Item name="message" label="Сообщение" rules={[{ required: true, message: "Пожалуйста, введите сообщение!" }]}>
-                        <TextArea rows={4} placeholder="Введите сообщение" />
-                    </Form.Item>
+                        {((!isQuantityValid &&
+                            currentStatus !== "contacting") ||
+                            (selectedStatus === "contacting" &&
+                                currentStatus !== "contacting")) && (
+                            <Form.Item
+                                name="message"
+                                label="Сообщение"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            "Пожалуйста, введите сообщение!",
+                                    },
+                                ]}
+                            >
+                                <TextArea
+                                    rows={4}
+                                    placeholder="Введите сообщение"
+                                />
+                            </Form.Item>
+                        )}
+                    </>
                 )}
             </Form>
         </Modal>

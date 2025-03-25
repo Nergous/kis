@@ -61,7 +61,7 @@ func (s *AuthService) LoginWorker(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString, "role": worker.Role})
+	c.JSON(http.StatusOK, gin.H{"token": tokenString, "role": worker.Role, "name": worker.Name})
 }
 
 func (s *AuthService) LoginCustomer(c *gin.Context) {
