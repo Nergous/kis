@@ -17,4 +17,5 @@ export const logIn = (token, role) => {
 export const logOut = () => {
     Cookies.remove("auth_token");
     localStorage.removeItem("role");
+    localStorage.removeItem("name");
 }

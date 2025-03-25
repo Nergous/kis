@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"slices"
 	"strings"
@@ -15,8 +14,16 @@ import (
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
+type AuthRepos struct {
+	Customer *repositories.CustomerRepository
+	Worker   *repositories.WorkerRepository
+}
+
 // AuthMiddleware проверяет JWT-токен
-func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
+func AuthMiddleware(
+	authRepo *AuthRepos,
+	availableRoles []string,
+) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -59,7 +66,7 @@ func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
 		role := claims["role"].(string)
 
 		if role == "admin" {
-			worker, err := repositories.GetWorkerByID(ID)
+			worker, err := authRepo.Worker.GetByID(ID)
 			if err != nil {
 				c.JSON(401, gin.H{"error": "Работник не найден"})
 				c.Abort()
@@ -77,7 +84,7 @@ func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
 		}
 
 		if role == "customer" {
-			customer, err := repositories.GetCustomerByID(ID)
+			customer, err := authRepo.Customer.GetByID(ID)
 			if err != nil {
 				c.JSON(401, gin.H{"error": "Пользователь не найден"})
 				c.Abort()
@@ -86,12 +93,10 @@ func AuthMiddleware(availableRoles []string) gin.HandlerFunc {
 
 			// Добавляем пользователя в контекст
 			c.Set("customer_id", customer.ID)
-			fmt.Println(customer)
-			fmt.Println("---------------------------")
 			c.Next()
 			return
 		} else {
-			worker, err := repositories.GetWorkerByID(ID)
+			worker, err := authRepo.Worker.GetByID(ID)
 			if err != nil {
 				c.JSON(401, gin.H{"error": "Работник не найден"})
 				c.Abort()

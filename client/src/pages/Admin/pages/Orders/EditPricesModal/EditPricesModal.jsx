@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Table, InputNumber, Form, Button, message } from "antd";
+import { Modal, Table, InputNumber, Form, Button, Alert } from "antd";
 import { showSuccessNotification, showErrorNotification } from "../../../../../ui/Notification/Notification";
+import { STATUSES } from "../../../../../constants/statuses";
 
-const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => {
+const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk, currentStatus }) => {
     const [form] = Form.useForm();
     const [prices, setPrices] = useState([]);
+    const [isEditingDisabled, setIsEditingDisabled] = useState(false); // Запрет редактирования
+
+    // Статусы, при которых изменение цен запрещено
+    const disabledStatuses = ["in_assembly", "awaiting_shipment", "in_transit", "received"];
 
     // Инициализация prices при открытии модального окна
     useEffect(() => {
@@ -25,6 +30,15 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => 
         }
     }, [visible, orderContent, form]);
 
+    // Проверка статуса при изменении currentStatus или visible
+    useEffect(() => {
+        if (disabledStatuses.includes(currentStatus)) {
+            setIsEditingDisabled(true); // Запрещаем редактирование
+        } else {
+            setIsEditingDisabled(false); // Разрешаем редактирование
+        }
+    }, [currentStatus, visible]);
+
     const handlePriceChange = (index, newPrice) => {
         const updatedPrices = [...prices];
         updatedPrices[index].newPrice = newPrice;
@@ -39,18 +53,21 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => 
     const handleClose = () => {
         onCancel();
         form.resetFields();
-    } 
+    };
 
     const handleSubmit = async () => {
         try {
+            // Если редактирование запрещено, завершаем функцию
+            if (isEditingDisabled) {
+                return;
+            }
+
             const updatedPrices = prices.map((item) => ({
                 product_id: item.product_id,
                 price: item.newPrice,
-                total_product_price: item.newPrice * item.quantity
+                total_product_price: item.newPrice * item.quantity,
             }));
             const total_order_price = updatedPrices.reduce((acc, item) => acc + item.total_product_price, 0);
-            // console.log("Обновленные цены:", updatedPrices);
-            // console.log("ID заказа:", orderId);
             onOk(orderId, updatedPrices, total_order_price); // Вызываем функцию onOk с новыми ценами
             showSuccessNotification("Цены успешно изменены");
             onCancel(); // Закрываем модальное окно
@@ -66,9 +83,21 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => 
             key: "name",
         },
         {
-            title: "Количество",
+            title: "Количество на складе",
+            dataIndex: ["product", "quantity"],
+            key: "quantity_product",
+        },
+        {
+            title: "Количество в заказе",
             dataIndex: "quantity",
             key: "quantity",
+            render: (quantity, record) => {
+                if (record.product.quantity >= quantity) {
+                    return <span style={{ color: "green" }}>{quantity}</span>;
+                } else {
+                    return <span style={{ color: "red" }}>{quantity}</span>;
+                }
+            },
         },
         {
             title: "Максимальная цена",
@@ -113,6 +142,7 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => 
                         min={1}
                         max={record.product.price}
                         onChange={(value) => handlePriceChange(index, value)}
+                        disabled={isEditingDisabled} // Отключаем поле, если редактирование запрещено
                     />
                 </Form.Item>
             ),
@@ -133,12 +163,26 @@ const EditPricesModal = ({ visible, onCancel, orderId, orderContent, onOk }) => 
                 <Button key="cancel" onClick={onCancel}>
                     Отмена
                 </Button>,
-                <Button key="submit" type="primary" onClick={handleSubmit}>
+                <Button
+                    key="submit"
+                    type="primary"
+                    onClick={handleSubmit}
+                    disabled={isEditingDisabled} // Отключаем кнопку, если редактирование запрещено
+                >
                     ОК
                 </Button>,
             ]}
-            width={800}
+            width={1000}
+            centered
         >
+            {isEditingDisabled && (
+                <Alert
+                    type="error"
+                    message={`Статус заказа '${STATUSES.find((s) => s.value === currentStatus)?.label || currentStatus}'. Изменение цен запрещено.`}
+                    style={{ marginBottom: 16 }}
+                />
+            )}
+
             <Form form={form}>
                 <Table
                     columns={columns}

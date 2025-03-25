@@ -1,22 +1,55 @@
 import React, { useEffect } from "react";
-import api from "../../../../utils/api";
+import { useAuth } from "../../../../context/AuthContext";
 import "antd/dist/reset.css";
 import DirectorStats from "./Stats/DirectorStats/DirectorStats";
-// import AccountantStats from "./Stats/AccountantStats/AccountantStats";
-// import ManagerStats from "./Stats/ManagerStats/ManagerStats";
-// import StorageStats from "./Stats/StorageStats/StorageStats";
+import AccountantStats from "./Stats/AccountantStats/AccountantStats";
+import ManagerStorageStats from "./Stats/ManagerStorageStats/ManagerStorageStats";
+import { Alert } from "antd";
 
 const MainAdminPage = () => {
-    // director.GET("/order-by-status", controllers.GetOrdersCountByStatus)
-    // director.GET("/workers-count", controllers.GetWorkersCount)
-    // director.GET("/customers-count", controllers.GetCustomersCount)
+    const { role, name } = useAuth();
+
+    useEffect(() => {
+        document.title = "Главная страница";
+    }, []);
+
+    // Функция для рендеринга соответствующего компонента статистики
+    const renderStatsByRole = () => {
+        switch (role) {
+            case "director":
+                return <DirectorStats />;
+            case "accountant":
+                return <AccountantStats />;
+            case "manager":
+                return <ManagerStorageStats />;
+            case "storage":
+                return <ManagerStorageStats />;
+            case "admin":
+                // Админ видит всю статистику
+                return (
+                    <div>
+                        <DirectorStats />
+                        <AccountantStats />
+                        <ManagerStorageStats />
+                    </div>
+                );
+            default:
+                return (
+                    <Alert
+                        message="Доступ запрещен"
+                        description="У вас недостаточно прав для просмотра этой страницы."
+                        type="error"
+                        showIcon
+                    />
+                );
+        }
+    };
 
     return (
-        // Это чисто чтобы посмотреть, как теперь скролл происходит )))
-        // Пусть останется, потом все равно добавлять чота сюда
-        <div>
-            <DirectorStats />
-        </div>
+        <>
+            <h1>Добро пожаловать, {name}</h1>
+            <div>{renderStatsByRole()}</div>
+        </>
     );
 };
 

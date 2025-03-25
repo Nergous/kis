@@ -13,6 +13,8 @@ type Customer struct {
 	Patronymic string `gorm:"type:varchar(255);" json:"patronymic"`
 	Name       string `gorm:"type:varchar(255);" json:"name"`
 
+	Status string `gorm:"type:ENUM('active', 'debt');default:active" json:"status"`
+
 	Email      string  `gorm:"type:varchar(255);not null;unique"               json:"email" validate:"required,min=1"`
 	Password   string  `gorm:"type:varchar(255);not null"                      json:"-" validate:"required,min=1"`
 	INN        *string `gorm:"type:varchar(255);unique"                        json:"inn"`
@@ -30,7 +32,7 @@ func CreateCustomersTable(db *gorm.DB) error {
 	return db.AutoMigrate(&Customer{})
 }
 
-func (p *Customer) Validate() error {
+func (c *Customer) Validate() error {
 	validate := validator.New()
-	return validate.Struct(p)
+	return validate.Struct(c)
 }

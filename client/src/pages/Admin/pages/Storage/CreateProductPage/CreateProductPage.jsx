@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, InputNumber, Upload, Image } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
@@ -15,6 +15,10 @@ const CreateProductPage = () => {
     const [fileList, setFileList] = useState([]); // Состояние для хранения загруженных файлов
     const [previewImage, setPreviewImage] = useState(null); // Состояние для превью изображения
     // const navigate = useNavigate();
+
+    useEffect(() => {
+        document.title = "Создание нового продукта";
+    }, [])
 
     // Обработка загрузки файлов
     const handleUpload = ({ fileList }) => {

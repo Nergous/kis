@@ -20,7 +20,7 @@ const LoginPage = () => {
     const { login } = useAuth();
 
     useEffect(() => {
-        document.title = "Вход";
+        document.title = "Авторизация";
     }, []);
 
     const onFinish = async (values) => {
@@ -34,7 +34,8 @@ const LoginPage = () => {
             const response = await api().post(endpoint, values);
             const token = response.data.token;
             const role = response.data.role;
-            login(token, role);
+            const name = response.data.name;
+            login(token, role, name);
             if(role === "customer") {
                 navigate("/client");
             } else{

@@ -1,6 +1,7 @@
 import React from "react";
 import { IconButton } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CachedImage from "../../../../components/CachedImage/CachedImage";
 
 const ProductCard = ({ product, addToCart, onProductClick }) => {
     // Функция для корректировки пути к изображению
@@ -47,15 +48,16 @@ const ProductCard = ({ product, addToCart, onProductClick }) => {
             </h3>
 
             {/* Изображение товара */}
-            <img
+            <CachedImage
                 src={imgSlashChange(product.img_path)} // Используем product.img_path
                 alt={product.name}
+                width="100%"
+                height="250px"
                 style={{
-                    width: "100%",
-                    height: "250px",
                     objectFit: "cover",
                     borderRadius: "12px",
                 }}
+                preview={false}
             />
 
             {/* Цена и кнопка добавления в корзину */}

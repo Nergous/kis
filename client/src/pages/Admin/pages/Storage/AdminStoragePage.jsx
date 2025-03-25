@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Space, Spin, Image, ConfigProvider, Dropdown } from "antd";
+import { Table, Button, Space, Spin, ConfigProvider, Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
 import { PlusOutlined, DownOutlined, SyncOutlined, DeleteOutlined, PlusCircleOutlined, EditOutlined } from "@ant-design/icons";
 import api from "../../../../utils/api";
@@ -7,7 +7,7 @@ import AddQuantityModal from "./AddQuantityModal/AddQuantityModal";
 import DeleteProductModal from "./DeleteProductModal/DeleteProductModal";
 import EditPriceModal from "./EditPriceModal/EditPriceModal";
 import { showErrorNotification, showSuccessNotification } from "../../../../ui/Notification/Notification";
-import CachedImage from "../../components/CachedImage/CachedImage";
+import CachedImage from "../../../../components/CachedImage/CachedImage";
 
 const AdminStoragePage = () => {
     const [data, setData] = useState([]);
@@ -182,9 +182,9 @@ const AdminStoragePage = () => {
         setSelectedPrice(null);
     };
 
-    const handlePriceUpdated = async (newPrice) => {
+    const handlePriceUpdated = async (newPrice, productID) => {
         try {
-            await api().patch(`/api/products/${selectedProductId}/price`, {
+            await api().patch(`/api/products/${productID}/price`, {
                 price: newPrice,
             });
             showSuccessNotification("Цена успешно обновлена");
@@ -278,6 +278,7 @@ const AdminStoragePage = () => {
 
     return (
         <div>
+            <h1>Склад</h1>
             {(role === "storage" || role === "admin") && (
                 <div
                     style={{

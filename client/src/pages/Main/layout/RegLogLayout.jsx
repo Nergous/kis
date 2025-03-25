@@ -15,6 +15,9 @@ const RegLogLayout = ({ children }) => {
             {/* Карточка с формой */}
             <div
                 style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
                     position: "relative", // Относительное позиционирование для карточки
                 }}
             >
@@ -24,10 +27,18 @@ const RegLogLayout = ({ children }) => {
                     alt="logo"
                     style={{
                         width: 350, // Размер логотипа
-                        position: "absolute", // Абсолютное позиционирование относительно карточки
-                        top: "-80px", // Сдвиг логотипа вверх
-                        left: "50%", // Центрирование по горизонтали
-                        transform: "translateX(-50%)", // Точное центрирование
+                        transition: "transform 0.4s ease-in-out",
+                        marginBottom: "5px",
+                        cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "scale(1.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "scale(1)";
+                    }}
+                    onClick={() => {
+                        window.location.href = "/";
                     }}
                 />
                 {children}

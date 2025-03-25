@@ -4,6 +4,7 @@ import "antd/dist/reset.css";
 import leftBlob from "../../../assets/left.png"; // Убедитесь в правильности пути
 import rightBlob from "../../../assets/right.png"; // Убедитесь в правильности пути
 import AppHeader from "../components/AppHeader";
+import Notification from "../../../ui/Notification/Notification";
 
 const { Content } = Layout;
 
@@ -62,6 +63,7 @@ const MainLayout = ({ children }) => {
         }}
       >
         {children}
+        <Notification />
       </Content>
     </Layout>
   );

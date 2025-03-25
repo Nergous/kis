@@ -18,6 +18,10 @@ const MainPage = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     useEffect(() => {
+        document.title = "Главная";
+    }, [])    
+
+    useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await api().get("/api/products");

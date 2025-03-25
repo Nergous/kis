@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Input, Button, Form } from "antd";
 
 const EditPriceModal = ({
@@ -12,12 +12,22 @@ const EditPriceModal = ({
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
+    // Сбрасываем форму при каждом открытии модального окна
+    useEffect(() => {
+        if (visible) {
+            form.setFieldsValue({ price: productPrice });
+        } else {
+            form.resetFields();
+        }
+    }, [visible, productPrice, form]);
+
     const handleSubmit = async () => {
         try {
             setLoading(true);
             const values = await form.validateFields();
             const price = parseFloat(values.price);
-            await onSuccess(price);
+            await onSuccess(price, productId);
+            form.resetFields();
         } catch (error) {
             console.error("Ошибка при обновлении цены:", error);
         } finally {
@@ -26,8 +36,8 @@ const EditPriceModal = ({
     };
 
     const handleClose = () => {
-        onCancel();
         form.resetFields();
+        onCancel();
     };
 
     return (
@@ -36,7 +46,7 @@ const EditPriceModal = ({
             open={visible}
             onCancel={handleClose}
             footer={[
-                <Button key="back" onClick={onCancel}>
+                <Button key="back" onClick={handleClose}>
                     Отмена
                 </Button>,
                 <Button
@@ -49,7 +59,7 @@ const EditPriceModal = ({
                 </Button>,
             ]}
         >
-            <Form form={form} initialValues={{ price: productPrice }}>
+            <Form form={form}>
                 <Form.Item
                     name="price"
                     label="Новая цена"

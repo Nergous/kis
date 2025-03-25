@@ -2,50 +2,60 @@ package repositories
 
 import (
 	"fmt"
-	"project_backend/config"
+	"log"
 	"project_backend/internal/models"
 	"time"
+
+	"gorm.io/gorm"
 )
 
-func GetAllOrders() ([]models.Order, error) {
+type OrderRepository struct {
+	db *gorm.DB
+}
+
+func NewOrderRepository(db *gorm.DB) *OrderRepository {
+	return &OrderRepository{db: db}
+}
+
+func (r *OrderRepository) GetAll() ([]models.Order, error) {
 	var orders []models.Order
-	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").Find(&orders)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Preload("Customer").Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return orders, nil
 }
 
-func GetAllOrdersInAssembly() ([]models.Order, error) {
+func (r *OrderRepository) GetAllInAssembly() ([]models.Order, error) {
 	var orders []models.Order
-	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").Where("status IN ?", []string{"in_assembly", "awaiting_shipment"}).Find(&orders)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Preload("Customer").Where("status IN ?", []string{"in_assembly", "awaiting_shipment"}).Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return orders, nil
 }
 
-func GetOrderByID(id uint) (*models.Order, error) {
+func (r *OrderRepository) GetByID(id uint) (*models.Order, error) {
 	var order models.Order
-	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").First(&order, id)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Preload("Customer").First(&order, id)
 	if result.Error != nil {
 		return &models.Order{}, result.Error
 	}
 	return &order, nil
 }
 
-func GetOrdersByCustomerID(customerID uint) ([]models.Order, error) {
+func (r *OrderRepository) GetByCustomerID(customerID uint) ([]models.Order, error) {
 	// Логика поиска заказов в базе данных
 	var orders []models.Order
-	result := config.DB.Preload("OrderContent").Preload("OrderContent.Product").Where("customer_id = ?", customerID).Find(&orders)
+	result := r.db.Preload("OrderContent").Preload("OrderContent.Product").Preload("Contracts").Preload("Customer").Where("customer_id = ?", customerID).Find(&orders)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return orders, nil
 }
 
-func CreateOrder(order *models.Order) (*models.Order, error) {
-	tx := config.DB.Begin()
+func (r *OrderRepository) Create(order *models.Order) (*models.Order, error) {
+	tx := r.db.Begin()
 	order.OrderID = uint(time.Now().UnixNano())
 	defer func() {
 		if r := recover(); r != nil {
@@ -68,8 +78,8 @@ func CreateOrder(order *models.Order) (*models.Order, error) {
 	return order, nil
 }
 
-func UpdateOrderPrices(orderID uint, products []models.OrderContentUpdate, totalOrderPrice float64) error {
-	tx := config.DB.Begin()
+func (r *OrderRepository) UpdatePrices(orderID uint, products []models.OrderContentUpdate, totalOrderPrice float64) error {
+	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
@@ -103,10 +113,70 @@ func UpdateOrderPrices(orderID uint, products []models.OrderContentUpdate, total
 	return nil
 }
 
-func UpdateOrder(order *models.Order) error {
-	result := config.DB.Save(order)
+func (r *OrderRepository) Update(order *models.Order) error {
+	result := r.db.Save(order)
 	if result.Error != nil {
 		return result.Error
 	}
 	return nil
+}
+
+func (r *OrderRepository) UpdateDebtStatus(id uint, status string) error {
+	// Начинаем новую транзакцию
+	tx := r.db.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	// Выполняем обновление в транзакции
+	result := tx.Model(&models.Order{}).Where("id = ?", id).Update("debt_status", status)
+	if result.Error != nil {
+		tx.Rollback() // Откатываем при ошибке
+		return result.Error
+	}
+
+	// Коммитим транзакцию
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	log.Printf("Updated order %d debt_status to %s, rows affected: %d",
+		id, status, result.RowsAffected)
+	return nil
+}
+
+func (r *OrderRepository) GetDebtOrdersByCustomerID(customerID uint) ([]models.Order, error) {
+	var orders []models.Order
+
+	// Ищем заказы, где:
+	// - CustomerID соответствует указанному
+	// - DebtStatus равен "debt"
+	// - SentDate не nil (заказ был отправлен)
+	// - Разница между текущей датой и SentDate больше 14 дней
+	err := r.db.
+		Where("customer_id = ?", customerID).
+		Where("debt_status = ?", "debt").
+		Where("sent_date IS NOT NULL").
+		Where("DATE_ADD(sent_date, INTERVAL 14 DAY) < NOW()").
+		Preload("Payments"). // Загружаем связанные платежи для расчета суммы
+		Find(&orders).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Фильтруем заказы, где сумма платежей меньше суммы заказа
+	var result []models.Order
+	for _, order := range orders {
+		var totalPaid float64
+		for _, payment := range order.Payments {
+			totalPaid += payment.PaymentSum
+		}
+
+		if totalPaid < order.TotalPrice {
+			result = append(result, order)
+		}
+	}
+
+	return result, nil
 }
